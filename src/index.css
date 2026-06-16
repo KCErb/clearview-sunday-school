@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+/* CWASS design tokens — a calm, "clear sky" study aesthetic. */
+@theme {
+  --color-sky-50: #f3f7ff;
+  --color-sky-100: #e6eefc;
+  --color-ink: #15233f;
+  --color-ink-soft: #42526b;
+  --color-ink-faint: #8493ab;
+  --color-brand: #2f6fed;
+  --color-brand-bright: #5aa0ff;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--color-ink);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #dbe8ff 0%, rgba(219, 232, 255, 0) 60%),
+    linear-gradient(180deg, #f3f7ff 0%, #eef3fb 100%);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100dvh;
+}
