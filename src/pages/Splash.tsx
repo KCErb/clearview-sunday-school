@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
 import { LogoMark } from '@/components/Logo';
+import { Footer } from '@/components/Footer';
 
 const features = [
   {
@@ -40,10 +41,10 @@ export function Splash() {
       <div className="mt-10">
         {session ? (
           <Link
-            to="/app"
+            to="/this-week"
             className="inline-flex items-center justify-center rounded-xl bg-brand px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand/25 transition hover:bg-brand-bright"
           >
-            Go to the class →
+            Go to this week →
           </Link>
         ) : (
           <Link
@@ -67,9 +68,9 @@ export function Splash() {
         ))}
       </div>
 
-      <footer className="mt-auto pt-16 text-xs text-ink-faint">
-        clearviewsunday.school · Made for our ward
-      </footer>
+      <div className="mt-auto w-full">
+        <Footer />
+      </div>
     </div>
   );
 }

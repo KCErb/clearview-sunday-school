@@ -21,11 +21,17 @@ pnpm preview    # serve the production build
 
 ```
 src/
-  auth/        AuthProvider + context + useAuth (session, profile, magic-link sign-in)
-  components/  Logo, Spinner, Protected (route guard)
-  lib/         supabase.ts (client), types.ts (DB row types)
-  pages/       Splash (/), Login (/login), AuthCallback (/auth/callback), Dashboard (/app)
+  auth/                 AuthProvider + context + useAuth (session, profile, magic-link sign-in)
+  components/           Logo, Spinner, Protected (route guard), Footer (disclaimer + KC+AI)
+  components/thisweek/  AnswerForm, QuestionCard, AskQuestion, AddQuestion, AdminInquiries
+  lib/                  supabase.ts (client), types.ts (DB rows), cfm.ts (CFM URLs/dates)
+  pages/                Splash (/), Login (/login), AuthCallback (/auth/callback), ThisWeek (/this-week)
 ```
+
+`/this-week` is the member landing: 2 most-recent CFM lessons (date-driven) → instructor
+question cards → answers (anonymity = null author_id; share_pref; KC publishes). Class reads
+only `shared_answers`/`shared_inquiries` views (no author_id). Admin (is_admin) gets inline
+publish/add-question/answer-inquiry controls. `/app` redirects to `/this-week`.
 
 ## Key facts
 
@@ -35,7 +41,10 @@ src/
 - Auth uses **implicit** flow (not PKCE) on purpose: magic links must survive being opened in a
   different browser than requested.
 - DB types in `src/lib/types.ts` are hand-maintained — update them alongside any migration.
-- Email is Supabase built-in for now (~2/hr); production email = Postmark (see README roadmap).
+- Email is **live via Postmark** (account also hosts crowd-pulse): dedicated "CWASS" server
+  (id 19592685), domain DKIM+Return-Path verified, sends branded magic links from
+  admin@clearviewsunday.school. Receiving for admin@ (CF Email Routing) still needs a manual
+  dashboard step (see README).
 
 ## Conventions
 

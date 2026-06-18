@@ -46,10 +46,19 @@ in `supabase/migrations/0001_init.sql`). Change it there if the instructor chang
 Schema lives in [`supabase/migrations/`](./supabase/migrations) and is the source of truth:
 
 - `profiles` — one row per user (first/last name, `is_admin`), populated by trigger
-- `schedule` — the weekly plan; everyone signed in can read, only admin writes (seeded with
-  sample weeks — edit them)
-- `submissions` — answers & questions; you insert/read your own, the instructor reads all
+- `lessons` — all 52 Come, Follow Me 2026 weeks (seeded; URL derived from `cfm_week`).
+  `/this-week` shows the two most recent by date
+- `questions` — KC's key questions per lesson (everyone signed in reads active ones)
+- `answers` — member responses. **Anonymity = `author_id` left NULL** (truly not recorded).
+  Only KC reads the raw table; class members read only what KC publishes, via the
+  `shared_answers` view (which never exposes `author_id`). `share_pref` carries the
+  "don't quote me verbatim" preference
+- `inquiries` — member-asked questions (same anonymity); KC can answer + publish, surfaced to
+  the class via the `shared_inquiries` view
 - `submission-media` storage bucket — provisioned for the future audio/video phase
+
+Security model is verified end-to-end (anonymity, identity-spoof prevention, published-view
+column hiding) — see the verification steps in commit history / `0003_thisweek.sql`.
 
 Apply a new migration with the Supabase Management API (project ref `alfwjhczzefvcevmlcif`):
 
@@ -70,17 +79,27 @@ GitHub Actions. Required repo configuration:
 
 Manual deploy: `CLOUDFLARE_API_TOKEN=… pnpm exec wrangler pages deploy dist --project-name=clearview-sunday-school`.
 
+## Email
+
+Magic links send via **Postmark** (dedicated "CWASS" server) from
+`admin@clearviewsunday.school`, branded. Domain DKIM + Return-Path are verified in Cloudflare
+DNS. Configured in Supabase → Authentication (SMTP + magic-link template).
+
+**Outstanding (KC, ~2 min in the Cloudflare dashboard):** to make `admin@clearviewsunday.school`
+*receive* mail (forward to Gmail), open Cloudflare → the domain → **Email → Email Routing →
+Enable**, then add `iamkcerb@gmail.com` as a destination and click the verification link. The
+forwarding rule (`admin@` → Gmail) is already created; it just needs routing enabled + the
+destination verified. (The API token lacks the account-level Email Routing Addresses
+permission, so this last step is manual.)
+
 ## Roadmap / follow-ups
 
-- **Production email** — auth currently uses Supabase's built-in email (fine for the
-  instructor's own testing, but rate-limited to ~2/hour). Before inviting the class, configure
-  custom SMTP. The sibling `crowd-pulse` project uses **Postmark** (`smtp.postmarkapp.com:587`);
-  reuse the Postmark account by adding a `clearviewsunday.school` sender signature, then set SMTP
-  + a branded magic-link template in Supabase → Authentication → Emails. Custom email templates
-  require custom SMTP (or a paid plan) to enable.
-- **Audio/video submissions** — wire upload UI to the `submission-media` bucket. Free-tier
-  storage is 1 GB; for real video, move media to Cloudflare R2 (10 GB free, no egress) or upgrade
-  Supabase.
+- **Audio/video submissions** — KC's intent: text first, then ephemeral media (compressed,
+  auto-deleted after the teaching week). Wire upload UI to the `submission-media` bucket + a
+  cleanup job. Free-tier storage is 1 GB; for real video, move media to Cloudflare R2 (10 GB
+  free, no egress) or upgrade Supabase.
 - **Approve-only signups** — if spam appears, flip `shouldCreateUser` off / use an allowlist and
   manually approve from the dashboard.
-- **Ward check** — the instructor reviews first/last names in the Supabase dashboard.
+- **Post-class recap** — a short "where the discussion went" note per lesson for remote members
+  (deferred; design ready).
+- **Ward check** — KC reviews first/last names in the Supabase dashboard.
