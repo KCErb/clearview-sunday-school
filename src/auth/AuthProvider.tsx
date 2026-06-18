@@ -6,6 +6,7 @@ import { AuthContext, type SignInArgs } from './context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -30,7 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     void (async () => {
       if (!userId) {
-        if (!cancelled) setProfile(null);
+        if (!cancelled) {
+          setProfile(null);
+          setProfileLoaded(true);
+        }
         return;
       }
       const { data } = await supabase
@@ -38,7 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-      if (!cancelled) setProfile((data as Profile) ?? null);
+      if (!cancelled) {
+        setProfile((data as Profile) ?? null);
+        setProfileLoaded(true);
+      }
     })();
     return () => {
       cancelled = true;
@@ -68,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         loading,
+        profileLoaded,
         session,
         user: session?.user ?? null,
         profile,

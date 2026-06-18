@@ -11,6 +11,8 @@ export interface SignInArgs {
 export interface AuthContextValue {
   /** Still resolving the initial session. */
   loading: boolean;
+  /** True once the profile row (or its absence) has been fetched for the current user. */
+  profileLoaded: boolean;
   session: Session | null;
   user: User | null;
   profile: Profile | null;

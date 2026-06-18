@@ -46,16 +46,20 @@ in `supabase/migrations/0001_init.sql`). Change it there if the instructor chang
 Schema lives in [`supabase/migrations/`](./supabase/migrations) and is the source of truth:
 
 - `profiles` — one row per user (first/last name, `is_admin`), populated by trigger
-- `lessons` — all 52 Come, Follow Me 2026 weeks (seeded; URL derived from `cfm_week`).
-  `/this-week` shows the two most recent by date
-- `questions` — KC's key questions per lesson (everyone signed in reads active ones)
+- `lessons` — all 52 Come, Follow Me 2026 weeks (reference catalog; URL derived from `cfm_week`)
+- `sessions` — a Sunday KC teaches; spans 1+ CFM weeks (`cfm_weeks int[]`), `is_published`
+  controls class visibility. `/this-week` shows the latest published session
+- `questions` — belong to a session, tagged `category` study|home, optional `reference_url`
 - `answers` — member responses. **Anonymity = `author_id` left NULL** (truly not recorded).
-  Only KC reads the raw table; class members read only what KC publishes, via the
-  `shared_answers` view (which never exposes `author_id`). `share_pref` carries the
-  "don't quote me verbatim" preference
-- `inquiries` — member-asked questions (same anonymity); KC can answer + publish, surfaced to
-  the class via the `shared_inquiries` view
+  Members own their identified answers (read/edit/delete via RLS); a trigger force-unpublishes
+  and stamps `edited_at` on any non-admin edit (KC re-approves). Class reads only KC-published
+  rows via the `shared_answers` view (no `author_id`). `share_pref` = "don't quote me verbatim"
+- `inquiries` — member-asked questions (same anonymity); KC answers + publishes, surfaced via
+  the `shared_inquiries` view
 - `submission-media` storage bucket — provisioned for the future audio/video phase
+
+All admin moderation (sessions, question CRUD, publishing, inquiries) lives at `/manage`
+(admin-only). `is_admin()` = JWT email matches the instructor.
 
 Security model is verified end-to-end (anonymity, identity-spoof prevention, published-view
 column hiding) — see the verification steps in commit history / `0003_thisweek.sql`.

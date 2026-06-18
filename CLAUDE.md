@@ -21,17 +21,24 @@ pnpm preview    # serve the production build
 
 ```
 src/
-  auth/                 AuthProvider + context + useAuth (session, profile, magic-link sign-in)
-  components/           Logo, Spinner, Protected (route guard), Footer (disclaimer + KC+AI)
-  components/thisweek/  AnswerForm, QuestionCard, AskQuestion, AddQuestion, AdminInquiries
-  lib/                  supabase.ts (client), types.ts (DB rows), cfm.ts (CFM URLs/dates)
-  pages/                Splash (/), Login (/login), AuthCallback (/auth/callback), ThisWeek (/this-week)
+  auth/                 AuthProvider + context + useAuth (adds profileLoaded for admin guard)
+  components/           Logo, Spinner, Protected, AdminRoute (admin-only guard), Footer
+  components/toast/     ToastProvider + useToast (transient confirmation banner)
+  components/thisweek/  AnswerForm, AskQuestion, MyResponses (member edit/delete own)
+  components/manage/    QuestionEditor, ResponsesPanel, InquiriesPanel (admin moderation)
+  data/cwass.ts         all DB reads/writes (sessions/questions/answers/inquiries)
+  lib/                  supabase.ts, types.ts, cfm.ts (CFM URLs/dates)
+  pages/                Splash, Login, AuthCallback, ThisWeek (/this-week), QuestionPage (/q/:id), Manage (/manage)
 ```
 
-`/this-week` is the member landing: 2 most-recent CFM lessons (date-driven) → instructor
-question cards → answers (anonymity = null author_id; share_pref; KC publishes). Class reads
-only `shared_answers`/`shared_inquiries` views (no author_id). Admin (is_admin) gets inline
-publish/add-question/answer-inquiry controls. `/app` redirects to `/this-week`.
+Model is **teaching sessions**, not raw CFM weeks. A `session` (a Sunday KC teaches) covers
+1+ CFM weeks (`cfm_weeks int[]`) and holds `questions` tagged `category` study|home (+ optional
+`reference_url`). `/this-week` shows the latest **published** session (KC controls via the
+publish flag); questions are grouped study/home and each links to its own page `/q/:id`.
+Answers: anonymity = null author_id; members own their identified answers (read/edit/delete via
+RLS) and a trigger force-unpublishes + stamps `edited_at` on any non-admin edit (re-approval).
+Class reads only `shared_answers`/`shared_inquiries` views (no author_id). All admin moderation
+lives at `/manage` (AdminRoute); member pages stay clean. `/app` → `/this-week`.
 
 ## Key facts
 

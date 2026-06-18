@@ -3,7 +3,10 @@ import { Splash } from '@/pages/Splash';
 import { Login } from '@/pages/Login';
 import { AuthCallback } from '@/pages/AuthCallback';
 import { ThisWeek } from '@/pages/ThisWeek';
+import { QuestionPage } from '@/pages/QuestionPage';
+import { Manage } from '@/pages/Manage';
 import { Protected } from '@/components/Protected';
+import { AdminRoute } from '@/components/AdminRoute';
 
 export default function App() {
   return (
@@ -17,6 +20,22 @@ export default function App() {
           <Protected>
             <ThisWeek />
           </Protected>
+        }
+      />
+      <Route
+        path="/q/:id"
+        element={
+          <Protected>
+            <QuestionPage />
+          </Protected>
+        }
+      />
+      <Route
+        path="/manage"
+        element={
+          <AdminRoute>
+            <Manage />
+          </AdminRoute>
         }
       />
       <Route path="/app" element={<Navigate to="/this-week" replace />} />

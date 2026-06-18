@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { deleteInquiry, updateInquiry } from '@/data/cwass';
+import { useToast } from '@/components/toast/useToast';
 import type { Inquiry } from '@/lib/types';
 
-export function AdminInquiries({
-  inquiries,
-  onChange,
-}: {
-  inquiries: Inquiry[];
-  onChange: () => void;
-}) {
+export function InquiriesPanel({ inquiries, onChange }: { inquiries: Inquiry[]; onChange: () => void }) {
   if (inquiries.length === 0) {
     return <p className="text-sm text-ink-faint">No questions from the class yet.</p>;
   }
@@ -22,15 +17,23 @@ export function AdminInquiries({
 }
 
 function InquiryRow({ inquiry, onChange }: { inquiry: Inquiry; onChange: () => void }) {
+  const { show } = useToast();
   const [answer, setAnswer] = useState(inquiry.answer ?? '');
-  const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   async function save(publish?: boolean) {
-    setSaving(true);
-    const patch: Partial<Inquiry> = { answer: answer.trim() || null };
+    setBusy(true);
+    const patch: { answer: string | null; published?: boolean } = { answer: answer.trim() || null };
     if (publish !== undefined) patch.published = publish;
-    await supabase.from('inquiries').update(patch).eq('id', inquiry.id);
-    setSaving(false);
+    await updateInquiry(inquiry.id, patch);
+    setBusy(false);
+    show(publish === undefined ? 'Saved' : publish ? 'Posted to class' : 'Unposted');
+    onChange();
+  }
+  async function remove() {
+    if (!window.confirm('Delete this question?')) return;
+    await deleteInquiry(inquiry.id);
+    show('Deleted');
     onChange();
   }
 
@@ -52,14 +55,14 @@ function InquiryRow({ inquiry, onChange }: { inquiry: Inquiry; onChange: () => v
       <div className="mt-2 flex items-center gap-2">
         <button
           onClick={() => save()}
-          disabled={saving}
+          disabled={busy}
           className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 disabled:opacity-50"
         >
           Save answer
         </button>
         <button
           onClick={() => save(!inquiry.published)}
-          disabled={saving || (!inquiry.published && !answer.trim())}
+          disabled={busy || (!inquiry.published && !answer.trim())}
           title={!answer.trim() ? 'Write an answer first' : ''}
           className={`rounded-md px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
             inquiry.published
@@ -68,6 +71,9 @@ function InquiryRow({ inquiry, onChange }: { inquiry: Inquiry; onChange: () => v
           }`}
         >
           {inquiry.published ? 'Posted ✓ (unpost)' : 'Post Q&A to class'}
+        </button>
+        <button onClick={remove} className="ml-auto text-xs font-semibold text-red-600 hover:text-red-700">
+          Delete
         </button>
       </div>
     </li>

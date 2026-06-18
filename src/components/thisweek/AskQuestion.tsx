@@ -1,29 +1,30 @@
 import { useState, type FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { submitInquiry } from '@/data/cwass';
+import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
 
 export function AskQuestion({
-  lessonId,
+  sessionId,
   userId,
   onSubmitted,
 }: {
-  lessonId: number | null;
+  sessionId: number | null;
   userId: string;
   onSubmitted: () => void;
 }) {
+  const { show } = useToast();
   const [body, setBody] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!body.trim()) return;
     setSaving(true);
     setError(null);
-    const { error } = await supabase.from('inquiries').insert({
-      lesson_id: lessonId,
+    const { error } = await submitInquiry({
+      session_id: sessionId,
       body: body.trim(),
       is_anonymous: anonymous,
       author_id: anonymous ? null : userId,
@@ -34,19 +35,9 @@ export function AskQuestion({
       return;
     }
     setBody('');
-    setDone(true);
+    setAnonymous(false);
+    show('Thanks — your question went to KC');
     onSubmitted();
-  }
-
-  if (done) {
-    return (
-      <p className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4 text-sm text-emerald-800">
-        Got it — thanks for asking.{' '}
-        <button className="font-semibold underline hover:no-underline" onClick={() => setDone(false)}>
-          Ask another
-        </button>
-      </p>
-    );
   }
 
   return (

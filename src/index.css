@@ -33,3 +33,17 @@ body {
 #root {
   min-height: 100dvh;
 }
+
+.toast-in {
+  animation: toastIn 0.25s ease-out;
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

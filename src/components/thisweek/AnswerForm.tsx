@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { submitAnswer } from '@/data/cwass';
+import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
 import type { SharePref } from '@/lib/types';
 
@@ -12,19 +13,19 @@ export function AnswerForm({
   userId: string;
   onSubmitted: () => void;
 }) {
+  const { show } = useToast();
   const [body, setBody] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [sharePref, setSharePref] = useState<SharePref>('verbatim_ok');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!body.trim()) return;
     setSaving(true);
     setError(null);
-    const { error } = await supabase.from('answers').insert({
+    const { error } = await submitAnswer({
       question_id: questionId,
       body: body.trim(),
       is_anonymous: anonymous,
@@ -37,22 +38,10 @@ export function AnswerForm({
       return;
     }
     setBody('');
-    setDone(true);
+    setAnonymous(false);
+    setSharePref('verbatim_ok');
+    show('Shared with KC');
     onSubmitted();
-  }
-
-  if (done) {
-    return (
-      <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4 text-sm text-emerald-800">
-        Thank you — this went straight to KC.{' '}
-        <button
-          className="font-semibold underline hover:no-underline"
-          onClick={() => setDone(false)}
-        >
-          Share another thought
-        </button>
-      </div>
-    );
   }
 
   return (
@@ -77,7 +66,7 @@ export function AnswerForm({
             <span className="font-medium text-ink">Post anonymously</span>
             <span className="block text-xs text-ink-faint">
               Anonymous means anonymous — your name is never attached, and not even KC can see
-              who wrote it.
+              who wrote it. {anonymous && '(Heads up: anonymous responses can’t be edited later.)'}
             </span>
           </span>
         </label>
@@ -100,8 +89,8 @@ export function AnswerForm({
       </div>
 
       <p className="text-xs leading-relaxed text-ink-faint">
-        Nothing here appears to the class unless KC chooses to share it. Even then, it still
-        helps shape the discussion.
+        Nothing here appears to the class unless KC shares it. If you sign your name, you can edit
+        or delete your response anytime (edits go back to KC for approval before they’re reshared).
       </p>
 
       {error && <p className="text-sm text-red-700">{error}</p>}
