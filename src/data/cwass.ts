@@ -66,6 +66,36 @@ export async function getQuestion(id: number): Promise<Question | null> {
   return (data as Question) ?? null;
 }
 
+/** Admin: every question across all sessions (for the manage overview). */
+export async function allQuestions(): Promise<Question[]> {
+  const { data } = await supabase
+    .from('questions')
+    .select('*')
+    .order('category', { ascending: false })
+    .order('sort_order', { ascending: true });
+  return (data as Question[]) ?? [];
+}
+
+export interface AnswerCounts {
+  total: number;
+  unpublished: number;
+  edited: number;
+}
+
+/** Admin: per-question answer counts (total, awaiting-share, edited-pending). */
+export async function answerCounts(): Promise<Record<number, AnswerCounts>> {
+  const { data } = await supabase.from('answers').select('question_id, published, edited_at');
+  const rows = (data as { question_id: number; published: boolean; edited_at: string | null }[]) ?? [];
+  const out: Record<number, AnswerCounts> = {};
+  for (const r of rows) {
+    const e = (out[r.question_id] ??= { total: 0, unpublished: 0, edited: 0 });
+    e.total += 1;
+    if (!r.published) e.unpublished += 1;
+    if (r.edited_at && !r.published) e.edited += 1;
+  }
+  return out;
+}
+
 export function createQuestion(p: {
   session_id: number;
   category: QuestionCategory;
@@ -185,4 +215,8 @@ export function updateSession(
   patch: Partial<Pick<Session, 'title' | 'teach_date' | 'cfm_weeks' | 'is_published'>>,
 ) {
   return supabase.from('sessions').update(patch).eq('id', id);
+}
+
+export function deleteSession(id: number) {
+  return supabase.from('sessions').delete().eq('id', id);
 }

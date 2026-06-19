@@ -4,7 +4,10 @@ import { Login } from '@/pages/Login';
 import { AuthCallback } from '@/pages/AuthCallback';
 import { ThisWeek } from '@/pages/ThisWeek';
 import { QuestionPage } from '@/pages/QuestionPage';
-import { Manage } from '@/pages/Manage';
+import { SessionsList } from '@/pages/manage/SessionsList';
+import { SessionDetail } from '@/pages/manage/SessionDetail';
+import { QuestionManage } from '@/pages/manage/QuestionManage';
+import { InquiriesManage } from '@/pages/manage/InquiriesManage';
 import { Protected } from '@/components/Protected';
 import { AdminRoute } from '@/components/AdminRoute';
 
@@ -34,7 +37,31 @@ export default function App() {
         path="/manage"
         element={
           <AdminRoute>
-            <Manage />
+            <SessionsList />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/s/:id"
+        element={
+          <AdminRoute>
+            <SessionDetail />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/q/:id"
+        element={
+          <AdminRoute>
+            <QuestionManage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/inquiries"
+        element={
+          <AdminRoute>
+            <InquiriesManage />
           </AdminRoute>
         }
       />
