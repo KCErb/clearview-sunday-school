@@ -43,7 +43,8 @@ export function AskQuestion({
   return (
     <form onSubmit={submit} className="rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm">
       <p className="mb-2 text-sm text-ink-soft">
-        Wondering about something? Ask it here. KC may take it up in class or post a short answer.
+        Wondering about something? Ask it here. KC may bring it to the class for us to discuss
+        together.
       </p>
       <textarea
         value={body}

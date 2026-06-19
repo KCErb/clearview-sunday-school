@@ -8,6 +8,7 @@ import { SessionsList } from '@/pages/manage/SessionsList';
 import { SessionDetail } from '@/pages/manage/SessionDetail';
 import { QuestionManage } from '@/pages/manage/QuestionManage';
 import { InquiriesManage } from '@/pages/manage/InquiriesManage';
+import { Preview } from '@/pages/Preview';
 import { Protected } from '@/components/Protected';
 import { AdminRoute } from '@/components/AdminRoute';
 
@@ -66,6 +67,7 @@ export default function App() {
         }
       />
       <Route path="/app" element={<Navigate to="/this-week" replace />} />
+      {import.meta.env.DEV && <Route path="/preview" element={<Preview />} />}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -149,7 +149,7 @@ export function ThisWeek() {
             {inquiries.length > 0 && (
               <section className="mt-10">
                 <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                  Questions KC answered
+                  Questions we’ve discussed
                 </h2>
                 <ul className="space-y-3">
                   {inquiries.map((q) => (

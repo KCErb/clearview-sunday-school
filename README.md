@@ -30,6 +30,10 @@ VITE_SUPABASE_ANON_KEY=sb_publishable_...   # Supabase dashboard → Project Set
 
 Scripts: `pnpm dev`, `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm preview`.
 
+**Design playground:** with `pnpm dev` running, open `/preview` (dev-only route) — a sandbox
+for trying design elements and Christ-centered art treatments without touching real pages.
+Edit `src/pages/Preview.tsx`. Art lives in `public/art/` (Carl Bloch, public domain).
+
 ## How auth works
 
 The login form collects first name, last name, and email, then sends a magic link

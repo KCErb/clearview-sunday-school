@@ -26,7 +26,8 @@ export function InquiriesManage() {
     <ManageLayout>
       <h1 className="text-xl font-bold text-ink">Questions from the class</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Write a short answer and post it for the class, or leave it to address in person.
+        Bring these to class to discuss together — or, if you’d like, post a short note here for
+        everyone to see.
       </p>
       <div className="mt-5">
         <InquiriesPanel inquiries={inquiries} onChange={load} />
