@@ -21,10 +21,14 @@ export function LogoMark({ className = 'h-10 w-10' }: { className?: string }) {
 export function Wordmark() {
   return (
     <div className="flex items-center gap-3">
-      <LogoMark className="h-9 w-9" />
+      <LogoMark className="h-9 w-9 shrink-0" />
       <div className="leading-tight">
-        <div className="text-lg font-bold tracking-tight text-ink">CWASS</div>
-        <div className="text-[11px] text-ink-faint">Clearview Ward Adult Sunday School</div>
+        <div className="text-sm font-bold tracking-tight text-ink">
+          Clearview Ward Adult Sunday School
+        </div>
+        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-faint">
+          CWASS
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
 import { cfmUrl, formatRange } from '@/lib/cfm';
+import { resolveArt, type ArtPiece } from '@/lib/art';
 import { currentSession, lessonsForWeeks, questionsForSession, sharedInquiries } from '@/data/cwass';
 import { Wordmark } from '@/components/Logo';
 import { FullPageSpinner } from '@/components/Spinner';
@@ -50,6 +51,7 @@ export function ThisWeek() {
   if (loading) return <FullPageSpinner />;
 
   const firstName = profile?.first_name?.trim() || 'friend';
+  const art = session ? resolveArt(session.image) : null;
 
   return (
     <div className="min-h-dvh">
@@ -87,32 +89,7 @@ export function ThisWeek() {
               Welcome, {firstName}. Read along, then share what you’re finding — in class or here.
             </p>
 
-            {lessons.length > 0 && (
-              <div className="mt-5 rounded-2xl bg-gradient-to-br from-brand to-brand-bright p-5 text-white shadow-lg shadow-brand/20">
-                <div className="text-xs font-medium uppercase tracking-[0.14em] text-white/80">
-                  Come, Follow Me
-                </div>
-                <ul className="mt-2 space-y-2">
-                  {lessons.map((l) => (
-                    <li key={l.id}>
-                      <a
-                        href={cfmUrl(l.cfm_week)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group block"
-                      >
-                        <span className="text-sm font-semibold underline-offset-2 group-hover:underline">
-                          {l.title}
-                        </span>
-                        <span className="ml-2 text-xs text-white/75">
-                          {formatRange(l.week_start, l.week_end)} →
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {lessons.length > 0 && <SessionHeader art={art} lessons={lessons} />}
 
             {CATEGORIES.map(({ key, label }) => {
               const qs = questions.filter((q) => q.category === key && q.is_active);
@@ -167,6 +144,73 @@ export function ThisWeek() {
         )}
       </div>
       <Footer />
+    </div>
+  );
+}
+
+function ReadingLinks({ lessons, dark }: { lessons: Lesson[]; dark?: boolean }) {
+  return (
+    <ul className="space-y-1.5">
+      {lessons.map((l) => (
+        <li key={l.id}>
+          <a
+            href={cfmUrl(l.cfm_week)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex flex-wrap items-baseline gap-x-2"
+          >
+            <span
+              className={`text-sm font-semibold underline-offset-2 group-hover:underline ${
+                dark ? 'text-white' : 'text-ink'
+              }`}
+            >
+              {l.title}
+            </span>
+            <span className={`text-xs ${dark ? 'text-white/75' : 'text-ink-faint'}`}>
+              {formatRange(l.week_start, l.week_end)} →
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SessionHeader({ art, lessons }: { art: ArtPiece | null; lessons: Lesson[] }) {
+  if (art) {
+    return (
+      <div className="mt-5 overflow-hidden rounded-3xl border border-sky-100 bg-white/80 shadow-sm">
+        <div className="grid sm:grid-cols-[210px_1fr]">
+          <img
+            src={art.src}
+            alt={art.title}
+            className="h-44 w-full object-cover object-top sm:h-full"
+          />
+          <div className="p-5">
+            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink-faint">
+              Come, Follow Me
+            </div>
+            <div className="mt-2">
+              <ReadingLinks lessons={lessons} />
+            </div>
+            {art.artist && (
+              <p className="mt-3 text-[11px] text-ink-faint">
+                {art.title} — {art.artist}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-5 rounded-2xl bg-gradient-to-br from-brand to-brand-bright p-5 text-white shadow-lg shadow-brand/20">
+      <div className="text-xs font-medium uppercase tracking-[0.14em] text-white/80">
+        Come, Follow Me
+      </div>
+      <div className="mt-2">
+        <ReadingLinks lessons={lessons} dark />
+      </div>
     </div>
   );
 }

@@ -212,7 +212,7 @@ export function createSession(p: {
 
 export function updateSession(
   id: number,
-  patch: Partial<Pick<Session, 'title' | 'teach_date' | 'cfm_weeks' | 'is_published'>>,
+  patch: Partial<Pick<Session, 'title' | 'teach_date' | 'cfm_weeks' | 'is_published' | 'image'>>,
 ) {
   return supabase.from('sessions').update(patch).eq('id', id);
 }

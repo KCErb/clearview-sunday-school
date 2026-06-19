@@ -13,6 +13,7 @@ import {
 import { useToast } from '@/components/toast/useToast';
 import { ManageLayout } from '@/components/manage/ManageLayout';
 import { FullPageSpinner } from '@/components/Spinner';
+import { ART_LIBRARY } from '@/lib/art';
 import type { AnswerCounts } from '@/data/cwass';
 import type { Question, QuestionCategory, Session } from '@/lib/types';
 
@@ -119,6 +120,7 @@ function SessionForm({
   const [teachDate, setTeachDate] = useState(session.teach_date);
   const [weeks, setWeeks] = useState(session.cfm_weeks.join(', '));
   const [published, setPublished] = useState(session.is_published);
+  const [image, setImage] = useState<string | null>(session.image);
   const [busy, setBusy] = useState(false);
 
   async function save() {
@@ -132,6 +134,7 @@ function SessionForm({
       teach_date: teachDate,
       cfm_weeks: cfm,
       is_published: published,
+      image,
     });
     setBusy(false);
     if (error) return show(error.message, 'info');
@@ -165,6 +168,14 @@ function SessionForm({
           <input value={weeks} onChange={(e) => setWeeks(e.target.value)} className={inputCls} placeholder="26, 27, 28, 29" />
         </label>
       </div>
+
+      <div className="mt-4">
+        <span className="mb-2 block text-xs font-medium text-ink-soft">
+          Artwork (public domain) — shown on the lesson header
+        </span>
+        <ArtPicker value={image} onChange={setImage} />
+      </div>
+
       <label className="mt-4 flex items-center gap-2 text-sm text-ink">
         <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="h-4 w-4 accent-brand" />
         Published (visible to the class)
@@ -182,6 +193,43 @@ function SessionForm({
         </button>
       </div>
     </section>
+  );
+}
+
+function ArtPicker({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
+  const isCustom = !!value && (value.startsWith('http') || value.startsWith('/'));
+  const baseTile = 'overflow-hidden rounded-lg border-2 transition';
+  return (
+    <div>
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className={`flex h-20 items-center justify-center rounded-lg border-2 text-xs font-medium transition ${
+            !value ? 'border-brand bg-brand/5 text-brand' : 'border-sky-100 text-ink-soft hover:border-brand/40'
+          }`}
+        >
+          None
+        </button>
+        {ART_LIBRARY.map((a) => (
+          <button
+            key={a.key}
+            type="button"
+            onClick={() => onChange(a.key)}
+            title={`${a.title} — ${a.artist}`}
+            className={`${baseTile} ${value === a.key ? 'border-brand ring-2 ring-brand/30' : 'border-transparent hover:border-brand/40'}`}
+          >
+            <img src={a.src} alt={a.title} className="h-20 w-full object-cover object-top" />
+          </button>
+        ))}
+      </div>
+      <input
+        value={isCustom ? value : ''}
+        onChange={(e) => onChange(e.target.value.trim() || null)}
+        placeholder="…or paste a public-domain image URL"
+        className={`${inputCls} mt-2`}
+      />
+    </div>
   );
 }
 

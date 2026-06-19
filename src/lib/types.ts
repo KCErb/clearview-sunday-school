@@ -24,6 +24,7 @@ export interface Session {
   teach_date: string;
   cfm_weeks: number[];
   is_published: boolean;
+  image: string | null;
   created_at: string;
 }
 
