@@ -18,17 +18,24 @@ export function LogoMark({ className = 'h-10 w-10' }: { className?: string }) {
   );
 }
 
+/** Circular portrait of Christ (Heinrich Hofmann, public domain) used as the app mark. */
+export function ChristMark({ className = 'h-9 w-9' }: { className?: string }) {
+  return (
+    <img
+      src="/art/christ-hofmann.jpg"
+      alt=""
+      aria-hidden="true"
+      className={`shrink-0 rounded-full object-cover object-[50%_22%] ring-1 ring-black/5 ${className}`}
+    />
+  );
+}
+
 export function Wordmark() {
   return (
     <div className="flex items-center gap-3">
-      <LogoMark className="h-9 w-9 shrink-0" />
-      <div className="leading-tight">
-        <div className="text-sm font-bold tracking-tight text-ink">
-          Clearview Ward Adult Sunday School
-        </div>
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-faint">
-          CWASS
-        </div>
+      <ChristMark className="h-9 w-9" />
+      <div className="text-sm font-bold leading-tight tracking-tight text-ink">
+        Clearview Ward Adult Sunday School
       </div>
     </div>
   );

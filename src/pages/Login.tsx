@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
-import { LogoMark } from '@/components/Logo';
+import { ChristMark } from '@/components/Logo';
 import { Spinner } from '@/components/Spinner';
 
 export function Login() {
@@ -30,7 +30,7 @@ export function Login() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
       <Link to="/" className="mx-auto mb-8 flex flex-col items-center gap-3 text-center">
-        <LogoMark className="h-14 w-14" />
+        <ChristMark className="h-16 w-16" />
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-faint">
           Clearview Ward Adult Sunday School
         </span>

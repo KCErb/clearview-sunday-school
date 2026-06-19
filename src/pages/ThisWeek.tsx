@@ -55,8 +55,7 @@ export function ThisWeek() {
 
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-2xl px-6">
-        <header className="flex items-center justify-between py-6">
+      <header className="flex items-center justify-between gap-4 px-6 py-6 sm:px-8">
           <Wordmark />
           <div className="flex items-center gap-1">
             {isAdmin && (
@@ -74,8 +73,9 @@ export function ThisWeek() {
               Sign out
             </button>
           </div>
-        </header>
+      </header>
 
+      <main className="mx-auto max-w-2xl px-6">
         {!session ? (
           <p className="mt-10 rounded-2xl border border-dashed border-sky-100 bg-white/40 p-6 text-center text-sm text-ink-faint">
             No lesson is posted yet. Check back soon!
@@ -142,7 +142,7 @@ export function ThisWeek() {
             )}
           </>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );
@@ -179,26 +179,38 @@ function ReadingLinks({ lessons, dark }: { lessons: Lesson[]; dark?: boolean }) 
 function SessionHeader({ art, lessons }: { art: ArtPiece | null; lessons: Lesson[] }) {
   if (art) {
     return (
-      <div className="mt-5 overflow-hidden rounded-3xl border border-sky-100 bg-white/80 shadow-sm">
-        <div className="grid sm:grid-cols-[210px_1fr]">
-          <img
-            src={art.src}
-            alt={art.title}
-            className="h-44 w-full object-cover object-top sm:h-full"
-          />
-          <div className="p-5">
-            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink-faint">
-              Come, Follow Me
-            </div>
-            <div className="mt-2">
-              <ReadingLinks lessons={lessons} />
-            </div>
-            {art.artist && (
-              <p className="mt-3 text-[11px] text-ink-faint">
-                {art.title} — {art.artist}
-              </p>
-            )}
+      <div className="mt-5 grid overflow-hidden rounded-3xl border border-sky-100 bg-white/80 shadow-sm sm:grid-cols-[14rem_1fr]">
+        <img
+          src={art.src}
+          alt={art.title}
+          className="h-56 w-full object-cover object-[50%_28%] sm:h-full"
+        />
+        <div className="flex flex-col p-5 sm:min-h-[15rem]">
+          <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink-faint">
+            Come, Follow Me
           </div>
+          <div className="mt-3">
+            <ReadingLinks lessons={lessons} />
+          </div>
+          <p className="mt-auto pt-5 text-[11px] text-ink-faint">
+            {art.artist ? (
+              art.source ? (
+                <a href={art.source} target="_blank" rel="noopener noreferrer" className="hover:text-brand">
+                  {art.title} — {art.artist} ↗
+                </a>
+              ) : (
+                <>
+                  {art.title} — {art.artist}
+                </>
+              )
+            ) : (
+              art.source && (
+                <a href={art.source} target="_blank" rel="noopener noreferrer" className="hover:text-brand">
+                  Image source ↗
+                </a>
+              )
+            )}
+          </p>
         </div>
       </div>
     );

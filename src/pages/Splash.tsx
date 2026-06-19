@@ -75,8 +75,8 @@ export function Splash() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-ink-faint">
-          Around here, we fondly call it <span className="font-semibold text-ink-soft">CWASS</span>.
+        <p className="mt-8 text-center text-sm font-medium text-ink-soft">
+          Welcome to <span className="font-bold text-ink">CWASS</span>
         </p>
       </div>
 
