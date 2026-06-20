@@ -2,12 +2,14 @@ import { supabase } from '@/lib/supabase';
 import type {
   Answer,
   Inquiry,
+  Insight,
   Lesson,
   Question,
-  QuestionCategory,
+  SectionLink,
   Session,
   SharedAnswer,
   SharedInquiry,
+  SharedInsight,
   SharePref,
 } from '@/lib/types';
 
@@ -98,17 +100,19 @@ export async function answerCounts(): Promise<Record<number, AnswerCounts>> {
 
 export function createQuestion(p: {
   session_id: number;
-  category: QuestionCategory;
+  cfm_week: number | null;
   prompt: string;
   reference_url: string | null;
   sort_order: number;
 }) {
-  return supabase.from('questions').insert(p);
+  return supabase
+    .from('questions')
+    .insert({ ...p, category: p.cfm_week == null ? 'home' : 'study' });
 }
 
 export function updateQuestion(
   id: number,
-  patch: Partial<Pick<Question, 'prompt' | 'reference_url' | 'category' | 'is_active' | 'sort_order'>>,
+  patch: Partial<Pick<Question, 'prompt' | 'reference_url' | 'category' | 'cfm_week' | 'is_active' | 'sort_order'>>,
 ) {
   return supabase.from('questions').update(patch).eq('id', id);
 }
@@ -200,6 +204,78 @@ export function deleteInquiry(id: number) {
   return supabase.from('inquiries').delete().eq('id', id);
 }
 
+// ---- section links (CFM manual is derived; these are extra, e.g. talks) -----
+export async function sectionLinks(sessionId: number): Promise<SectionLink[]> {
+  const { data } = await supabase
+    .from('section_links')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('sort_order', { ascending: true });
+  return (data as SectionLink[]) ?? [];
+}
+
+export function createSectionLink(p: {
+  session_id: number;
+  cfm_week: number | null;
+  label: string;
+  url: string;
+  sort_order: number;
+}) {
+  return supabase.from('section_links').insert(p);
+}
+
+export function deleteSectionLink(id: number) {
+  return supabase.from('section_links').delete().eq('id', id);
+}
+
+// ---- insights (open-ended "share with the class", per section) --------------
+export async function sharedInsights(sessionId: number): Promise<SharedInsight[]> {
+  const { data } = await supabase
+    .from('shared_insights')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: true });
+  return (data as SharedInsight[]) ?? [];
+}
+
+export async function myInsights(sessionId: number, userId: string): Promise<Insight[]> {
+  const { data } = await supabase
+    .from('insights')
+    .select('*')
+    .eq('session_id', sessionId)
+    .eq('author_id', userId)
+    .order('created_at', { ascending: false });
+  return (data as Insight[]) ?? [];
+}
+
+export async function allInsights(sessionId: number): Promise<Insight[]> {
+  const { data } = await supabase
+    .from('insights')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: true });
+  return (data as Insight[]) ?? [];
+}
+
+export function submitInsight(p: {
+  session_id: number;
+  cfm_week: number | null;
+  body: string;
+  is_anonymous: boolean;
+  author_id: string | null;
+  share_pref: SharePref;
+}) {
+  return supabase.from('insights').insert(p);
+}
+
+export function updateInsight(id: number, patch: Partial<Pick<Insight, 'body' | 'share_pref' | 'published'>>) {
+  return supabase.from('insights').update(patch).eq('id', id);
+}
+
+export function deleteInsight(id: number) {
+  return supabase.from('insights').delete().eq('id', id);
+}
+
 // ---- session admin ---------------------------------------------------------
 export function createSession(p: {
   title: string | null;
@@ -212,7 +288,7 @@ export function createSession(p: {
 
 export function updateSession(
   id: number,
-  patch: Partial<Pick<Session, 'title' | 'teach_date' | 'cfm_weeks' | 'is_published' | 'image'>>,
+  patch: Partial<Pick<Session, 'title' | 'teach_date' | 'cfm_weeks' | 'is_published' | 'image' | 'section_art'>>,
 ) {
   return supabase.from('sessions').update(patch).eq('id', id);
 }

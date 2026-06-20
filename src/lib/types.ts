@@ -24,8 +24,23 @@ export interface Session {
   teach_date: string;
   cfm_weeks: number[];
   is_published: boolean;
-  image: string | null;
+  image: string | null; // legacy single image (unused; art is per-section now)
+  /** Per-section art keyed by "home" or a CFM week number. */
+  section_art: Record<string, SectionArt>;
   created_at: string;
+}
+
+export interface CropArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface SectionArt {
+  src: string; // art library key or image URL
+  aspect: number; // displayed width / height
+  area: CropArea | null; // react-easy-crop croppedArea (%), or null for centered cover
 }
 
 export type QuestionCategory = 'study' | 'home';
@@ -34,10 +49,42 @@ export interface Question {
   id: number;
   session_id: number;
   category: QuestionCategory;
+  cfm_week: number | null; // null = home-centered section
   prompt: string;
   reference_url: string | null;
   sort_order: number;
   is_active: boolean;
+}
+
+export interface SectionLink {
+  id: number;
+  session_id: number;
+  cfm_week: number | null;
+  label: string;
+  url: string;
+  sort_order: number;
+}
+
+export interface Insight {
+  id: number;
+  session_id: number;
+  cfm_week: number | null;
+  body: string;
+  is_anonymous: boolean;
+  author_id: string | null;
+  share_pref: SharePref;
+  published: boolean;
+  edited_at: string | null;
+  created_at: string;
+}
+
+export interface SharedInsight {
+  id: number;
+  session_id: number;
+  cfm_week: number | null;
+  body: string;
+  share_pref: SharePref;
+  created_at: string;
 }
 
 export type SharePref = 'verbatim_ok' | 'summarize_only';

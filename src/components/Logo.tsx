@@ -22,10 +22,10 @@ export function LogoMark({ className = 'h-10 w-10' }: { className?: string }) {
 export function ChristMark({ className = 'h-9 w-9' }: { className?: string }) {
   return (
     <img
-      src="/art/christ-hofmann.jpg"
+      src="/art/christ-detail.jpg"
       alt=""
       aria-hidden="true"
-      className={`shrink-0 rounded-full object-cover object-[50%_22%] ring-1 ring-black/5 ${className}`}
+      className={`shrink-0 rounded-full object-cover object-center ring-1 ring-black/5 ${className}`}
     />
   );
 }
