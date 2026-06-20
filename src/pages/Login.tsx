@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
+import { supabase } from '@/lib/supabase';
 import { ChristMark } from '@/components/Logo';
 import { Spinner } from '@/components/Spinner';
 
@@ -12,7 +13,18 @@ export function Login() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);
 
+  const devEmail = import.meta.env.VITE_DEV_LOGIN_EMAIL;
+  const devPass = import.meta.env.VITE_DEV_LOGIN_PASSWORD;
+  const showDev = import.meta.env.DEV && !!devEmail && !!devPass;
+
   if (session) return <Navigate to="/app" replace />;
+
+  async function devSignIn() {
+    if (!devEmail || !devPass) return;
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email: devEmail, password: devPass });
+    if (error) setError(error.message);
+  }
 
   async function send(e?: FormEvent) {
     e?.preventDefault();
@@ -98,11 +110,20 @@ export function Login() {
             </button>
 
             <p className="text-center text-xs leading-relaxed text-ink-faint">
-              We ask for your name so the instructor can recognize folks from the ward.
+              We ask for your name so KC can recognize folks from the ward.
             </p>
           </form>
         )}
       </div>
+
+      {showDev && (
+        <button
+          onClick={devSignIn}
+          className="mx-auto mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+        >
+          ⚡ Dev sign in (local only)
+        </button>
+      )}
     </div>
   );
 }
