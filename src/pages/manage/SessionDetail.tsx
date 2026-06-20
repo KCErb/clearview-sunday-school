@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
+  allInsights,
   answerCounts,
   createQuestion,
   createSectionLink,
@@ -17,10 +18,11 @@ import {
 import { useToast } from '@/components/toast/useToast';
 import { ManageLayout } from '@/components/manage/ManageLayout';
 import { ArtField } from '@/components/manage/ArtField';
+import { InsightsPanel } from '@/components/manage/InsightsPanel';
 import { FullPageSpinner } from '@/components/Spinner';
 import { formatRange } from '@/lib/cfm';
 import type { AnswerCounts } from '@/data/cwass';
-import type { Lesson, Question, SectionArt, SectionLink, Session } from '@/lib/types';
+import type { Insight, Lesson, Question, SectionArt, SectionLink, Session } from '@/lib/types';
 
 const inputCls =
   'w-full resize-y rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20';
@@ -42,21 +44,24 @@ export function SessionDetail() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [links, setLinks] = useState<SectionLink[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [counts, setCounts] = useState<Record<number, AnswerCounts>>({});
 
   const load = useCallback(async () => {
     const s = await getSession(sessionId);
     setSession(s);
     if (s) {
-      const [ls, qs, lk, ac] = await Promise.all([
+      const [ls, qs, lk, ins, ac] = await Promise.all([
         lessonsForWeeks(s.cfm_weeks),
         questionsForSession(sessionId),
         sectionLinks(sessionId),
+        allInsights(sessionId),
         answerCounts(),
       ]);
       setLessons(ls);
       setQuestions(qs);
       setLinks(lk);
+      setInsights(ins);
       setCounts(ac);
     }
     setLoading(false);
@@ -114,6 +119,7 @@ export function SessionDetail() {
           section={sec}
           links={links.filter((l) => (l.cfm_week ?? null) === sec.week)}
           questions={questions.filter((q) => (q.cfm_week ?? null) === sec.week)}
+          insights={insights.filter((i) => (i.cfm_week ?? null) === sec.week)}
           counts={counts}
           onChange={load}
         />
@@ -196,6 +202,7 @@ function SectionEditor({
   section,
   links,
   questions,
+  insights,
   counts,
   onChange,
 }: {
@@ -203,6 +210,7 @@ function SectionEditor({
   section: SectionRef;
   links: SectionLink[];
   questions: Question[];
+  insights: Insight[];
   counts: Record<number, AnswerCounts>;
   onChange: () => void;
 }) {
@@ -246,6 +254,10 @@ function SectionEditor({
           {questions.length === 0 && <li className="text-sm text-ink-faint">None yet.</li>}
         </ul>
         <AddQuestion sessionId={session.id} week={section.week} nextOrder={questions.length + 1} onAdded={onChange} />
+      </div>
+
+      <div className="mt-5">
+        <InsightsPanel insights={insights} onChange={onChange} />
       </div>
     </section>
   );
