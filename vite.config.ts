@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'icon.svg'],
       manifest: {
-        name: 'CWASS — Clearview Ward Adult Sunday School',
-        short_name: 'CWASS',
+        name: 'Clearview Ward Adult Sunday School',
+        short_name: 'Clearview',
         description:
           'Study schedule, answers, and questions for the Clearview Ward Adult Sunday School.',
         theme_color: '#2f6fed',
