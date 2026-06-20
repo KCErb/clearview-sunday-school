@@ -2,62 +2,67 @@ import { useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { ART_LIBRARY, resolveArt } from '@/lib/art';
-import { CroppedImage } from '@/components/CroppedImage';
-import type { CropArea, SectionArt } from '@/lib/types';
+import { LinksCard } from '@/components/thisweek/LinksCard';
+import { ArtImage } from '@/components/ArtImage';
+import type { Lesson, SectionArt, SectionLink } from '@/lib/types';
 
-const ASPECTS: { label: string; value: number }[] = [
-  { label: 'Wide', value: 16 / 9 },
-  { label: 'Landscape', value: 4 / 3 },
-  { label: 'Square', value: 1 },
-  { label: 'Portrait', value: 3 / 4 },
-];
+const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 
 export function ArtField({
   value,
   onChange,
+  lesson,
+  week,
+  links,
 }: {
   value: SectionArt | null;
   onChange: (v: SectionArt | null) => void;
+  lesson?: Lesson;
+  week: number | null;
+  links: SectionLink[];
 }) {
   const [editing, setEditing] = useState(false);
   const [src, setSrc] = useState<string | null>(value?.src ?? null);
-  const [aspect, setAspect] = useState(value?.aspect ?? 4 / 3);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [area, setArea] = useState<CropArea | null>(value?.area ?? null);
+  const [zoom, setZoom] = useState(value?.zoom ?? 1);
+  const [focalX, setFocalX] = useState(value?.focalX ?? 50);
+  const [focalY, setFocalY] = useState(value?.focalY ?? 50);
 
   function startEdit() {
     setSrc(value?.src ?? null);
-    setAspect(value?.aspect ?? 4 / 3);
-    setArea(value?.area ?? null);
+    setZoom(value?.zoom ?? 1);
+    setFocalX(value?.focalX ?? 50);
+    setFocalY(value?.focalY ?? 50);
     setCrop({ x: 0, y: 0 });
-    setZoom(1);
     setEditing(true);
   }
   function pick(s: string | null) {
     setSrc(s);
-    setArea(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    setFocalX(50);
+    setFocalY(50);
   }
   function save() {
-    onChange(src ? { src, aspect, area } : null);
+    onChange(src ? { src, focalX, focalY, zoom } : null);
     setEditing(false);
   }
+
+  const draft: SectionArt | null = src ? { src, focalX, focalY, zoom } : null;
 
   if (!editing) {
     return (
       <div>
         {value ? (
-          <div className="w-48 overflow-hidden rounded-xl border border-sky-100">
-            <CroppedImage art={value} />
+          <div className="h-28 w-48 overflow-hidden rounded-xl border border-sky-100">
+            <ArtImage art={value} className="h-full w-full" />
           </div>
         ) : (
           <p className="text-sm text-ink-faint">No art chosen.</p>
         )}
         <div className="mt-2 flex gap-4 text-xs">
           <button onClick={startEdit} className="font-semibold text-brand hover:text-brand-bright">
-            {value ? 'Change / crop art' : 'Choose art'}
+            {value ? 'Change / frame art' : 'Choose art'}
           </button>
           {value && (
             <button onClick={() => onChange(null)} className="font-semibold text-red-600 hover:text-red-700">
@@ -95,55 +100,36 @@ export function ArtField({
 
       {piece && (
         <>
-          <div className="relative mt-3 h-72 overflow-hidden rounded-lg bg-ink/90">
+          <p className="mt-3 text-xs text-ink-faint">Drag to pan, scroll or use the slider to zoom.</p>
+          <div className="relative mt-1 h-64 overflow-hidden rounded-lg bg-ink/90">
             <Cropper
               image={piece.src}
               crop={crop}
               zoom={zoom}
-              aspect={aspect}
+              aspect={1}
+              showGrid={false}
               onCropChange={setCrop}
               onZoomChange={setZoom}
-              onCropComplete={(_, areaPct: Area) =>
-                setArea({ x: areaPct.x, y: areaPct.y, width: areaPct.width, height: areaPct.height })
-              }
-              restrictPosition
+              onCropComplete={(areaPct: Area) => {
+                setFocalX(clamp(areaPct.x + areaPct.width / 2));
+                setFocalY(clamp(areaPct.y + areaPct.height / 2));
+              }}
             />
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-ink-soft">Shape:</span>
-            {ASPECTS.map((a) => (
-              <button
-                key={a.label}
-                type="button"
-                onClick={() => setAspect(a.value)}
-                className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
-                  Math.abs(aspect - a.value) < 0.01 ? 'bg-brand text-white' : 'bg-sky-100 text-ink-soft hover:bg-sky-200'
-                }`}
-              >
-                {a.label}
-              </button>
-            ))}
-            <label className="ml-2 flex items-center gap-2 text-xs text-ink-soft">
-              Zoom
-              <input
-                type="range"
-                min={1}
-                max={3}
-                step={0.01}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className="accent-brand"
-              />
-            </label>
+          <label className="mt-3 flex items-center gap-2 text-xs text-ink-soft">
+            Zoom
+            <input type="range" min={1} max={3} step={0.01} value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="accent-brand" />
+          </label>
+
+          <div className="mt-4">
+            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-faint">Card preview</div>
+            <LinksCard sa={draft} lesson={lesson} week={week} links={links} />
           </div>
         </>
       )}
 
-      <div className="mt-3 flex gap-2">
-        <button
-          onClick={save}
-          className="rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-bright"
-        >
+      <div className="mt-4 flex gap-2">
+        <button onClick={save} className="rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-bright">
           Save art
         </button>
         <button onClick={() => setEditing(false)} className="rounded-md px-3 py-1.5 text-xs font-medium text-ink-soft hover:text-ink">

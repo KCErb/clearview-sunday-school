@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { PenLine } from 'lucide-react';
 import { submitInsight } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
@@ -53,9 +54,10 @@ export function InsightForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full rounded-2xl border border-dashed border-sky-200 bg-white/40 p-4 text-left text-sm font-medium text-ink-soft transition hover:border-brand/50 hover:text-brand"
+        className="flex w-full items-center gap-2.5 rounded-2xl border border-dashed border-sky-200 bg-white/40 p-4 text-left text-sm font-medium text-ink-soft transition hover:border-brand/50 hover:text-brand"
       >
-        ✍️ Share an insight with the class…
+        <PenLine className="h-4 w-4 shrink-0" aria-hidden="true" />
+        Share an insight with the class…
       </button>
     );
   }

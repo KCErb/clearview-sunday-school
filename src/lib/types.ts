@@ -30,17 +30,11 @@ export interface Session {
   created_at: string;
 }
 
-export interface CropArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export interface SectionArt {
   src: string; // art library key or image URL
-  aspect: number; // displayed width / height
-  area: CropArea | null; // react-easy-crop croppedArea (%), or null for centered cover
+  focalX: number; // 0–100, horizontal framing point
+  focalY: number; // 0–100, vertical framing point
+  zoom: number; // 1 = cover, >1 zooms in around the focal point
 }
 
 export type QuestionCategory = 'study' | 'home';

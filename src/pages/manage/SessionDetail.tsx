@@ -30,6 +30,7 @@ interface SectionRef {
   key: string;
   label: string;
   eyebrow?: string;
+  lesson?: Lesson;
 }
 
 export function SessionDetail() {
@@ -89,6 +90,7 @@ export function SessionDetail() {
           key: String(w),
           label: lesson?.title ?? `Come, Follow Me — week ${w}`,
           eyebrow: lesson ? `Come, Follow Me · ${formatRange(lesson.week_start, lesson.week_end)}` : undefined,
+          lesson,
         };
       }),
   ];
@@ -225,7 +227,7 @@ function SectionEditor({
 
       <div className="mt-4">
         <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-ink-faint">Art</span>
-        <ArtField value={currentArt} onChange={setArt} />
+        <ArtField value={currentArt} onChange={setArt} lesson={section.lesson} week={section.week} links={links} />
       </div>
 
       <div className="mt-5">
