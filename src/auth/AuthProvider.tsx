@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/lib/types';
-import { AuthContext, type SignInArgs } from './context';
+import { AuthContext } from './context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -25,47 +25,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  const userId = session?.user?.id;
+
+  const fetchProfile = useCallback(async () => {
+    if (!userId) {
+      setProfile(null);
+      setProfileLoaded(true);
+      return;
+    }
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    setProfile((data as Profile) ?? null);
+    setProfileLoaded(true);
+  }, [userId]);
+
   // Load the profile row whenever the signed-in user changes.
   useEffect(() => {
-    const userId = session?.user?.id;
-    let cancelled = false;
     void (async () => {
-      if (!userId) {
-        if (!cancelled) {
-          setProfile(null);
-          setProfileLoaded(true);
-        }
-        return;
-      }
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      if (!cancelled) {
-        setProfile((data as Profile) ?? null);
-        setProfileLoaded(true);
-      }
+      await fetchProfile();
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [session?.user?.id]);
+  }, [fetchProfile]);
 
-  const signInWithMagicLink = useCallback(
-    async ({ email, firstName, lastName }: SignInArgs) => {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { first_name: firstName.trim(), last_name: lastName.trim() },
-        },
-      });
-      if (error) throw new Error(error.message);
-    },
-    [],
-  );
+  const signInWithMagicLink = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) throw new Error(error.message);
+  }, []);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -80,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         profile,
         signInWithMagicLink,
+        refreshProfile: fetchProfile,
         signOut,
       }}
     >
