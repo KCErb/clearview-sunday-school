@@ -5,10 +5,9 @@ import { formatRange } from '@/lib/cfm';
 import {
   currentSession,
   lessonsForWeeks,
+  myInsights,
   questionsForSession,
   sectionLinks,
-  sharedInquiries,
-  sharedInsights,
 } from '@/data/cwass';
 import { Wordmark } from '@/components/Logo';
 import { FullPageSpinner } from '@/components/Spinner';
@@ -16,15 +15,8 @@ import { Footer } from '@/components/Footer';
 import { LinksCard } from '@/components/thisweek/LinksCard';
 import { AskQuestion } from '@/components/thisweek/AskQuestion';
 import { InsightForm } from '@/components/thisweek/InsightForm';
-import type {
-  Lesson,
-  Question,
-  SectionArt,
-  SectionLink,
-  Session,
-  SharedInquiry,
-  SharedInsight,
-} from '@/lib/types';
+import { MyInsights } from '@/components/thisweek/MyInsights';
+import type { Insight, Lesson, Question, SectionArt, SectionLink, Session } from '@/lib/types';
 
 interface Section {
   week: number | null; // null = home-centered
@@ -42,28 +34,25 @@ export function ThisWeek() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [links, setLinks] = useState<SectionLink[]>([]);
-  const [insights, setInsights] = useState<SharedInsight[]>([]);
-  const [inquiries, setInquiries] = useState<SharedInquiry[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
 
   const load = useCallback(async () => {
     const s = await currentSession();
     setSession(s);
     if (s) {
-      const [ls, qs, lk, ins, inq] = await Promise.all([
+      const [ls, qs, lk, ins] = await Promise.all([
         lessonsForWeeks(s.cfm_weeks),
         questionsForSession(s.id),
         sectionLinks(s.id),
-        sharedInsights(s.id),
-        sharedInquiries(),
+        userId ? myInsights(s.id, userId) : Promise.resolve([]),
       ]);
       setLessons(ls);
       setQuestions(qs);
       setLinks(lk);
       setInsights(ins);
-      setInquiries(inq);
     }
     setLoading(false);
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     void (async () => {
@@ -114,7 +103,8 @@ export function ThisWeek() {
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink">{session.title}</h1>
 
             <p className="mt-2 text-sm text-ink-soft">
-              Welcome, {firstName}. Read along, then share what you’re finding — in class or here.
+              Welcome, {firstName}. Read along, then send your thoughts and questions to KC to help
+              shape the discussion. (Only KC sees what you submit.)
             </p>
 
             {sections.map((section) => (
@@ -137,22 +127,6 @@ export function ThisWeek() {
               </h2>
               <AskQuestion sessionId={session.id} userId={userId} onSubmitted={load} />
             </section>
-
-            {inquiries.length > 0 && (
-              <section className="mt-10">
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                  Questions we’ve discussed
-                </h2>
-                <ul className="space-y-3">
-                  {inquiries.map((q) => (
-                    <li key={q.id} className="rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm">
-                      <p className="font-medium text-ink">{q.body}</p>
-                      {q.answer && <p className="mt-2 text-sm leading-relaxed text-ink-soft">{q.answer}</p>}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
           </>
         )}
       </main>
@@ -175,7 +149,7 @@ function SectionBlock({
   sa: SectionArt | null;
   questions: Question[];
   links: SectionLink[];
-  insights: SharedInsight[];
+  insights: Insight[];
   userId: string;
   sessionId: number;
   onChange: () => void;
@@ -205,9 +179,7 @@ function SectionBlock({
               >
                 <p className="font-medium text-ink">{q.prompt}</p>
                 <div className="mt-2.5 flex items-center justify-between gap-3 border-t border-sky-100 pt-2.5">
-                  <span className="text-xs font-semibold text-brand">
-                    Share your response with the class
-                  </span>
+                  <span className="text-xs font-semibold text-brand">Share your response</span>
                   <span aria-hidden className="text-brand">→</span>
                 </div>
               </Link>
@@ -219,15 +191,9 @@ function SectionBlock({
       {insights.length > 0 && (
         <div className="mt-4">
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            Shared with the class
+            Your insights
           </h3>
-          <ul className="space-y-2">
-            {insights.map((i) => (
-              <li key={i.id} className="rounded-xl bg-sky-50/80 px-3.5 py-3 text-sm leading-relaxed text-ink">
-                {i.body}
-              </li>
-            ))}
-          </ul>
+          <MyInsights insights={insights} onChange={onChange} />
         </div>
       )}
 

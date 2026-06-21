@@ -6,7 +6,6 @@ import {
   deleteQuestion,
   getQuestion,
   getSession,
-  updateAnswer,
   updateQuestion,
 } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
@@ -134,8 +133,8 @@ export function QuestionManage() {
         Responses <span className="text-sm font-medium text-ink-faint">({answers.length})</span>
       </h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Share the ones you’d like the class to see. Anonymous responses have no record of who sent
-        them.
+        Everything members send for this question, just for you. Anonymous responses have no record
+        of who sent them.
       </p>
 
       <ul className="mt-4 space-y-2.5">
@@ -156,13 +155,6 @@ function ResponseRow({ answer, onChange }: { answer: Answer; onChange: () => voi
   const { show } = useToast();
   const [busy, setBusy] = useState(false);
 
-  async function togglePublish() {
-    setBusy(true);
-    await updateAnswer(answer.id, { published: !answer.published });
-    setBusy(false);
-    show(answer.published ? 'Unshared' : 'Shared with class');
-    onChange();
-  }
   async function remove() {
     if (!window.confirm('Delete this response?')) return;
     setBusy(true);
@@ -171,8 +163,6 @@ function ResponseRow({ answer, onChange }: { answer: Answer; onChange: () => voi
     show('Deleted');
     onChange();
   }
-
-  const blocked = answer.share_pref === 'summarize_only' && !answer.published;
 
   return (
     <li className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm">
@@ -184,22 +174,7 @@ function ResponseRow({ answer, onChange }: { answer: Answer; onChange: () => voi
         {answer.share_pref === 'summarize_only' && (
           <Badge cls="bg-amber-100 text-amber-700">don't quote — summarize</Badge>
         )}
-        {answer.edited_at && !answer.published && (
-          <Badge cls="bg-amber-100 text-amber-700">edited — needs re-approval</Badge>
-        )}
         <div className="ml-auto flex items-center gap-3">
-          <button
-            onClick={togglePublish}
-            disabled={busy || blocked}
-            title={blocked ? 'This person asked not to be quoted verbatim' : ''}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-              answer.published
-                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                : 'bg-brand text-white hover:bg-brand-bright'
-            }`}
-          >
-            {answer.published ? 'Shared ✓ (unshare)' : 'Share with class'}
-          </button>
           <button onClick={remove} disabled={busy} className="text-xs font-semibold text-red-600 hover:text-red-700">
             Delete
           </button>

@@ -73,7 +73,7 @@ export function SessionsList() {
       <ul className="mt-5 space-y-3">
         {sessions.map((s) => {
           const qs = questions.filter((q) => q.session_id === s.id);
-          const pending = qs.reduce((sum, q) => sum + (counts[q.id]?.unpublished ?? 0), 0);
+          const responses = qs.reduce((sum, q) => sum + (counts[q.id]?.total ?? 0), 0);
           return (
             <li key={s.id}>
               <Link
@@ -96,9 +96,9 @@ export function SessionsList() {
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-ink-faint">
                   <span>{qs.length} question{qs.length === 1 ? '' : 's'}</span>
                   {s.cfm_weeks.length > 0 && <span>· CFM weeks {s.cfm_weeks.join(', ')}</span>}
-                  {pending > 0 && (
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">
-                      {pending} response{pending === 1 ? '' : 's'} to review
+                  {responses > 0 && (
+                    <span className="rounded-full bg-brand/10 px-2 py-0.5 font-semibold text-brand">
+                      {responses} response{responses === 1 ? '' : 's'}
                     </span>
                   )}
                 </div>

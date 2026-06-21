@@ -343,10 +343,7 @@ function QuestionRow({
       <p className={`text-sm ${question.is_active ? 'text-ink' : 'text-ink-faint line-through'}`}>{question.prompt}</p>
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
         <Link to={`/manage/q/${question.id}`} className="font-semibold text-brand hover:text-brand-bright">
-          Edit &amp; responses
-          {counts ? ` (${counts.total}` : ''}
-          {counts && counts.unpublished > 0 ? ` · ${counts.unpublished} to review` : ''}
-          {counts ? ')' : ''} →
+          Edit &amp; responses{counts && counts.total > 0 ? ` (${counts.total})` : ''} →
         </Link>
         <button onClick={toggle} className="font-medium text-ink-soft hover:text-ink">
           {question.is_active ? 'Hide from class' : 'Show to class'}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { deleteInsight, updateInsight } from '@/data/cwass';
+import { deleteInsight } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import type { Insight } from '@/lib/types';
 
@@ -26,15 +26,7 @@ export function InsightsPanel({ insights, onChange }: { insights: Insight[]; onC
 function InsightRow({ insight, onChange }: { insight: Insight; onChange: () => void }) {
   const { show } = useToast();
   const [busy, setBusy] = useState(false);
-  const blocked = insight.share_pref === 'summarize_only' && !insight.published;
 
-  async function togglePublish() {
-    setBusy(true);
-    await updateInsight(insight.id, { published: !insight.published });
-    setBusy(false);
-    show(insight.published ? 'Unshared' : 'Shared with class');
-    onChange();
-  }
   async function remove() {
     if (!window.confirm('Delete this insight?')) return;
     setBusy(true);
@@ -54,22 +46,7 @@ function InsightRow({ insight, onChange }: { insight: Insight; onChange: () => v
         {insight.share_pref === 'summarize_only' && (
           <Badge cls="bg-amber-100 text-amber-700">don't quote — summarize</Badge>
         )}
-        {insight.edited_at && !insight.published && (
-          <Badge cls="bg-amber-100 text-amber-700">edited — needs re-approval</Badge>
-        )}
-        <button
-          onClick={togglePublish}
-          disabled={busy || blocked}
-          title={blocked ? 'This person asked not to be quoted verbatim' : ''}
-          className={`ml-auto rounded-md px-2.5 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-            insight.published
-              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-              : 'bg-brand text-white hover:bg-brand-bright'
-          }`}
-        >
-          {insight.published ? 'Shared ✓ (unshare)' : 'Share with class'}
-        </button>
-        <button onClick={remove} disabled={busy} className="text-xs font-semibold text-red-600 hover:text-red-700">
+        <button onClick={remove} disabled={busy} className="ml-auto text-xs font-semibold text-red-600 hover:text-red-700">
           Delete
         </button>
       </div>

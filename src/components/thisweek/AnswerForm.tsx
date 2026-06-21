@@ -89,8 +89,8 @@ export function AnswerForm({
       </div>
 
       <p className="text-xs leading-relaxed text-ink-faint">
-        Nothing here appears to the class unless KC shares it. If you sign your name, you can edit
-        or delete your response anytime (edits go back to KC for approval before they’re reshared).
+        This goes only to KC, to help prepare the lesson — it isn’t posted for others to see. If you
+        sign your name, you can edit or delete it anytime.
       </p>
 
       {error && <p className="text-sm text-red-700">{error}</p>}

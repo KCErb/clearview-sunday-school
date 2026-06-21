@@ -57,7 +57,7 @@ export function InsightForm({
         className="flex w-full items-center gap-2.5 rounded-2xl border border-dashed border-sky-200 bg-white/40 p-4 text-left text-sm font-medium text-ink-soft transition hover:border-brand/50 hover:text-brand"
       >
         <PenLine className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Share an insight with the class…
+        Share an insight with KC…
       </button>
     );
   }

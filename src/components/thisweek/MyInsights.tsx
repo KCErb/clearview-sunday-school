@@ -1,56 +1,45 @@
 import { useState } from 'react';
-import { deleteAnswer, updateAnswer } from '@/data/cwass';
+import { deleteInsight, updateInsight } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
-import type { Answer, SharePref } from '@/lib/types';
+import type { Insight, SharePref } from '@/lib/types';
 
-export function MyResponses({ answers, onChange }: { answers: Answer[]; onChange: () => void }) {
-  if (answers.length === 0) return null;
+/** A member's own insights for a section — they can read/edit/delete them. */
+export function MyInsights({ insights, onChange }: { insights: Insight[]; onChange: () => void }) {
+  if (insights.length === 0) return null;
   return (
-    <div>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-        Your response{answers.length === 1 ? '' : 's'}
-      </h3>
-      <ul className="space-y-2">
-        {answers.map((a) => (
-          <MyAnswer key={a.id} answer={a} onChange={onChange} />
-        ))}
-      </ul>
-    </div>
+    <ul className="space-y-2">
+      {insights.map((i) => (
+        <MyInsight key={i.id} insight={i} onChange={onChange} />
+      ))}
+    </ul>
   );
 }
 
-function MyAnswer({ answer, onChange }: { answer: Answer; onChange: () => void }) {
+function MyInsight({ insight, onChange }: { insight: Insight; onChange: () => void }) {
   const { show } = useToast();
   const [editing, setEditing] = useState(false);
-  const [body, setBody] = useState(answer.body);
-  const [sharePref, setSharePref] = useState<SharePref>(answer.share_pref);
+  const [body, setBody] = useState(insight.body);
+  const [sharePref, setSharePref] = useState<SharePref>(insight.share_pref);
   const [busy, setBusy] = useState(false);
 
   async function save() {
     if (!body.trim()) return;
     setBusy(true);
-    const { error } = await updateAnswer(answer.id, { body: body.trim(), share_pref: sharePref });
+    const { error } = await updateInsight(insight.id, { body: body.trim(), share_pref: sharePref });
     setBusy(false);
-    if (error) {
-      show(error.message, 'info');
-      return;
-    }
+    if (error) return show(error.message, 'info');
     setEditing(false);
     show('Saved');
     onChange();
   }
-
   async function remove() {
-    if (!window.confirm('Delete this response? This cannot be undone.')) return;
+    if (!window.confirm('Delete this insight?')) return;
     setBusy(true);
-    const { error } = await deleteAnswer(answer.id);
+    const { error } = await deleteInsight(insight.id);
     setBusy(false);
-    if (error) {
-      show(error.message, 'info');
-      return;
-    }
-    show('Response deleted');
+    if (error) return show(error.message, 'info');
+    show('Deleted');
     onChange();
   }
 
@@ -84,8 +73,8 @@ function MyAnswer({ answer, onChange }: { answer: Answer; onChange: () => void }
             <button
               onClick={() => {
                 setEditing(false);
-                setBody(answer.body);
-                setSharePref(answer.share_pref);
+                setBody(insight.body);
+                setSharePref(insight.share_pref);
               }}
               className="rounded-md px-3 py-1.5 text-xs font-medium text-ink-soft hover:text-ink"
             >
@@ -95,27 +84,20 @@ function MyAnswer({ answer, onChange }: { answer: Answer; onChange: () => void }
         </div>
       ) : (
         <>
-          <p className="text-ink">{answer.body}</p>
+          <p className="text-ink">{insight.body}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-brand">
               Only KC sees this
             </span>
-            {answer.share_pref === 'summarize_only' && (
+            {insight.share_pref === 'summarize_only' && (
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
                 don't quote
               </span>
             )}
-            <button
-              onClick={() => setEditing(true)}
-              className="ml-auto text-xs font-semibold text-brand hover:text-brand-bright"
-            >
+            <button onClick={() => setEditing(true)} className="ml-auto text-xs font-semibold text-brand hover:text-brand-bright">
               Edit
             </button>
-            <button
-              onClick={remove}
-              disabled={busy}
-              className="text-xs font-semibold text-red-600 hover:text-red-700 disabled:opacity-50"
-            >
+            <button onClick={remove} disabled={busy} className="text-xs font-semibold text-red-600 hover:text-red-700 disabled:opacity-50">
               Delete
             </button>
           </div>

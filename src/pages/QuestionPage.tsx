@@ -1,18 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
-import {
-  getQuestion,
-  getSession,
-  myAnswers,
-  questionsForSession,
-  sharedAnswers,
-} from '@/data/cwass';
+import { getQuestion, getSession, myAnswers, questionsForSession } from '@/data/cwass';
 import { FullPageSpinner } from '@/components/Spinner';
 import { Footer } from '@/components/Footer';
 import { AnswerForm } from '@/components/thisweek/AnswerForm';
 import { MyResponses } from '@/components/thisweek/MyResponses';
-import type { Answer, Question, Session, SharedAnswer } from '@/lib/types';
+import type { Answer, Question, Session } from '@/lib/types';
 
 const CATEGORY_LABEL: Record<string, string> = {
   study: 'This week’s study',
@@ -29,22 +23,19 @@ export function QuestionPage() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [siblings, setSiblings] = useState<Question[]>([]);
-  const [shared, setShared] = useState<SharedAnswer[]>([]);
   const [mine, setMine] = useState<Answer[]>([]);
 
   const load = useCallback(async () => {
     const q = await getQuestion(questionId);
     setQuestion(q);
     if (q) {
-      const [sess, sibs, sh, mn] = await Promise.all([
+      const [sess, sibs, mn] = await Promise.all([
         getSession(q.session_id),
         questionsForSession(q.session_id),
-        sharedAnswers(q.id),
         userId ? myAnswers(q.id, userId) : Promise.resolve([]),
       ]);
       setSession(sess);
       setSiblings(sibs);
-      setShared(sh);
       setMine(mn);
     }
     setLoading(false);
@@ -98,24 +89,6 @@ export function QuestionPage() {
         )}
 
         <div className="mt-8 space-y-8">
-          {shared.length > 0 && (
-            <div>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                Shared with the class
-              </h2>
-              <ul className="space-y-2">
-                {shared.map((a) => (
-                  <li
-                    key={a.id}
-                    className="rounded-xl bg-sky-50/80 px-3.5 py-3 text-sm leading-relaxed text-ink"
-                  >
-                    {a.body}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           <MyResponses answers={mine} onChange={load} />
 
           <div>
