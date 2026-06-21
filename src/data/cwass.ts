@@ -68,6 +68,16 @@ export async function getQuestion(id: number): Promise<Question | null> {
   return (data as Question) ?? null;
 }
 
+/** Admin: all member profiles, as a map of user id → display name. */
+export async function nameMap(): Promise<Record<string, string>> {
+  const { data } = await supabase.from('profiles').select('id, first_name, last_name');
+  const out: Record<string, string> = {};
+  for (const p of (data as { id: string; first_name: string | null; last_name: string | null }[]) ?? []) {
+    out[p.id] = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || 'Member';
+  }
+  return out;
+}
+
 /** Admin: every question across all sessions (for the manage overview). */
 export async function allQuestions(): Promise<Question[]> {
   const { data } = await supabase

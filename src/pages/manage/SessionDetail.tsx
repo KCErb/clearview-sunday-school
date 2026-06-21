@@ -10,6 +10,7 @@ import {
   deleteSession,
   getSession,
   lessonsForWeeks,
+  nameMap,
   questionsForSession,
   sectionLinks,
   updateQuestion,
@@ -46,23 +47,26 @@ export function SessionDetail() {
   const [links, setLinks] = useState<SectionLink[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [counts, setCounts] = useState<Record<number, AnswerCounts>>({});
+  const [names, setNames] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     const s = await getSession(sessionId);
     setSession(s);
     if (s) {
-      const [ls, qs, lk, ins, ac] = await Promise.all([
+      const [ls, qs, lk, ins, ac, nm] = await Promise.all([
         lessonsForWeeks(s.cfm_weeks),
         questionsForSession(sessionId),
         sectionLinks(sessionId),
         allInsights(sessionId),
         answerCounts(),
+        nameMap(),
       ]);
       setLessons(ls);
       setQuestions(qs);
       setLinks(lk);
       setInsights(ins);
       setCounts(ac);
+      setNames(nm);
     }
     setLoading(false);
   }, [sessionId]);
@@ -120,6 +124,7 @@ export function SessionDetail() {
           links={links.filter((l) => (l.cfm_week ?? null) === sec.week)}
           questions={questions.filter((q) => (q.cfm_week ?? null) === sec.week)}
           insights={insights.filter((i) => (i.cfm_week ?? null) === sec.week)}
+          names={names}
           counts={counts}
           onChange={load}
         />
@@ -203,6 +208,7 @@ function SectionEditor({
   links,
   questions,
   insights,
+  names,
   counts,
   onChange,
 }: {
@@ -211,6 +217,7 @@ function SectionEditor({
   links: SectionLink[];
   questions: Question[];
   insights: Insight[];
+  names: Record<string, string>;
   counts: Record<number, AnswerCounts>;
   onChange: () => void;
 }) {
@@ -257,7 +264,7 @@ function SectionEditor({
       </div>
 
       <div className="mt-5">
-        <InsightsPanel insights={insights} onChange={onChange} />
+        <InsightsPanel insights={insights} names={names} />
       </div>
     </section>
   );

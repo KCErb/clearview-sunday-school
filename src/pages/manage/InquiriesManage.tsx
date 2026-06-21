@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { allInquiries } from '@/data/cwass';
+import { allInquiries, nameMap } from '@/data/cwass';
 import { ManageLayout } from '@/components/manage/ManageLayout';
 import { InquiriesPanel } from '@/components/manage/InquiriesPanel';
 import { FullPageSpinner } from '@/components/Spinner';
@@ -8,9 +8,12 @@ import type { Inquiry } from '@/lib/types';
 export function InquiriesManage() {
   const [loading, setLoading] = useState(true);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
-    setInquiries(await allInquiries());
+    const [inq, nm] = await Promise.all([allInquiries(), nameMap()]);
+    setInquiries(inq);
+    setNames(nm);
     setLoading(false);
   }, []);
 
@@ -29,7 +32,7 @@ export function InquiriesManage() {
         Questions members have sent you — bring them to class to discuss together.
       </p>
       <div className="mt-5">
-        <InquiriesPanel inquiries={inquiries} onChange={load} />
+        <InquiriesPanel inquiries={inquiries} names={names} />
       </div>
     </ManageLayout>
   );

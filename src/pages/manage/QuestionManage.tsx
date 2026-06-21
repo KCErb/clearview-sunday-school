@@ -2,14 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   allAnswers,
-  deleteAnswer,
   deleteQuestion,
   getQuestion,
   getSession,
+  nameMap,
   updateQuestion,
 } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import { ManageLayout } from '@/components/manage/ManageLayout';
+import { Attribution } from '@/components/manage/Attribution';
 import { FullPageSpinner } from '@/components/Spinner';
 import type { Answer, Question, QuestionCategory, Session } from '@/lib/types';
 
@@ -26,6 +27,7 @@ export function QuestionManage() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   // editable fields
   const [prompt, setPrompt] = useState('');
@@ -43,8 +45,9 @@ export function QuestionManage() {
       setPrompt(q.prompt);
       setRef(q.reference_url ?? '');
       setCategory(q.category);
-      const [s] = await Promise.all([getSession(q.session_id), loadAnswers()]);
+      const [s, nm] = await Promise.all([getSession(q.session_id), nameMap(), loadAnswers()]);
       setSession(s);
+      setNames(nm);
     }
     setLoading(false);
   }, [questionId, loadAnswers]);
@@ -139,7 +142,7 @@ export function QuestionManage() {
 
       <ul className="mt-4 space-y-2.5">
         {answers.map((a) => (
-          <ResponseRow key={a.id} answer={a} onChange={loadAnswers} />
+          <ResponseRow key={a.id} answer={a} names={names} />
         ))}
         {answers.length === 0 && (
           <li className="rounded-2xl border border-dashed border-sky-100 p-6 text-center text-sm text-ink-faint">
@@ -151,39 +154,21 @@ export function QuestionManage() {
   );
 }
 
-function ResponseRow({ answer, onChange }: { answer: Answer; onChange: () => void }) {
-  const { show } = useToast();
-  const [busy, setBusy] = useState(false);
-
-  async function remove() {
-    if (!window.confirm('Delete this response?')) return;
-    setBusy(true);
-    await deleteAnswer(answer.id);
-    setBusy(false);
-    show('Deleted');
-    onChange();
-  }
-
+function ResponseRow({ answer, names }: { answer: Answer; names: Record<string, string> }) {
   return (
     <li className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm">
       <p className="text-sm leading-relaxed text-ink">{answer.body}</p>
       <div className="mt-2.5 flex flex-wrap items-center gap-2">
-        <Badge cls={answer.is_anonymous ? 'bg-slate-100 text-slate-600' : 'bg-sky-100 text-brand'}>
-          {answer.is_anonymous ? 'anonymous' : 'named'}
-        </Badge>
+        <Attribution
+          anonymous={answer.is_anonymous}
+          name={answer.author_id ? names[answer.author_id] : undefined}
+        />
         {answer.share_pref === 'summarize_only' && (
-          <Badge cls="bg-amber-100 text-amber-700">don't quote — summarize</Badge>
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+            don't quote — summarize
+          </span>
         )}
-        <div className="ml-auto flex items-center gap-3">
-          <button onClick={remove} disabled={busy} className="text-xs font-semibold text-red-600 hover:text-red-700">
-            Delete
-          </button>
-        </div>
       </div>
     </li>
   );
-}
-
-function Badge({ children, cls }: { children: string; cls: string }) {
-  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>{children}</span>;
 }
