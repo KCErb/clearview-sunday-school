@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { deleteInsight, updateInsight } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
-import type { Insight, SharePref } from '@/lib/types';
+import type { Insight } from '@/lib/types';
 
 /** A member's own insights for a section — they can read/edit/delete them. */
 export function MyInsights({ insights, onChange }: { insights: Insight[]; onChange: () => void }) {
@@ -20,13 +20,13 @@ function MyInsight({ insight, onChange }: { insight: Insight; onChange: () => vo
   const { show } = useToast();
   const [editing, setEditing] = useState(false);
   const [body, setBody] = useState(insight.body);
-  const [sharePref, setSharePref] = useState<SharePref>(insight.share_pref);
+  const [nameInClass, setNameInClass] = useState(insight.attribution_ok);
   const [busy, setBusy] = useState(false);
 
   async function save() {
     if (!body.trim()) return;
     setBusy(true);
-    const { error } = await updateInsight(insight.id, { body: body.trim(), share_pref: sharePref });
+    const { error } = await updateInsight(insight.id, { body: body.trim(), attribution_ok: nameInClass });
     setBusy(false);
     if (error) return show(error.message, 'info');
     setEditing(false);
@@ -56,11 +56,11 @@ function MyInsight({ insight, onChange }: { insight: Insight; onChange: () => vo
           <label className="flex items-center gap-2 text-xs text-ink-soft">
             <input
               type="checkbox"
-              checked={sharePref === 'summarize_only'}
-              onChange={(e) => setSharePref(e.target.checked ? 'summarize_only' : 'verbatim_ok')}
+              checked={nameInClass}
+              onChange={(e) => setNameInClass(e.target.checked)}
               className="h-4 w-4 accent-brand"
             />
-            Please don't quote me — KC can summarize
+            You can use my name in class
           </label>
           <div className="flex gap-2">
             <button
@@ -74,7 +74,7 @@ function MyInsight({ insight, onChange }: { insight: Insight; onChange: () => vo
               onClick={() => {
                 setEditing(false);
                 setBody(insight.body);
-                setSharePref(insight.share_pref);
+                setNameInClass(insight.attribution_ok);
               }}
               className="rounded-md px-3 py-1.5 text-xs font-medium text-ink-soft hover:text-ink"
             >
@@ -89,11 +89,9 @@ function MyInsight({ insight, onChange }: { insight: Insight; onChange: () => vo
             <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-brand">
               Only KC sees this
             </span>
-            {insight.share_pref === 'summarize_only' && (
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-                don't quote
-              </span>
-            )}
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+              {insight.attribution_ok ? 'name OK in class' : 'no name in class'}
+            </span>
             <button onClick={() => setEditing(true)} className="ml-auto text-xs font-semibold text-brand hover:text-brand-bright">
               Edit
             </button>

@@ -22,12 +22,11 @@ export function InsightsPanel({
             <li key={i.id} className="rounded-xl border border-sky-100 bg-white p-3 text-sm shadow-sm">
               <p className="text-ink">{i.body}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Attribution anonymous={i.is_anonymous} name={i.author_id ? names[i.author_id] : undefined} />
-                {i.share_pref === 'summarize_only' && (
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-                    don't quote — summarize
-                  </span>
-                )}
+                <Attribution
+                  anonymous={i.is_anonymous}
+                  name={i.author_id ? names[i.author_id] : undefined}
+                  attributionOk={i.attribution_ok}
+                />
               </div>
             </li>
           ))}

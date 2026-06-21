@@ -3,7 +3,7 @@ import { PenLine } from 'lucide-react';
 import { submitInsight } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
 import { Spinner } from '@/components/Spinner';
-import type { SharePref } from '@/lib/types';
+import { SharingOptions } from './SharingOptions';
 
 export function InsightForm({
   sessionId,
@@ -19,7 +19,7 @@ export function InsightForm({
   const { show } = useToast();
   const [body, setBody] = useState('');
   const [anonymous, setAnonymous] = useState(false);
-  const [sharePref, setSharePref] = useState<SharePref>('verbatim_ok');
+  const [nameInClass, setNameInClass] = useState(false);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function InsightForm({
       body: body.trim(),
       is_anonymous: anonymous,
       author_id: anonymous ? null : userId,
-      share_pref: sharePref,
+      attribution_ok: !anonymous && nameInClass,
     });
     setSaving(false);
     if (error) {
@@ -44,7 +44,7 @@ export function InsightForm({
     }
     setBody('');
     setAnonymous(false);
-    setSharePref('verbatim_ok');
+    setNameInClass(false);
     setOpen(false);
     show('Shared with KC');
     onSubmitted();
@@ -72,28 +72,15 @@ export function InsightForm({
         placeholder="Something that stood out, a thought to offer, a way you’re applying this…"
         className="w-full resize-y rounded-xl border border-sky-100 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
       />
-      <div className="space-y-3 rounded-xl bg-sky-50/70 p-3">
-        <span className="text-sm font-medium text-ink">Sharing</span>
-        <label className="flex items-start gap-2.5 text-sm">
-          <input type="checkbox" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} className="mt-0.5 h-4 w-4 accent-brand" />
-          <span>
-            <span className="font-medium text-ink">Share anonymously</span>
-            <span className="block text-xs text-ink-faint">
-              Your name is never attached — not even KC can see who wrote it.
-              {anonymous && ' (Heads up: anonymous insights can’t be edited later.)'}
-            </span>
-          </span>
-        </label>
-        <label className="flex items-center gap-2 text-sm text-ink-soft">
-          <input
-            type="checkbox"
-            checked={sharePref === 'summarize_only'}
-            onChange={(e) => setSharePref(e.target.checked ? 'summarize_only' : 'verbatim_ok')}
-            className="h-4 w-4 accent-brand"
-          />
-          Please don’t quote me — KC can summarize
-        </label>
-      </div>
+      <SharingOptions
+        anonymous={anonymous}
+        setAnonymous={setAnonymous}
+        nameInClass={nameInClass}
+        setNameInClass={setNameInClass}
+      />
+      <p className="text-xs leading-relaxed text-ink-faint">
+        This goes only to KC, to help prepare the lesson — it isn’t posted for others on the site.
+      </p>
       {error && <p className="text-sm text-red-700">{error}</p>}
       <div className="flex items-center gap-2">
         <button

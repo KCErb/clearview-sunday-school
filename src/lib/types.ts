@@ -66,8 +66,9 @@ export interface Insight {
   body: string;
   is_anonymous: boolean;
   author_id: string | null;
-  share_pref: SharePref;
-  published: boolean;
+  attribution_ok: boolean;
+  share_pref: SharePref; // legacy, unused
+  published: boolean; // legacy, unused
   edited_at: string | null;
   created_at: string;
 }
@@ -88,10 +89,11 @@ export interface Answer {
   id: number;
   question_id: number;
   body: string;
-  is_anonymous: boolean;
+  is_anonymous: boolean; // true = not even KC knows who
   author_id: string | null;
-  share_pref: SharePref;
-  published: boolean;
+  attribution_ok: boolean; // true = OK to show name (and photo) in class
+  share_pref: SharePref; // legacy, unused
+  published: boolean; // legacy, unused
   edited_at: string | null;
   created_at: string;
 }

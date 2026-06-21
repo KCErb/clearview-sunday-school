@@ -162,12 +162,8 @@ function ResponseRow({ answer, names }: { answer: Answer; names: Record<string, 
         <Attribution
           anonymous={answer.is_anonymous}
           name={answer.author_id ? names[answer.author_id] : undefined}
+          attributionOk={answer.attribution_ok}
         />
-        {answer.share_pref === 'summarize_only' && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-            don't quote — summarize
-          </span>
-        )}
       </div>
     </li>
   );

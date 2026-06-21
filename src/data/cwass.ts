@@ -10,20 +10,45 @@ import type {
   SharedAnswer,
   SharedInquiry,
   SharedInsight,
-  SharePref,
 } from '@/lib/types';
 
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // ---- sessions & lessons ----------------------------------------------------
-/** The session shown to the class: the latest published one (KC controls via publish). */
+/**
+ * The session shown to the class: among published sessions, the latest whose block
+ * (earliest CFM week) has already begun — so a published future session doesn't take
+ * over until the first day of its block. Falls back to the soonest upcoming if none
+ * have started yet.
+ */
 export async function currentSession(): Promise<Session | null> {
-  const { data } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('is_published', true)
-    .order('teach_date', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return (data as Session) ?? null;
+  const { data } = await supabase.from('sessions').select('*').eq('is_published', true);
+  const sessions = (data as Session[]) ?? [];
+  if (sessions.length === 0) return null;
+
+  const weeks = [...new Set(sessions.flatMap((s) => s.cfm_weeks))];
+  const lessons = await lessonsForWeeks(weeks);
+  const startByWeek = new Map(lessons.map((l) => [l.cfm_week, l.week_start]));
+
+  const today = todayISO();
+  const withStart = sessions.map((s) => {
+    const starts = s.cfm_weeks
+      .map((w) => startByWeek.get(w))
+      .filter((d): d is string => !!d);
+    const blockStart = starts.length ? starts.slice().sort()[0] : s.teach_date;
+    return { s, blockStart };
+  });
+
+  const started = withStart
+    .filter((x) => x.blockStart <= today)
+    .sort((a, b) => b.blockStart.localeCompare(a.blockStart));
+  if (started.length) return started[0].s;
+
+  const upcoming = withStart.slice().sort((a, b) => a.blockStart.localeCompare(b.blockStart));
+  return upcoming[0]?.s ?? null;
 }
 
 export async function getSession(id: number): Promise<Session | null> {
@@ -178,12 +203,12 @@ export function submitAnswer(p: {
   body: string;
   is_anonymous: boolean;
   author_id: string | null;
-  share_pref: SharePref;
+  attribution_ok: boolean;
 }) {
   return supabase.from('answers').insert(p);
 }
 
-export function updateAnswer(id: number, patch: Partial<Pick<Answer, 'body' | 'share_pref' | 'published'>>) {
+export function updateAnswer(id: number, patch: Partial<Pick<Answer, 'body' | 'attribution_ok'>>) {
   return supabase.from('answers').update(patch).eq('id', id);
 }
 
@@ -245,6 +270,10 @@ export function createSectionLink(p: {
   return supabase.from('section_links').insert(p);
 }
 
+export function updateSectionLink(id: number, patch: Partial<Pick<SectionLink, 'label' | 'url' | 'sort_order'>>) {
+  return supabase.from('section_links').update(patch).eq('id', id);
+}
+
 export function deleteSectionLink(id: number) {
   return supabase.from('section_links').delete().eq('id', id);
 }
@@ -284,12 +313,12 @@ export function submitInsight(p: {
   body: string;
   is_anonymous: boolean;
   author_id: string | null;
-  share_pref: SharePref;
+  attribution_ok: boolean;
 }) {
   return supabase.from('insights').insert(p);
 }
 
-export function updateInsight(id: number, patch: Partial<Pick<Insight, 'body' | 'share_pref' | 'published'>>) {
+export function updateInsight(id: number, patch: Partial<Pick<Insight, 'body' | 'attribution_ok'>>) {
   return supabase.from('insights').update(patch).eq('id', id);
 }
 

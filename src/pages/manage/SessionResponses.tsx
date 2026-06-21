@@ -103,7 +103,7 @@ export function SessionResponses() {
                   ) : (
                     <ul className="mt-2 space-y-2">
                       {qa.map((a) => (
-                        <SubmissionRow key={a.id} body={a.body} anonymous={a.is_anonymous} authorId={a.author_id} summarize={a.share_pref === 'summarize_only'} names={names} />
+                        <SubmissionRow key={a.id} body={a.body} anonymous={a.is_anonymous} authorId={a.author_id} attributionOk={a.attribution_ok} names={names} />
                       ))}
                     </ul>
                   )}
@@ -116,7 +116,7 @@ export function SessionResponses() {
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Shared insights</h3>
                 <ul className="mt-2 space-y-2">
                   {secInsights.map((i) => (
-                    <SubmissionRow key={i.id} body={i.body} anonymous={i.is_anonymous} authorId={i.author_id} summarize={i.share_pref === 'summarize_only'} names={names} />
+                    <SubmissionRow key={i.id} body={i.body} anonymous={i.is_anonymous} authorId={i.author_id} attributionOk={i.attribution_ok} names={names} />
                   ))}
                 </ul>
               </div>
@@ -132,25 +132,20 @@ function SubmissionRow({
   body,
   anonymous,
   authorId,
-  summarize,
+  attributionOk,
   names,
 }: {
   body: string;
   anonymous: boolean;
   authorId: string | null;
-  summarize?: boolean;
+  attributionOk: boolean;
   names: Record<string, string>;
 }) {
   return (
     <li className="rounded-xl border border-sky-100 bg-white p-3.5 text-sm shadow-sm">
       <p className="leading-relaxed text-ink">{body}</p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Attribution anonymous={anonymous} name={authorId ? names[authorId] : undefined} />
-        {summarize && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-            don't quote — summarize
-          </span>
-        )}
+        <Attribution anonymous={anonymous} name={authorId ? names[authorId] : undefined} attributionOk={attributionOk} />
       </div>
     </li>
   );

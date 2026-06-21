@@ -14,6 +14,7 @@ import {
   questionsForSession,
   sectionLinks,
   updateQuestion,
+  updateSectionLink,
   updateSession,
 } from '@/data/cwass';
 import { useToast } from '@/components/toast/useToast';
@@ -301,13 +302,43 @@ function LinksEditor({
     show('Link removed');
     onChange();
   }
+  async function move(idx: number, dir: -1 | 1) {
+    const j = idx + dir;
+    if (j < 0 || j >= links.length) return;
+    const next = [...links];
+    [next[idx], next[j]] = [next[j], next[idx]];
+    setBusy(true);
+    await Promise.all(next.map((l, i) => updateSectionLink(l.id, { sort_order: i + 1 })));
+    setBusy(false);
+    onChange();
+  }
 
   return (
     <div>
       <ul className="space-y-1.5">
-        {links.map((l) => (
-          <li key={l.id} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
-            <a href={l.url} target="_blank" rel="noopener noreferrer" className="truncate font-medium text-brand hover:underline">
+        {links.map((l, idx) => (
+          <li key={l.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
+            <div className="flex flex-col leading-none">
+              <button
+                type="button"
+                onClick={() => move(idx, -1)}
+                disabled={busy || idx === 0}
+                aria-label="Move up"
+                className="text-ink-faint hover:text-brand disabled:opacity-30"
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() => move(idx, 1)}
+                disabled={busy || idx === links.length - 1}
+                aria-label="Move down"
+                className="text-ink-faint hover:text-brand disabled:opacity-30"
+              >
+                ▼
+              </button>
+            </div>
+            <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate font-medium text-brand hover:underline">
               {l.label}
             </a>
             <button onClick={() => remove(l.id)} className="shrink-0 text-xs font-semibold text-red-600 hover:text-red-700">Remove</button>
