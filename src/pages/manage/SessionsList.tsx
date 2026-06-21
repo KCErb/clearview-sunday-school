@@ -75,34 +75,40 @@ export function SessionsList() {
           const qs = questions.filter((q) => q.session_id === s.id);
           const responses = qs.reduce((sum, q) => sum + (counts[q.id]?.total ?? 0), 0);
           return (
-            <li key={s.id}>
-              <Link
-                to={`/manage/s/${s.id}`}
-                className="block rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm transition hover:border-brand/40 hover:shadow"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-semibold text-ink">{s.title || fmtDate(s.teach_date)}</h2>
-                  {s.is_published ? (
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                      Published
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-                      Draft
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-ink-soft">{fmtDate(s.teach_date)}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-ink-faint">
-                  <span>{qs.length} question{qs.length === 1 ? '' : 's'}</span>
-                  {s.cfm_weeks.length > 0 && <span>· CFM weeks {s.cfm_weeks.join(', ')}</span>}
-                  {responses > 0 && (
-                    <span className="rounded-full bg-brand/10 px-2 py-0.5 font-semibold text-brand">
-                      {responses} response{responses === 1 ? '' : 's'}
-                    </span>
-                  )}
-                </div>
-              </Link>
+            <li key={s.id} className="rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <Link
+                  to={`/manage/s/${s.id}`}
+                  className="font-semibold text-ink underline-offset-2 hover:text-brand hover:underline"
+                >
+                  {s.title || fmtDate(s.teach_date)}
+                </Link>
+                {s.is_published ? (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                    Published
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                    Draft
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm text-ink-soft">{fmtDate(s.teach_date)}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-faint">
+                <span>{qs.length} question{qs.length === 1 ? '' : 's'}</span>
+                {s.cfm_weeks.length > 0 && <span>· CFM weeks {s.cfm_weeks.join(', ')}</span>}
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+                <Link to={`/manage/s/${s.id}`} className="font-semibold text-brand hover:text-brand-bright">
+                  Build / edit →
+                </Link>
+                <Link
+                  to={`/manage/s/${s.id}/responses`}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 font-semibold text-brand transition hover:bg-brand/20"
+                >
+                  {responses} response{responses === 1 ? '' : 's'} →
+                </Link>
+              </div>
             </li>
           );
         })}

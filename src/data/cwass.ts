@@ -152,6 +152,17 @@ export async function myAnswers(questionId: number, userId: string): Promise<Ans
   return (data as Answer[]) ?? [];
 }
 
+/** Admin only: every answer across several questions (named + anonymous). */
+export async function answersForQuestions(questionIds: number[]): Promise<Answer[]> {
+  if (!questionIds.length) return [];
+  const { data } = await supabase
+    .from('answers')
+    .select('*')
+    .in('question_id', questionIds)
+    .order('created_at', { ascending: true });
+  return (data as Answer[]) ?? [];
+}
+
 /** Admin only: every answer to a question (named + anonymous). */
 export async function allAnswers(questionId: number): Promise<Answer[]> {
   const { data } = await supabase

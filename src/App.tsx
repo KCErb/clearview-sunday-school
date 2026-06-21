@@ -6,6 +6,7 @@ import { ThisWeek } from '@/pages/ThisWeek';
 import { QuestionPage } from '@/pages/QuestionPage';
 import { SessionsList } from '@/pages/manage/SessionsList';
 import { SessionDetail } from '@/pages/manage/SessionDetail';
+import { SessionResponses } from '@/pages/manage/SessionResponses';
 import { QuestionManage } from '@/pages/manage/QuestionManage';
 import { InquiriesManage } from '@/pages/manage/InquiriesManage';
 import { Preview } from '@/pages/Preview';
@@ -47,6 +48,14 @@ export default function App() {
         element={
           <AdminRoute>
             <SessionDetail />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/s/:id/responses"
+        element={
+          <AdminRoute>
+            <SessionResponses />
           </AdminRoute>
         }
       />

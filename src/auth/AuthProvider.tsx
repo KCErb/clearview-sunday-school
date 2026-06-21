@@ -6,9 +6,10 @@ import { AuthContext } from './context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
-  const [profileLoaded, setProfileLoaded] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  // The user id the current `profile` value was fetched for (undefined = not yet fetched).
+  const [profileUserId, setProfileUserId] = useState<string | null | undefined>(undefined);
 
   // Track the current session (initial load + future changes).
   useEffect(() => {
@@ -25,20 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const userId = session?.user?.id;
+  const userId = session?.user?.id ?? null;
 
   const fetchProfile = useCallback(async () => {
     if (!userId) {
       setProfile(null);
-      setProfileLoaded(true);
+      setProfileUserId(null);
       return;
     }
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
     setProfile((data as Profile) ?? null);
-    setProfileLoaded(true);
+    setProfileUserId(userId);
   }, [userId]);
 
-  // Load the profile row whenever the signed-in user changes.
   useEffect(() => {
     void (async () => {
       await fetchProfile();
@@ -48,10 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithMagicLink = useCallback(async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) throw new Error(error.message);
   }, []);
@@ -59,6 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, []);
+
+  // Derived each render: true only once the profile we hold matches the current user.
+  // This avoids a stale window on refresh where a guard could see "not admin" too early.
+  const profileLoaded = profileUserId === userId;
 
   return (
     <AuthContext.Provider
