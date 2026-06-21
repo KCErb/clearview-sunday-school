@@ -54,7 +54,8 @@ export function AnswerForm({
         className="w-full resize-y rounded-xl border border-sky-100 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
       />
 
-      <div className="space-y-2.5 rounded-xl bg-sky-50/70 p-3">
+      <div className="space-y-3 rounded-xl bg-sky-50/70 p-3">
+        <span className="text-sm font-medium text-ink">Sharing</span>
         <label className="flex items-start gap-2.5 text-sm">
           <input
             type="checkbox"
@@ -63,28 +64,24 @@ export function AnswerForm({
             className="mt-0.5 h-4 w-4 accent-brand"
           />
           <span>
-            <span className="font-medium text-ink">Post anonymously</span>
+            <span className="font-medium text-ink">Share anonymously</span>
             <span className="block text-xs text-ink-faint">
-              Anonymous means anonymous — your name is never attached, and not even KC can see
-              who wrote it. {anonymous && '(Heads up: anonymous responses can’t be edited later.)'}
+              Your name is never attached — not even KC can see who wrote it.
+              {anonymous && ' (Heads up: anonymous responses can’t be edited later.)'}
             </span>
           </span>
         </label>
-
-        <div className="text-sm">
-          <span className="font-medium text-ink">Sharing</span>
-          <div className="mt-1.5 grid gap-1.5">
-            <ShareOption
-              checked={sharePref === 'verbatim_ok'}
-              onSelect={() => setSharePref('verbatim_ok')}
-              label="Okay to share with the class as I wrote it"
-            />
-            <ShareOption
-              checked={sharePref === 'summarize_only'}
-              onSelect={() => setSharePref('summarize_only')}
-              label="Please don't quote me — KC can summarize the idea"
-            />
-          </div>
+        <div className="grid gap-1.5">
+          <ShareOption
+            checked={sharePref === 'verbatim_ok'}
+            onSelect={() => setSharePref('verbatim_ok')}
+            label="Okay to quote me as I wrote it"
+          />
+          <ShareOption
+            checked={sharePref === 'summarize_only'}
+            onSelect={() => setSharePref('summarize_only')}
+            label="Please don't quote me — KC can summarize the idea"
+          />
         </div>
       </div>
 

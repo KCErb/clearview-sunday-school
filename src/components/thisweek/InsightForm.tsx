@@ -57,7 +57,7 @@ export function InsightForm({
         className="flex w-full items-center gap-2.5 rounded-2xl border border-dashed border-sky-200 bg-white/40 p-4 text-left text-sm font-medium text-ink-soft transition hover:border-brand/50 hover:text-brand"
       >
         <PenLine className="h-4 w-4 shrink-0" aria-hidden="true" />
-        Share an insight with KC…
+        Share an insight…
       </button>
     );
   }
@@ -72,14 +72,15 @@ export function InsightForm({
         placeholder="Something that stood out, a thought to offer, a way you’re applying this…"
         className="w-full resize-y rounded-xl border border-sky-100 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
       />
-      <div className="space-y-2.5 rounded-xl bg-sky-50/70 p-3">
+      <div className="space-y-3 rounded-xl bg-sky-50/70 p-3">
+        <span className="text-sm font-medium text-ink">Sharing</span>
         <label className="flex items-start gap-2.5 text-sm">
           <input type="checkbox" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} className="mt-0.5 h-4 w-4 accent-brand" />
           <span>
-            <span className="font-medium text-ink">Post anonymously</span>
+            <span className="font-medium text-ink">Share anonymously</span>
             <span className="block text-xs text-ink-faint">
               Your name is never attached — not even KC can see who wrote it.
-              {anonymous && ' (Anonymous insights can’t be edited later.)'}
+              {anonymous && ' (Heads up: anonymous insights can’t be edited later.)'}
             </span>
           </span>
         </label>
