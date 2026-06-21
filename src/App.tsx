@@ -8,7 +8,6 @@ import { SessionsList } from '@/pages/manage/SessionsList';
 import { SessionDetail } from '@/pages/manage/SessionDetail';
 import { SessionResponses } from '@/pages/manage/SessionResponses';
 import { QuestionManage } from '@/pages/manage/QuestionManage';
-import { InquiriesManage } from '@/pages/manage/InquiriesManage';
 import { Preview } from '@/pages/Preview';
 import { Protected } from '@/components/Protected';
 import { AdminRoute } from '@/components/AdminRoute';
@@ -64,14 +63,6 @@ export default function App() {
         element={
           <AdminRoute>
             <QuestionManage />
-          </AdminRoute>
-        }
-      />
-      <Route
-        path="/manage/inquiries"
-        element={
-          <AdminRoute>
-            <InquiriesManage />
           </AdminRoute>
         }
       />
