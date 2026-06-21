@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  allInquiries,
   allInsights,
   answersForQuestions,
   getSession,
@@ -13,7 +12,7 @@ import { ManageLayout } from '@/components/manage/ManageLayout';
 import { Attribution } from '@/components/manage/Attribution';
 import { FullPageSpinner } from '@/components/Spinner';
 import { formatRange } from '@/lib/cfm';
-import type { Answer, Inquiry, Insight, Lesson, Question, Session } from '@/lib/types';
+import type { Answer, Insight, Lesson, Question, Session } from '@/lib/types';
 
 export function SessionResponses() {
   const { id } = useParams();
@@ -24,7 +23,6 @@ export function SessionResponses() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
@@ -32,18 +30,16 @@ export function SessionResponses() {
     setSession(s);
     if (s) {
       const qs = await questionsForSession(sessionId);
-      const [ls, ans, ins, inq, nm] = await Promise.all([
+      const [ls, ans, ins, nm] = await Promise.all([
         lessonsForWeeks(s.cfm_weeks),
         answersForQuestions(qs.map((q) => q.id)),
         allInsights(sessionId),
-        allInquiries(),
         nameMap(),
       ]);
       setQuestions(qs);
       setLessons(ls);
       setAnswers(ans);
       setInsights(ins);
-      setInquiries(inq.filter((i) => i.session_id === sessionId));
       setNames(nm);
     }
     setLoading(false);
@@ -128,17 +124,6 @@ export function SessionResponses() {
           </section>
         );
       })}
-
-      {inquiries.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-bold tracking-tight text-ink">Questions from the class</h2>
-          <ul className="mt-3 space-y-2">
-            {inquiries.map((q) => (
-              <SubmissionRow key={q.id} body={q.body} anonymous={q.is_anonymous} authorId={q.author_id} names={names} />
-            ))}
-          </ul>
-        </section>
-      )}
     </ManageLayout>
   );
 }

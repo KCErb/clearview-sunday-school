@@ -7,6 +7,7 @@ import { QuestionPage } from '@/pages/QuestionPage';
 import { SessionsList } from '@/pages/manage/SessionsList';
 import { SessionDetail } from '@/pages/manage/SessionDetail';
 import { SessionResponses } from '@/pages/manage/SessionResponses';
+import { SessionQuestions } from '@/pages/manage/SessionQuestions';
 import { QuestionManage } from '@/pages/manage/QuestionManage';
 import { Preview } from '@/pages/Preview';
 import { Protected } from '@/components/Protected';
@@ -55,6 +56,14 @@ export default function App() {
         element={
           <AdminRoute>
             <SessionResponses />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/s/:id/questions"
+        element={
+          <AdminRoute>
+            <SessionQuestions />
           </AdminRoute>
         }
       />
