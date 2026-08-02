@@ -5,10 +5,12 @@ import { formatRange } from '@/lib/cfm';
 import {
   currentSession,
   lessonsForWeeks,
+  liveSession,
   myInsights,
   questionsForSession,
   sectionLinks,
 } from '@/data/cwass';
+import { useLiveRefresh } from '@/lib/useLiveRefresh';
 import { Wordmark } from '@/components/Logo';
 import { FullPageSpinner } from '@/components/Spinner';
 import { Footer } from '@/components/Footer';
@@ -35,6 +37,7 @@ export function ThisWeek() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [links, setLinks] = useState<SectionLink[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [isLive, setIsLive] = useState(false);
 
   const load = useCallback(async () => {
     const s = await currentSession();
@@ -59,6 +62,15 @@ export function ThisWeek() {
       await load();
     })();
   }, [load]);
+
+  // Cheap one-row check — this runs all week, so keep it slow.
+  const checkLive = useCallback(async () => setIsLive(!!(await liveSession())), []);
+  useEffect(() => {
+    void (async () => {
+      await checkLive();
+    })();
+  }, [checkLive]);
+  useLiveRefresh(checkLive, 15_000);
 
   if (loading) return <FullPageSpinner />;
 
@@ -94,6 +106,22 @@ export function ThisWeek() {
       </header>
 
       <main className="mx-auto max-w-2xl px-6">
+        {isLive && (
+          <Link
+            to="/live"
+            className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-100"
+          >
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            </span>
+            <span className="flex-1">
+              <span className="block font-semibold text-emerald-900">Class is live right now</span>
+              <span className="block text-xs text-emerald-800">Tap to join and answer along.</span>
+            </span>
+            <span aria-hidden className="text-emerald-700">→</span>
+          </Link>
+        )}
         {!session ? (
           <p className="mt-10 rounded-2xl border border-dashed border-sky-100 bg-white/40 p-6 text-center text-sm text-ink-faint">
             No lesson is posted yet. Check back soon!

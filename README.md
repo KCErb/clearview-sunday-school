@@ -60,7 +60,25 @@ Schema lives in [`supabase/migrations/`](./supabase/migrations) and is the sourc
   rows via the `shared_answers` view (no `author_id`). `share_pref` = "don't quote me verbatim"
 - `inquiries` — member-asked questions (same anonymity); KC answers + publishes, surfaced via
   the `shared_inquiries` view
+- `live_prompts` / `live_options` / `live_responses` / `live_presence` — in-class real-time
+  input (see below)
 - `submission-media` storage bucket — provisioned for the future audio/video phase
+
+### Live prompts
+
+`/live` is the page the class sits on during the lesson. KC puts a session in **live mode**
+(`sessions.is_live`) from `/manage/s/:id/live`, then taps a prepared prompt to send it — pick
+one, pick any, or write-in. Responses land privately on his console, alongside "N on the app /
+M responded" so a low count can be read against how much of the room is even holding a phone.
+
+Attribution is set per prompt by KC and enforced by RLS: an `anonymous` prompt physically cannot
+store an `author_id`, and on a `named` prompt only KC ever sees the name. **Names never reach the
+class** — the optional "Show the class" reveal exposes aggregate counts only, via the
+`live_tallies` view.
+
+Verified end-to-end: [`supabase/tests/live_prompts_rls.sql`](./supabase/tests/live_prompts_rls.sql)
+impersonates a real non-admin member and asserts 20 properties (20/20 passing). Run it the same
+way as a migration. Design notes: [`docs/live-prompts.md`](./docs/live-prompts.md).
 
 All admin moderation (sessions, question CRUD, publishing, inquiries) lives at `/manage`
 (admin-only). `is_admin()` = JWT email matches the instructor.

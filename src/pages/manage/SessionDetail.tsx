@@ -109,6 +109,31 @@ export function SessionDetail() {
     <ManageLayout>
       <Link to="/manage" className="text-sm font-medium text-brand hover:text-brand-bright">← All sessions</Link>
 
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+        <Link
+          to={`/manage/s/${session.id}/live`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold transition ${
+            session.is_live
+              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+              : 'bg-brand/10 text-brand hover:bg-brand/20'
+          }`}
+        >
+          {session.is_live ? '● Live now' : 'Live prompts'} →
+        </Link>
+        <Link
+          to={`/manage/s/${session.id}/responses`}
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1.5 font-semibold text-brand transition hover:bg-brand/20"
+        >
+          Responses →
+        </Link>
+        <Link
+          to={`/manage/s/${session.id}/questions`}
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1.5 font-semibold text-brand transition hover:bg-brand/20"
+        >
+          Questions from the class →
+        </Link>
+      </div>
+
       <SessionSettings key={session.id} session={session} onSaved={load} onDeleted={() => navigate('/manage')} />
 
       <h2 className="mt-8 text-lg font-bold text-ink">Sections</h2>

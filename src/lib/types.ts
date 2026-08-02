@@ -24,6 +24,8 @@ export interface Session {
   teach_date: string;
   cfm_weeks: number[];
   is_published: boolean;
+  /** Live mode: the class's /live page is awake and KC can open prompts. One session at a time. */
+  is_live: boolean;
   image: string | null; // legacy single image (unused; art is per-section now)
   /** Per-section art keyed by "home" or a CFM week number. */
   section_art: Record<string, SectionArt>;
@@ -124,4 +126,51 @@ export interface SharedInquiry {
   body: string;
   answer: string | null;
   created_at: string;
+}
+
+// ---- live prompts (in-class, real-time) ------------------------------------
+export type LiveKind = 'single' | 'multi' | 'text';
+/** anonymous = author_id never written (not even KC knows). named = only KC sees the name. */
+export type LiveAttribution = 'anonymous' | 'named';
+export type LiveStatus = 'draft' | 'open' | 'closed';
+
+export interface LivePrompt {
+  id: number;
+  session_id: number;
+  kind: LiveKind;
+  prompt: string;
+  detail: string | null;
+  attribution: LiveAttribution;
+  status: LiveStatus;
+  reveal: boolean; // show the tally to the class (counts only — never names)
+  sort_order: number;
+  opened_at: string | null;
+  closed_at: string | null;
+  created_at: string;
+}
+
+export interface LiveOption {
+  id: number;
+  prompt_id: number;
+  label: string;
+  sort_order: number;
+}
+
+/** One row per selected option; submission_id ties a multi-select answer together. */
+export interface LiveResponse {
+  id: number;
+  prompt_id: number;
+  option_id: number | null;
+  body: string | null;
+  submission_id: string;
+  author_id: string | null;
+  created_at: string;
+}
+
+export interface LiveTallyRow {
+  prompt_id: number;
+  option_id: number;
+  label: string;
+  sort_order: number;
+  votes: number;
 }

@@ -4,6 +4,10 @@ import type {
   Inquiry,
   Insight,
   Lesson,
+  LiveOption,
+  LivePrompt,
+  LiveResponse,
+  LiveTallyRow,
   Question,
   SectionLink,
   Session,
@@ -324,6 +328,222 @@ export function updateInsight(id: number, patch: Partial<Pick<Insight, 'body' | 
 
 export function deleteInsight(id: number) {
   return supabase.from('insights').delete().eq('id', id);
+}
+
+// ---- live prompts ----------------------------------------------------------
+/** How long a heartbeat counts as "still here" (must exceed the /live poll interval). */
+export const PRESENCE_WINDOW_MS = 30_000;
+
+/** The session currently in live mode, if any. Readable by the class (RLS allows is_live). */
+export async function liveSession(): Promise<Session | null> {
+  const { data } = await supabase.from('sessions').select('*').eq('is_live', true).maybeSingle();
+  return (data as Session) ?? null;
+}
+
+/** The one open prompt, if any. */
+export async function openPrompt(): Promise<LivePrompt | null> {
+  const { data } = await supabase
+    .from('live_prompts')
+    .select('*')
+    .eq('status', 'open')
+    .maybeSingle();
+  return (data as LivePrompt) ?? null;
+}
+
+/**
+ * What /live should show: the most recently opened prompt, open or closed. RLS already
+ * limits this to the live session, so a just-closed prompt keeps its revealed tally on
+ * screen until KC opens the next one (vanishing mid-read looks like a bug).
+ */
+export async function currentClassPrompt(): Promise<LivePrompt | null> {
+  const { data } = await supabase
+    .from('live_prompts')
+    .select('*')
+    .in('status', ['open', 'closed'])
+    .order('opened_at', { ascending: false, nullsFirst: false })
+    .limit(1);
+  return ((data as LivePrompt[]) ?? [])[0] ?? null;
+}
+
+export async function optionsForPrompt(promptId: number): Promise<LiveOption[]> {
+  const { data } = await supabase
+    .from('live_options')
+    .select('*')
+    .eq('prompt_id', promptId)
+    .order('sort_order', { ascending: true });
+  return (data as LiveOption[]) ?? [];
+}
+
+/** Admin: every prompt for a session, drafts included. */
+export async function livePromptsForSession(sessionId: number): Promise<LivePrompt[]> {
+  const { data } = await supabase
+    .from('live_prompts')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('sort_order', { ascending: true });
+  return (data as LivePrompt[]) ?? [];
+}
+
+/** Admin: options for every prompt in a session, in one round trip. */
+export async function optionsForSession(promptIds: number[]): Promise<LiveOption[]> {
+  if (!promptIds.length) return [];
+  const { data } = await supabase
+    .from('live_options')
+    .select('*')
+    .in('prompt_id', promptIds)
+    .order('sort_order', { ascending: true });
+  return (data as LiveOption[]) ?? [];
+}
+
+export function createLivePrompt(p: {
+  session_id: number;
+  kind: LivePrompt['kind'];
+  prompt: string;
+  detail: string | null;
+  attribution: LivePrompt['attribution'];
+  sort_order: number;
+}) {
+  return supabase.from('live_prompts').insert(p).select().single();
+}
+
+export function updateLivePrompt(
+  id: number,
+  patch: Partial<Pick<LivePrompt, 'prompt' | 'detail' | 'kind' | 'attribution' | 'reveal' | 'sort_order'>>,
+) {
+  return supabase.from('live_prompts').update(patch).eq('id', id);
+}
+
+export function deleteLivePrompt(id: number) {
+  return supabase.from('live_prompts').delete().eq('id', id);
+}
+
+export function createLiveOption(p: { prompt_id: number; label: string; sort_order: number }) {
+  return supabase.from('live_options').insert(p);
+}
+
+export function updateLiveOption(id: number, patch: Partial<Pick<LiveOption, 'label' | 'sort_order'>>) {
+  return supabase.from('live_options').update(patch).eq('id', id);
+}
+
+export function deleteLiveOption(id: number) {
+  return supabase.from('live_options').delete().eq('id', id);
+}
+
+/**
+ * Reconciles a prompt's options against a list of labels, matching by position so
+ * existing rows keep their ids — a delete-and-recreate would cascade away any responses
+ * already attached to them.
+ */
+export async function saveLiveOptions(promptId: number, labels: string[], existing: LiveOption[]) {
+  const cur = [...existing].sort((a, b) => a.sort_order - b.sort_order);
+  const work: Promise<unknown>[] = [];
+  labels.forEach((label, i) => {
+    const row = cur[i];
+    if (!row) work.push(Promise.resolve(createLiveOption({ prompt_id: promptId, label, sort_order: i + 1 })));
+    else if (row.label !== label || row.sort_order !== i + 1)
+      work.push(Promise.resolve(updateLiveOption(row.id, { label, sort_order: i + 1 })));
+  });
+  cur.slice(labels.length).forEach((row) => work.push(Promise.resolve(deleteLiveOption(row.id))));
+  await Promise.all(work);
+}
+
+/** Live mode on/off for a session. Turning it off also closes any open prompt. */
+export function setLiveSession(sessionId: number, live: boolean) {
+  return supabase.rpc('set_live_session', { p_id: sessionId, p_live: live });
+}
+
+/** Opens this prompt and closes any other. Resets `reveal` so results start private. */
+export function openLivePrompt(id: number) {
+  return supabase.rpc('open_live_prompt', { p_id: id });
+}
+
+export function closeLivePrompt(id: number) {
+  return supabase.rpc('close_live_prompt', { p_id: id });
+}
+
+/**
+ * One row per selected option (text prompts get a single row). `submission_id` ties a
+ * multi-select answer together so responders stay countable without recording identity.
+ */
+export function submitLiveResponse(p: {
+  prompt_id: number;
+  option_ids: number[];
+  body: string | null;
+  author_id: string | null;
+}) {
+  const submission_id = crypto.randomUUID();
+  const rows: {
+    prompt_id: number;
+    option_id: number | null;
+    body: string | null;
+    submission_id: string;
+    author_id: string | null;
+  }[] = p.option_ids.length
+    ? p.option_ids.map((option_id) => ({
+        prompt_id: p.prompt_id,
+        option_id,
+        body: null,
+        submission_id,
+        author_id: p.author_id,
+      }))
+    : [{ prompt_id: p.prompt_id, option_id: null, body: p.body, submission_id, author_id: p.author_id }];
+  return supabase.from('live_responses').insert(rows);
+}
+
+/** The signed-in user's own rows for a prompt (named prompts only — anonymous rows are unreadable). */
+export async function myLiveResponses(promptId: number, userId: string): Promise<LiveResponse[]> {
+  const { data } = await supabase
+    .from('live_responses')
+    .select('*')
+    .eq('prompt_id', promptId)
+    .eq('author_id', userId);
+  return (data as LiveResponse[]) ?? [];
+}
+
+/** Clears the user's own answer so they can re-submit (named prompts only). */
+export function clearMyLiveResponses(promptId: number, userId: string) {
+  return supabase.from('live_responses').delete().eq('prompt_id', promptId).eq('author_id', userId);
+}
+
+/** Admin: raw responses for a prompt. */
+export async function liveResponses(promptId: number): Promise<LiveResponse[]> {
+  const { data } = await supabase
+    .from('live_responses')
+    .select('*')
+    .eq('prompt_id', promptId)
+    .order('created_at', { ascending: false });
+  return (data as LiveResponse[]) ?? [];
+}
+
+/** Class: revealed tallies only (counts, never names or bodies). */
+export async function liveTally(promptId: number): Promise<LiveTallyRow[]> {
+  const { data } = await supabase
+    .from('live_tallies')
+    .select('*')
+    .eq('prompt_id', promptId)
+    .order('sort_order', { ascending: true });
+  return (data as LiveTallyRow[]) ?? [];
+}
+
+/**
+ * Member: "I'm here" ping, so KC can gauge how much of the room is actually on the app.
+ * Goes through an RPC because members have no direct privileges on live_presence — the
+ * function derives the user from auth.uid(), so it can only ever write your own row.
+ */
+export async function markPresent() {
+  // Must await: a PostgrestBuilder is lazy and never issues the request otherwise.
+  const { error } = await supabase.rpc('live_heartbeat');
+  if (error) console.warn('presence heartbeat failed:', error.message);
+}
+
+/** Admin: how many people have pinged within the presence window. */
+export async function presentCount(): Promise<number> {
+  const since = new Date(Date.now() - PRESENCE_WINDOW_MS).toISOString();
+  const { count } = await supabase
+    .from('live_presence')
+    .select('user_id', { count: 'exact', head: true })
+    .gt('seen_at', since);
+  return count ?? 0;
 }
 
 // ---- session admin ---------------------------------------------------------

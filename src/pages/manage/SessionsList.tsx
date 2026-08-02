@@ -121,6 +121,16 @@ export function SessionsList() {
                 >
                   {classQuestions} question{classQuestions === 1 ? '' : 's'} →
                 </Link>
+                <Link
+                  to={`/manage/s/${s.id}/live`}
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold transition ${
+                    s.is_live
+                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                      : 'bg-brand/10 text-brand hover:bg-brand/20'
+                  }`}
+                >
+                  {s.is_live ? '● Live now' : 'Live prompts'} →
+                </Link>
               </div>
             </li>
           );

@@ -26,9 +26,10 @@ src/
   components/toast/     ToastProvider + useToast (transient confirmation banner)
   components/thisweek/  AnswerForm, AskQuestion, MyResponses (member edit/delete own)
   components/manage/    QuestionEditor, ResponsesPanel, InquiriesPanel (admin moderation)
-  data/cwass.ts         all DB reads/writes (sessions/questions/answers/inquiries)
-  lib/                  supabase.ts, types.ts, cfm.ts (CFM URLs/dates)
-  pages/                Splash, Login, AuthCallback, ThisWeek (/this-week), QuestionPage (/q/:id), Manage (/manage)
+  components/live/      AttributionBanner, PromptInput, TallyBars (in-class live prompts)
+  data/cwass.ts         all DB reads/writes (sessions/questions/answers/inquiries/live)
+  lib/                  supabase.ts, types.ts, cfm.ts (CFM URLs/dates), useLiveRefresh.ts
+  pages/                Splash, Login, AuthCallback, ThisWeek (/this-week), QuestionPage (/q/:id), Live (/live), Manage (/manage)
 ```
 
 Model is **teaching sessions**, not raw CFM weeks. A `session` (a Sunday KC teaches) covers
@@ -39,6 +40,15 @@ Answers: anonymity = null author_id; members own their identified answers (read/
 RLS) and a trigger force-unpublishes + stamps `edited_at` on any non-admin edit (re-approval).
 Class reads only `shared_answers`/`shared_inquiries` views (no author_id). All admin moderation
 lives at `/manage` (AdminRoute); member pages stay clean. `/app` → `/this-week`.
+
+**Live prompts** (in-class real-time): a session goes into *live mode* (`sessions.is_live`, one at
+a time); `/live` wakes from idle and KC sends prepared prompts one at a time from
+`/manage/s/:id/live`. Kinds: single|multi|text. Attribution is **per prompt, set by KC** — an
+`anonymous` prompt cannot store `author_id` (RLS enforces it), a `named` one is visible to KC
+only. Names never reach the class; `reveal` exposes counts via `live_tallies`. Transport is
+interval polling (`useLiveRefresh`), deliberately not Realtime. Presence via the `live_heartbeat()`
+RPC; responder counts via `count(distinct submission_id)`. See `docs/live-prompts.md` and
+`supabase/tests/live_prompts_rls.sql` (re-runnable, 20/20).
 
 ## Key facts
 

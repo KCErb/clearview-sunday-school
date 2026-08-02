@@ -4,7 +4,9 @@ import { Login } from '@/pages/Login';
 import { AuthCallback } from '@/pages/AuthCallback';
 import { ThisWeek } from '@/pages/ThisWeek';
 import { QuestionPage } from '@/pages/QuestionPage';
+import { Live } from '@/pages/Live';
 import { SessionsList } from '@/pages/manage/SessionsList';
+import { SessionLive } from '@/pages/manage/SessionLive';
 import { SessionDetail } from '@/pages/manage/SessionDetail';
 import { SessionResponses } from '@/pages/manage/SessionResponses';
 import { SessionQuestions } from '@/pages/manage/SessionQuestions';
@@ -36,10 +38,26 @@ export default function App() {
         }
       />
       <Route
+        path="/live"
+        element={
+          <Protected>
+            <Live />
+          </Protected>
+        }
+      />
+      <Route
         path="/manage"
         element={
           <AdminRoute>
             <SessionsList />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/manage/s/:id/live"
+        element={
+          <AdminRoute>
+            <SessionLive />
           </AdminRoute>
         }
       />
