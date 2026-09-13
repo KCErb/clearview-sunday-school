@@ -1,10 +1,11 @@
 name: CI
-
 on:
-  push:
-    branches: [main]
   pull_request:
-
+  workflow_call:
+    inputs:
+      preview:
+        type: boolean
+        default: false
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -18,9 +19,38 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
+      - run: pnpm test
       - name: Build
         run: pnpm build
         env:
-          # Build needs the public client vars; these are non-secret.
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_POLL_PREVIEW: ${{ inputs.preview && 'true' || 'false' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: local-test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify migration and authorization
+        env:
+          PGPASSWORD: local-test-only
+        run: >-
+          psql -h localhost -U postgres -d postgres -X -v ON_ERROR_STOP=1
+          -f tests/postgres-bootstrap.sql
+          -f supabase/migrations/0016_polling_rewrite.sql
+          -f supabase/tests/polling.sql

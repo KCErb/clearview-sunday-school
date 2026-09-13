@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Core" subtitle="Buttons, cards, badges, tags, dividers" -->
+<!doctype html><html><head><meta charset="utf-8"><title>Core</title><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:20px;background:var(--surface-page);font-family:var(--font-serif-text)}.row{display:flex;flex-wrap:wrap;align-items:center;gap:16px}.col{display:flex;flex-direction:column;gap:16px}.lbl{font-family:var(--font-sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-quiet);margin-bottom:8px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+const { Button, IconButton, Card, Badge, Tag, Divider, Icon } = window.LatterDaySaintsDesignSystem_88d7f2;
+function Demo(){return <div className="col">
+ <div><div className="lbl">Button</div><div className="row">
+  <Button>Primary</Button><Button variant="secondary">Secondary</Button><Button variant="quiet">Quiet</Button><Button disabled>Disabled</Button>
+  <Button size="sm">Small</Button><Button size="lg" iconBefore={<Icon name="play" size={18}/>}>Present</Button></div></div>
+ <div><div className="lbl">Icon button / Badge / Tag</div><div className="row">
+  <IconButton name="bookmark" label="Save"/><IconButton name="share-2" label="Share"/><IconButton name="settings" label="Settings" variant="filled"/>
+  <Badge>Neutral</Badge><Badge tone="accent">Week 34</Badge><Badge tone="growth">Ready</Badge><Badge tone="warm">Draft</Badge>
+  <Tag selected onClick={()=>{}}>Faith</Tag><Tag onRemove={()=>{}}>Prayer</Tag></div></div>
+ <div className="row" style={{alignItems:'stretch'}}>
+  <Card style={{flex:1}}><div className="lbl">Flat card</div><div>Hairline border, 6px radius, no shadow.</div></Card>
+  <Card elevation="raised" accent style={{flex:1}}><div className="lbl">Raised + accent</div><Divider variant="rule" style={{marginTop:8}}/></Card>
+ </div></div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

@@ -19,9 +19,9 @@ export default defineConfig({
         name: 'Clearview Ward Adult Sunday School',
         short_name: 'Clearview',
         description:
-          'Study schedule, answers, and questions for the Clearview Ward Adult Sunday School.',
-        theme_color: '#2f6fed',
-        background_color: '#eef3fb',
+          'Share your perspective in Clearview Ward Sunday School.',
+        theme_color: '#007da5',
+        background_color: '#efefe7',
         display: 'standalone',
         start_url: '/',
         scope: '/',

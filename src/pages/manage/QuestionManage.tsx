@@ -63,7 +63,7 @@ export function QuestionManage() {
     return (
       <ManageLayout>
         <p className="text-ink-soft">Question not found.</p>
-        <Link to="/manage" className="mt-3 inline-block font-semibold text-brand">
+        <Link to="/archive/manage" className="mt-3 inline-block font-semibold text-brand">
           ← All sessions
         </Link>
       </ManageLayout>
@@ -87,13 +87,13 @@ export function QuestionManage() {
     const { error } = await deleteQuestion(questionId);
     if (error) return show(error.message, 'info');
     show('Question deleted');
-    navigate(`/manage/s/${question!.session_id}`);
+    navigate(`/archive/manage/s/${question!.session_id}`);
   }
 
   return (
     <ManageLayout>
       <Link
-        to={`/manage/s/${question.session_id}`}
+        to={`/archive/manage/s/${question.session_id}`}
         className="text-sm font-medium text-brand hover:text-brand-bright"
       >
         ← {session?.title ?? 'Session'}

@@ -45,10 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, [fetchProfile]);
 
-  const signInWithMagicLink = useCallback(async (email: string) => {
+  const signInWithMagicLink = useCallback(async (email: string, next = '/manage') => {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { shouldCreateUser: next.startsWith('/archive'), emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     });
     if (error) throw new Error(error.message);
   }, []);

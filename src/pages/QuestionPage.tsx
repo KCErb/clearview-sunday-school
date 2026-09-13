@@ -53,7 +53,7 @@ export function QuestionPage() {
     return (
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center px-6 text-center">
         <p className="text-ink-soft">That question isn’t available.</p>
-        <Link to="/this-week" className="mt-4 font-semibold text-brand hover:text-brand-bright">
+        <Link to="/archive/this-week" className="mt-4 font-semibold text-brand hover:text-brand-bright">
           ← Back to this week
         </Link>
       </div>
@@ -67,7 +67,7 @@ export function QuestionPage() {
   return (
     <div className="min-h-dvh">
       <div className="mx-auto max-w-2xl px-6 pt-8">
-        <Link to="/this-week" className="text-sm font-medium text-brand hover:text-brand-bright">
+        <Link to="/archive/this-week" className="text-sm font-medium text-brand hover:text-brand-bright">
           ← {session?.title ?? 'This week'}
         </Link>
 
@@ -101,18 +101,18 @@ export function QuestionPage() {
 
         <nav className="mt-10 flex items-center justify-between gap-3 border-t border-sky-100 pt-5 text-sm">
           {prev ? (
-            <Link to={`/q/${prev.id}`} className="font-medium text-brand hover:text-brand-bright">
+            <Link to={`/archive/q/${prev.id}`} className="font-medium text-brand hover:text-brand-bright">
               ← Previous question
             </Link>
           ) : (
             <span />
           )}
           {next ? (
-            <Link to={`/q/${next.id}`} className="font-medium text-brand hover:text-brand-bright">
+            <Link to={`/archive/q/${next.id}`} className="font-medium text-brand hover:text-brand-bright">
               Next question →
             </Link>
           ) : (
-            <Link to="/this-week" className="font-medium text-brand hover:text-brand-bright">
+            <Link to="/archive/this-week" className="font-medium text-brand hover:text-brand-bright">
               Back to this week
             </Link>
           )}

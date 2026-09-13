@@ -1,0 +1,14 @@
+<!-- @dsCard group="Motion" viewport="700x140" name="Interaction states" subtitle="Hover darkens, press darkens further, focus is a gold ring" -->
+<!doctype html><html><head><meta charset="utf-8"><title>States</title><link rel="stylesheet" href="../styles.css"><style>body{margin:0;padding:18px;background:var(--surface-card);font-family:var(--font-sans);color:var(--text-body)}
+.sw{display:flex;gap:0;border-radius:4px;overflow:hidden;border:1px solid var(--border-subtle)}
+.sw>div{flex:1;height:56px;display:flex;align-items:flex-end;padding:6px;font-size:10px;letter-spacing:.04em}
+.grid{display:grid;gap:10px}
+.k{font-size:11px;color:var(--text-quiet);letter-spacing:.1em;text-transform:uppercase}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text-muted)}
+.r{display:flex;align-items:baseline;gap:14px}</style></head><body><style>.b{font-family:var(--font-sans);font-weight:600;font-size:15px;color:#fff;background:var(--accent);border:none;border-radius:4px;padding:10px 20px}</style>
+<div style="display:flex;gap:16px;align-items:center">
+<span><button class="b">Rest</button><div class="mono" style="margin-top:8px">--accent</div></span>
+<span><button class="b" style="background:var(--accent-hover)">Hover</button><div class="mono" style="margin-top:8px">--accent-hover</div></span>
+<span><button class="b" style="background:var(--accent-press)">Press</button><div class="mono" style="margin-top:8px">--accent-press</div></span>
+<span><button class="b" style="outline:2px solid var(--focus-ring);outline-offset:2px">Focus</button><div class="mono" style="margin-top:8px">--focus-ring</div></span>
+</div></body></html>

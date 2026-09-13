@@ -1,110 +1,23 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Mail } from 'lucide-react';
 import { useAuth } from '@/auth/useAuth';
 import { supabase } from '@/lib/supabase';
-import { ChristMark } from '@/components/Logo';
-import { Spinner } from '@/components/Spinner';
 
 export function Login() {
+  const archive = useLocation().pathname.startsWith('/archive');
   const { session, signInWithMagicLink } = useAuth();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
-  const [error, setError] = useState<string | null>(null);
-
+  const [error, setError] = useState('');
   const devEmail = import.meta.env.VITE_DEV_LOGIN_EMAIL;
   const devPass = import.meta.env.VITE_DEV_LOGIN_PASSWORD;
-  const showDev = import.meta.env.DEV && !!devEmail && !!devPass;
-
-  if (session) return <Navigate to="/app" replace />;
-
-  async function devSignIn() {
-    if (!devEmail || !devPass) return;
-    setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email: devEmail, password: devPass });
-    if (error) setError(error.message);
-  }
-
+  if (session) return <Navigate to={archive ? '/archive/this-week' : '/manage'} replace />;
   async function send(e?: FormEvent) {
-    e?.preventDefault();
-    if (!email.trim()) return;
-    setError(null);
-    setStatus('sending');
-    try {
-      await signInWithMagicLink(email);
-      setStatus('sent');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
-      setStatus('idle');
-    }
+    e?.preventDefault(); if (!email.trim() || status === 'sending') return;
+    setError(''); setStatus('sending');
+    try { await signInWithMagicLink(email, archive ? '/archive/this-week' : '/manage'); setStatus('sent'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Could not send your link. Try again.'); setStatus('idle'); }
   }
-
-  return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
-      <Link to="/" className="mx-auto mb-8 flex flex-col items-center gap-3 text-center">
-        <ChristMark className="h-16 w-16" />
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-faint">
-          Clearview Ward Adult Sunday School
-        </span>
-      </Link>
-
-      <div className="rounded-3xl border border-sky-100 bg-white/80 p-8 shadow-xl shadow-brand/5 backdrop-blur">
-        {status === 'sent' ? (
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-ink">Check your email</h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              We sent a sign-in link to <span className="font-semibold text-ink">{email}</span>.
-              Open it on this device to finish signing in.
-            </p>
-            <button
-              onClick={() => send()}
-              className="mt-6 text-sm font-semibold text-brand hover:text-brand-bright"
-            >
-              Resend link
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={send} className="space-y-4">
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-ink">Sign in</h1>
-              <p className="mt-1.5 text-sm text-ink-soft">
-                No password — enter your email and we’ll send a one-tap link.
-              </p>
-            </div>
-
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-ink-soft">Email</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-                autoFocus
-                className="w-full rounded-xl border border-sky-100 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-              />
-            </label>
-
-            {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={status === 'sending'}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-base font-semibold text-white shadow-lg shadow-brand/25 transition hover:bg-brand-bright disabled:opacity-60"
-            >
-              {status === 'sending' ? <Spinner /> : 'Send my sign-in link'}
-            </button>
-          </form>
-        )}
-      </div>
-
-      {showDev && (
-        <button
-          onClick={devSignIn}
-          className="mx-auto mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-        >
-          ⚡ Dev sign in (local only)
-        </button>
-      )}
-    </div>
-  );
+  return <div className="poll-app participant"><header className="poll-header"><Link className="class-name" to="/">Clearview Ward<span>Sunday School</span></Link></header><main className="participant-main login-main"><section className="question-card"><p className="eyebrow">{archive ? 'Study archive' : "Teacher's desk"}</p><h1>{status === 'sent' ? 'Check your email.' : 'Welcome back.'}</h1><div className="gold-rule" />{status === 'sent' ? <><p className="question-detail">A sign-in link is on its way to <strong>{email}</strong>. Open it to return to {archive ? 'the study archive' : 'your questions'}.</p><button className="text-button" onClick={() => void send()}>Resend sign-in link</button></> : <form onSubmit={e => void send(e)}><p className="question-detail">{archive ? 'Sign in to read and contribute to earlier lessons.' : 'Sign in to prepare questions and listen to your class.'}</p><label className="login-label">Email address<input type="email" required autoFocus autoComplete="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)} /></label><button className="poll-button" disabled={status === 'sending'}><Mail size={17} />{status === 'sending' ? 'Sending…' : 'Send sign-in link'}</button></form>}{error && <p role="alert" className="poll-notice">{error}</p>}</section><Link className="text-button" to={archive ? '/archive' : '/'}><ArrowLeft size={15} />Back to {archive ? 'the archive' : 'class'}</Link>{import.meta.env.DEV && devEmail && devPass && <button className="text-button" onClick={async () => { const { error } = await supabase.auth.signInWithPassword({ email: devEmail, password: devPass }); if (error) setError(error.message); }}>Local teacher sign-in</button>}</main></div>;
 }

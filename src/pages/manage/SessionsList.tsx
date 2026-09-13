@@ -60,7 +60,7 @@ export function SessionsList() {
       show(error?.message ?? 'Could not create', 'info');
       return;
     }
-    navigate(`/manage/s/${(data as Session).id}`);
+    navigate(`/archive/manage/s/${(data as Session).id}`);
   }
 
   if (loading) return <FullPageSpinner />;
@@ -86,7 +86,7 @@ export function SessionsList() {
             <li key={s.id} className="rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <Link
-                  to={`/manage/s/${s.id}`}
+                  to={`/archive/manage/s/${s.id}`}
                   className="font-semibold text-ink underline-offset-2 hover:text-brand hover:underline"
                 >
                   {s.title || fmtDate(s.teach_date)}
@@ -106,23 +106,23 @@ export function SessionsList() {
                 <p className="mt-1 text-xs text-ink-faint">CFM weeks {s.cfm_weeks.join(', ')}</p>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-                <Link to={`/manage/s/${s.id}`} className="font-semibold text-brand hover:text-brand-bright">
+                <Link to={`/archive/manage/s/${s.id}`} className="font-semibold text-brand hover:text-brand-bright">
                   Build / edit →
                 </Link>
                 <Link
-                  to={`/manage/s/${s.id}/responses`}
+                  to={`/archive/manage/s/${s.id}/responses`}
                   className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 font-semibold text-brand transition hover:bg-brand/20"
                 >
                   {responses} response{responses === 1 ? '' : 's'} →
                 </Link>
                 <Link
-                  to={`/manage/s/${s.id}/questions`}
+                  to={`/archive/manage/s/${s.id}/questions`}
                   className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 font-semibold text-brand transition hover:bg-brand/20"
                 >
                   {classQuestions} question{classQuestions === 1 ? '' : 's'} →
                 </Link>
                 <Link
-                  to={`/manage/s/${s.id}/live`}
+                  to={`/archive/manage/s/${s.id}/live`}
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold transition ${
                     s.is_live
                       ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'

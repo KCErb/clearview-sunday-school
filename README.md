@@ -1,17 +1,65 @@
-# CWASS — Clearview Ward Adult Sunday School
+# Clearview Sunday School
 
-The class website for [clearviewsunday.school](https://clearviewsunday.school): the weekly
-study schedule, plus a place for students to share answers and ask questions — including folks
-who can't make it on Sundays.
+A simple class input screen at [clearviewsunday.school](https://clearviewsunday.school).
+Open the address, tap a choice, and change it any time while the question is open.
+No participant accounts, submit buttons, codes, CAPTCHA, or public results.
 
-Installable PWA. No passwords — sign in with a magic email link.
+- `/` — current question or waiting screen; `/live` and `/app` redirect here.
+- `/manage` — teacher question library, live private results, and history. Existing admin magic-link login.
+- `/archive` — previous study website and its management, with original access controls.
+- `/preview/polls/manage` — teacher + phone simulation, available in dev or an explicit preview build.
+- `/preview/polls` — participant simulation. Preview data lives only in this browser, never in Supabase.
 
-## Stack
+## Polling architecture
 
-- **Vite + React 19 + TypeScript + Tailwind v4** (SPA), installable PWA via `vite-plugin-pwa`
-- **Supabase** — magic-link auth, Postgres, storage (browser talks to it directly; Row-Level
-  Security is the security boundary, so there is no custom server)
-- **Cloudflare Pages** — static hosting + the `clearviewsunday.school` custom domain
+New tables in migration `0016_polling_rewrite.sql` are separate from all legacy content.
+`polls` and ordered `poll_options` define questions. `poll_room` holds the current question.
+`poll_answers` stores one replaceable selection per question / hashed browser secret.
+Raw tokens stay in browser storage. No participant names or accounts are recorded.
+Clearing storage or changing browsers creates a separate response identity.
+
+Anonymous RPCs: `poll_current`, `poll_my_answer`, `poll_answer`.
+Admin RPCs: `poll_library`, `poll_save`, `poll_action` (open / close / delete).
+All direct table access is revoked. Admin functions check the existing `is_admin()` identity.
+Selections, open epochs, and revisions are verified in a transaction. A question locks after its
+first nonempty answer, even if later cleared. Reopen retains results; Ask again makes a new draft.
+
+The browser serializes/coalesces saves and polls every two seconds while visible. Network errors
+retain pending changes, but closing/reopening invalidates older pending work. Save acknowledgements
+are required before displaying “Saved”. Storage failure degrades to in-memory continuity.
+
+## Preview and launch
+
+`pnpm dev` serves both working screens and the simulated preview. The preview toolbar can pause
+connections and reset sample questions. Do not use the preview for real class responses.
+
+Push `polling-rewrite` for a Cloudflare branch preview; builds include the preview routes only on
+non-production branches. Production builds exclude the simulation module. The supplied Church
+Design System is the source for the new screen styles; the archive keeps its prior design.
+
+Before production: apply the additive migration, verify anonymous RPC access and teacher login,
+and review the hosted preview. `main` deploys only after frontend and database tests pass and the
+live `poll_current` RPC responds successfully. Roll back the Pages deployment if necessary; retain
+the additive tables so responses are not lost. PWA clients refresh automatically on a new build.
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+# Temporary PostgreSQL only (bootstrap is not for production):
+psql "$TEST_DATABASE_URL" -X -v ON_ERROR_STOP=1 -f tests/postgres-bootstrap.sql \
+  -f supabase/migrations/0016_polling_rewrite.sql -f supabase/tests/polling.sql
+# Apply migration through Management API; reads the existing PAT without printing it:
+python3 scripts/supabase-query.py supabase/migrations/0016_polling_rewrite.sql
+```
+
+The SQL suite rolls back its fixtures and works through psql or the Management API. The bootstrap file models the existing JWT-based admin check for local/CI use.
+
+## Existing platform and archive reference
+
+React 19, TypeScript, Vite, Tailwind, Supabase, Cloudflare Pages. The sections below document
+the archived site and existing account setup; its earlier roadmap is historical.
 
 ## Local development
 

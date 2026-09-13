@@ -7,11 +7,11 @@ export function ManageLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh">
       <header className="flex flex-wrap items-center gap-x-5 gap-y-2 px-6 py-6 sm:px-8">
-        <Link to="/manage" className="text-lg font-bold text-ink hover:text-brand">
+        <Link to="/archive/manage" className="text-lg font-bold text-ink hover:text-brand">
           Manage
         </Link>
         <div className="ml-auto flex items-center gap-3 text-sm">
-          <Link to="/this-week" className="font-medium text-brand hover:text-brand-bright">
+          <Link to="/archive/this-week" className="font-medium text-brand hover:text-brand-bright">
             Class view ↗
           </Link>
           <button onClick={signOut} className="font-medium text-ink-soft hover:text-ink">

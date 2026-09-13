@@ -1,0 +1,30 @@
+/* Official Church color palette, version 4.0 (Church Communication Guide 4.2.5).
+   Values transcribed verbatim from the published swatch chart supplied by the user
+   (uploads/color-palettes.json), which also carries CMYK, RGB and PMS equivalents.
+   Swatch names are kept exactly as printed -- Blue 25, Neutral 15, Gold 20 -- so a value
+   here can be checked against the chart by name. Tokens marked "tint" are NOT in the
+   printed chart; they are screen-only tints of a printed swatch, named after their parent. */
+:root{
+/* Blue */
+--blue-5:#B0EEFC;--blue-10:#7DE3F4;--blue-15:#49CCE6;--blue-20:#01B6D1;--blue-25:#007DA5;--blue-30:#006184;--blue-35:#005175;--blue-40:#003057;
+--blue-tint-10:#E8F9FE;--blue-tint-20:#CFF1FA;
+/* Red */
+--red-5:#FDA1B2;--red-10:#FC4E6D;--red-15:#E10F5A;--red-20:#BD0057;--red-25:#A6004E;--red-30:#8F124A;--red-35:#7D003F;--red-40:#6E0D33;
+/* Yellow (runs warm through orange to earth) */
+--yellow-5:#FFD61A;--yellow-10:#FFB81C;--yellow-15:#FAA61A;--yellow-20:#F68D2E;--yellow-25:#E66A1F;--yellow-30:#D45311;--yellow-35:#974A07;--yellow-40:#674730;
+/* Green */
+--green-5:#D3E952;--green-10:#BED21E;--green-15:#93C742;--green-20:#6DB344;--green-25:#50A83E;--green-30:#318D43;--green-35:#206B3F;--green-40:#235C35;
+--green-tint-10:#F4F9E3;--green-tint-20:#E8F3C4;
+/* Gray (cool neutral) */
+--gray-5:#E0E2E2;--gray-10:#D0D3D3;--gray-15:#BDC0C0;--gray-20:#A9ADAD;--gray-25:#9DA1A1;--gray-30:#878A8C;--gray-35:#676B6E;--gray-40:#53575B;--gray-50:#35383A;
+/* Neutral (warm) */
+--neutral-5:#EFEFE7;--neutral-10:#E9E6E0;--neutral-15:#E9E3D9;--neutral-20:#D5CFBE;--neutral-25:#C8C0AB;--neutral-30:#C6BFAD;--neutral-35:#BEB097;--neutral-40:#B3A18D;
+/* Black and white */
+--white:#FFFFFF;--black:#000000;--rich-black:#000000;
+/* Christmas campaign palette */
+--christmas-red:#D50032;--christmas-deep-red:#992A31;--gold-10:#DBBF6B;--gold-20:#C1A01E;--gold-10-tint-20:#F8F0E4;--gold-10-tint-50:#EDDFB5;
+/* Easter campaign palette */
+--purple-10:#A16FAF;--purple-30:#592569;--purple-40:#432554;--green-30-tint-60:#8EA980;--green-30-tint-40:#B0C0A2;
+/* UI status -- chosen from the palette, not invented */
+--status-info:#006184;--status-success:#206B3F;--status-caution:#974A07;--status-critical:#7D003F;
+}

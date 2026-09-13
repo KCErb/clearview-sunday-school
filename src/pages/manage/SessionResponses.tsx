@@ -56,7 +56,7 @@ export function SessionResponses() {
     return (
       <ManageLayout>
         <p className="text-ink-soft">Session not found.</p>
-        <Link to="/manage" className="mt-3 inline-block font-semibold text-brand">← All sessions</Link>
+        <Link to="/archive/manage" className="mt-3 inline-block font-semibold text-brand">← All sessions</Link>
       </ManageLayout>
     );
   }
@@ -77,7 +77,7 @@ export function SessionResponses() {
 
   return (
     <ManageLayout>
-      <Link to="/manage" className="text-sm font-medium text-brand hover:text-brand-bright">← All sessions</Link>
+      <Link to="/archive/manage" className="text-sm font-medium text-brand hover:text-brand-bright">← All sessions</Link>
       <h1 className="mt-3 text-xl font-bold text-ink">{session.title} · responses</h1>
       <p className="mt-1 text-sm text-ink-soft">
         Everything members sent this session, all in one place. Anonymous submissions have no record

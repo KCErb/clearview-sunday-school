@@ -1,0 +1,1429 @@
+{
+  "palettes": {
+    "color": [
+      {
+        "name": "Blue 5",
+        "family": "blue",
+        "hex": "#B0EEFC",
+        "cmyk": {
+          "c": 23,
+          "m": 0,
+          "y": 3,
+          "k": 0
+        },
+        "rgb": [
+          176,
+          238,
+          252
+        ],
+        "pms": {
+          "coated": "9441C",
+          "uncoated": "7457U"
+        }
+      },
+      {
+        "name": "Blue 10",
+        "family": "blue",
+        "hex": "#7DE3F4",
+        "cmyk": {
+          "c": 34,
+          "m": 0,
+          "y": 6,
+          "k": 0
+        },
+        "rgb": [
+          125,
+          227,
+          244
+        ],
+        "pms": {
+          "coated": "304C",
+          "uncoated": "635U"
+        }
+      },
+      {
+        "name": "Blue 15",
+        "family": "blue",
+        "hex": "#49CCE6",
+        "cmyk": {
+          "c": 47,
+          "m": 0,
+          "y": 10,
+          "k": 0
+        },
+        "rgb": [
+          73,
+          204,
+          230
+        ],
+        "pms": {
+          "coated": "310C",
+          "uncoated": "310U"
+        }
+      },
+      {
+        "name": "Blue 20",
+        "family": "blue",
+        "hex": "#01B6D1",
+        "cmyk": {
+          "c": 75,
+          "m": 0,
+          "y": 15,
+          "k": 5
+        },
+        "rgb": [
+          1,
+          182,
+          209
+        ],
+        "pms": {
+          "coated": "631C",
+          "uncoated": "3125U"
+        }
+      },
+      {
+        "name": "Blue 25",
+        "family": "blue",
+        "hex": "#007DA5",
+        "cmyk": {
+          "c": 100,
+          "m": 0,
+          "y": 10,
+          "k": 35
+        },
+        "rgb": [
+          0,
+          125,
+          165
+        ],
+        "pms": {
+          "coated": "633C",
+          "uncoated": "314U"
+        }
+      },
+      {
+        "name": "Blue 30",
+        "family": "blue",
+        "hex": "#006184",
+        "cmyk": {
+          "c": 100,
+          "m": 13,
+          "y": 10,
+          "k": 41
+        },
+        "rgb": [
+          0,
+          97,
+          132
+        ],
+        "pms": {
+          "coated": "634C",
+          "uncoated": "308U"
+        }
+      },
+      {
+        "name": "Blue 35",
+        "family": "blue",
+        "hex": "#005175",
+        "cmyk": {
+          "c": 100,
+          "m": 25,
+          "y": 0,
+          "k": 50
+        },
+        "rgb": [
+          0,
+          81,
+          117
+        ],
+        "pms": {
+          "coated": "7693C",
+          "uncoated": "7692U"
+        }
+      },
+      {
+        "name": "Blue 40",
+        "family": "blue",
+        "hex": "#003057",
+        "cmyk": {
+          "c": 100,
+          "m": 40,
+          "y": 0,
+          "k": 60
+        },
+        "rgb": [
+          0,
+          48,
+          87
+        ],
+        "pms": {
+          "coated": "540C",
+          "uncoated": "540U"
+        }
+      },
+      {
+        "name": "Red 5",
+        "family": "red",
+        "hex": "#FDA1B2",
+        "cmyk": {
+          "c": 0,
+          "m": 50,
+          "y": 20,
+          "k": 0
+        },
+        "rgb": [
+          253,
+          161,
+          178
+        ],
+        "pms": {
+          "coated": "1775C",
+          "uncoated": "183U"
+        }
+      },
+      {
+        "name": "Red 10",
+        "family": "red",
+        "hex": "#FC4E6D",
+        "cmyk": {
+          "c": 0,
+          "m": 82,
+          "y": 37,
+          "k": 0
+        },
+        "rgb": [
+          252,
+          78,
+          109
+        ],
+        "pms": {
+          "coated": "198C",
+          "uncoated": "1925U"
+        }
+      },
+      {
+        "name": "Red 15",
+        "family": "red",
+        "hex": "#E10F5A",
+        "cmyk": {
+          "c": 0,
+          "m": 100,
+          "y": 45,
+          "k": 5
+        },
+        "rgb": [
+          225,
+          15,
+          90
+        ],
+        "pms": {
+          "coated": "Rubine Red C",
+          "uncoated": "Rubine Red U"
+        }
+      },
+      {
+        "name": "Red 20",
+        "family": "red",
+        "hex": "#BD0057",
+        "cmyk": {
+          "c": 6,
+          "m": 100,
+          "y": 26,
+          "k": 24
+        },
+        "rgb": [
+          189,
+          0,
+          87
+        ],
+        "pms": {
+          "coated": "215C",
+          "uncoated": "220U"
+        }
+      },
+      {
+        "name": "Red 25",
+        "family": "red",
+        "hex": "#A6004E",
+        "cmyk": {
+          "c": 0,
+          "m": 100,
+          "y": 25,
+          "k": 45
+        },
+        "rgb": [
+          166,
+          0,
+          78
+        ],
+        "pms": {
+          "coated": "221C",
+          "uncoated": "220U"
+        }
+      },
+      {
+        "name": "Red 30",
+        "family": "red",
+        "hex": "#8F124A",
+        "cmyk": {
+          "c": 15,
+          "m": 100,
+          "y": 21,
+          "k": 48
+        },
+        "rgb": [
+          143,
+          18,
+          74
+        ],
+        "pms": {
+          "coated": "7435C",
+          "uncoated": "7648U"
+        }
+      },
+      {
+        "name": "Red 35",
+        "family": "red",
+        "hex": "#7D003F",
+        "cmyk": {
+          "c": 0,
+          "m": 100,
+          "y": 15,
+          "k": 55
+        },
+        "rgb": [
+          125,
+          0,
+          63
+        ],
+        "pms": {
+          "coated": "222C",
+          "uncoated": "7435U"
+        }
+      },
+      {
+        "name": "Red 40",
+        "family": "red",
+        "hex": "#6E0D33",
+        "cmyk": {
+          "c": 18,
+          "m": 100,
+          "y": 45,
+          "k": 67
+        },
+        "rgb": [
+          110,
+          13,
+          51
+        ],
+        "pms": {
+          "coated": "7421C",
+          "uncoated": "222U"
+        }
+      },
+      {
+        "name": "Yellow 5",
+        "family": "yellow",
+        "hex": "#FFD61A",
+        "cmyk": {
+          "c": 0,
+          "m": 11,
+          "y": 100,
+          "k": 0
+        },
+        "rgb": [
+          255,
+          214,
+          26
+        ],
+        "pms": {
+          "coated": "122C",
+          "uncoated": "114U"
+        }
+      },
+      {
+        "name": "Yellow 10",
+        "family": "yellow",
+        "hex": "#FFB81C",
+        "cmyk": {
+          "c": 0,
+          "m": 20,
+          "y": 100,
+          "k": 0
+        },
+        "rgb": [
+          255,
+          184,
+          28
+        ],
+        "pms": {
+          "coated": "1235C",
+          "uncoated": "7548U"
+        }
+      },
+      {
+        "name": "Yellow 15",
+        "family": "yellow",
+        "hex": "#FAA61A",
+        "cmyk": {
+          "c": 0,
+          "m": 40,
+          "y": 100,
+          "k": 0
+        },
+        "rgb": [
+          255,
+          166,
+          26
+        ],
+        "pms": {
+          "coated": "1375C",
+          "uncoated": "123U"
+        }
+      },
+      {
+        "name": "Yellow 20",
+        "family": "yellow",
+        "hex": "#F68D2E",
+        "cmyk": {
+          "c": 0,
+          "m": 54,
+          "y": 87,
+          "k": 0
+        },
+        "rgb": [
+          246,
+          141,
+          46
+        ],
+        "pms": {
+          "coated": "715C",
+          "uncoated": "144U"
+        }
+      },
+      {
+        "name": "Yellow 25",
+        "family": "yellow",
+        "hex": "#E66A1F",
+        "cmyk": {
+          "c": 0,
+          "m": 70,
+          "y": 100,
+          "k": 5
+        },
+        "rgb": [
+          230,
+          106,
+          31
+        ],
+        "pms": {
+          "coated": "7578C",
+          "uncoated": "166U"
+        }
+      },
+      {
+        "name": "Yellow 30",
+        "family": "yellow",
+        "hex": "#D45311",
+        "cmyk": {
+          "c": 5,
+          "m": 77,
+          "y": 100,
+          "k": 15
+        },
+        "rgb": [
+          212,
+          83,
+          17
+        ],
+        "pms": {
+          "coated": "167C",
+          "uncoated": "159U"
+        }
+      },
+      {
+        "name": "Yellow 35",
+        "family": "yellow",
+        "hex": "#974A07",
+        "cmyk": {
+          "c": 0,
+          "m": 65,
+          "y": 100,
+          "k": 45
+        },
+        "rgb": [
+          151,
+          74,
+          7
+        ],
+        "pms": {
+          "coated": "1535C",
+          "uncoated": "174U"
+        }
+      },
+      {
+        "name": "Yellow 40",
+        "family": "yellow",
+        "hex": "#674730",
+        "cmyk": {
+          "c": 30,
+          "m": 67,
+          "y": 65,
+          "k": 74
+        },
+        "rgb": [
+          103,
+          71,
+          48
+        ],
+        "pms": {
+          "coated": "7589C",
+          "uncoated": "1545U"
+        }
+      },
+      {
+        "name": "Green 5",
+        "family": "green",
+        "hex": "#D3E952",
+        "cmyk": {
+          "c": 15,
+          "m": 0,
+          "y": 88,
+          "k": 0
+        },
+        "rgb": [
+          211,
+          233,
+          82
+        ],
+        "pms": {
+          "coated": "584C",
+          "uncoated": "585U"
+        }
+      },
+      {
+        "name": "Green 10",
+        "family": "green",
+        "hex": "#BED21E",
+        "cmyk": {
+          "c": 20,
+          "m": 0,
+          "y": 100,
+          "k": 10
+        },
+        "rgb": [
+          190,
+          210,
+          30
+        ],
+        "pms": {
+          "coated": "583C",
+          "uncoated": "584U"
+        }
+      },
+      {
+        "name": "Green 15",
+        "family": "green",
+        "hex": "#93C742",
+        "cmyk": {
+          "c": 53,
+          "m": 0,
+          "y": 100,
+          "k": 0
+        },
+        "rgb": [
+          147,
+          199,
+          66
+        ],
+        "pms": {
+          "coated": "368C",
+          "uncoated": "367U"
+        }
+      },
+      {
+        "name": "Green 20",
+        "family": "green",
+        "hex": "#6DB344",
+        "cmyk": {
+          "c": 60,
+          "m": 0,
+          "y": 98,
+          "k": 7
+        },
+        "rgb": [
+          109,
+          179,
+          68
+        ],
+        "pms": {
+          "coated": "7737C",
+          "uncoated": "376U"
+        }
+      },
+      {
+        "name": "Green 25",
+        "family": "green",
+        "hex": "#50A83E",
+        "cmyk": {
+          "c": 75,
+          "m": 0,
+          "y": 100,
+          "k": 6
+        },
+        "rgb": [
+          80,
+          168,
+          62
+        ],
+        "pms": {
+          "coated": "7739C",
+          "uncoated": "347U"
+        }
+      },
+      {
+        "name": "Green 30",
+        "family": "green",
+        "hex": "#318D43",
+        "cmyk": {
+          "c": 76,
+          "m": 4,
+          "y": 100,
+          "k": 21
+        },
+        "rgb": [
+          49,
+          141,
+          67
+        ],
+        "pms": {
+          "coated": "7741C",
+          "uncoated": "348U"
+        }
+      },
+      {
+        "name": "Green 35",
+        "family": "green",
+        "hex": "#206B3F",
+        "cmyk": {
+          "c": 78,
+          "m": 13,
+          "y": 77,
+          "k": 45
+        },
+        "rgb": [
+          32,
+          107,
+          63
+        ],
+        "pms": {
+          "coated": "7734C",
+          "uncoated": "349U"
+        }
+      },
+      {
+        "name": "Green 40",
+        "family": "green",
+        "hex": "#235C35",
+        "cmyk": {
+          "c": 56,
+          "m": 0,
+          "y": 58,
+          "k": 78
+        },
+        "rgb": [
+          35,
+          92,
+          53
+        ],
+        "pms": {
+          "coated": "7736C",
+          "uncoated": "357U"
+        }
+      }
+    ],
+    "neutral": [
+      {
+        "name": "Gray 5",
+        "family": "gray",
+        "hex": "#E0E2E2",
+        "cmyk": {
+          "c": 0,
+          "m": 0,
+          "y": 1,
+          "k": 9
+        },
+        "rgb": [
+          224,
+          226,
+          226
+        ],
+        "pms": {
+          "coated": null,
+          "uncoated": null
+        },
+        "k_percent": 10
+      },
+      {
+        "name": "Gray 10",
+        "family": "gray",
+        "hex": "#D0D3D3",
+        "cmyk": {
+          "c": 7,
+          "m": 3,
+          "y": 5,
+          "k": 8
+        },
+        "rgb": [
+          208,
+          211,
+          211
+        ],
+        "pms": {
+          "coated": "427C",
+          "uncoated": "Cool Gray 1U"
+        },
+        "k_percent": 20
+      },
+      {
+        "name": "Gray 15",
+        "family": "gray",
+        "hex": "#BDC0C0",
+        "cmyk": {
+          "c": 20,
+          "m": 12,
+          "y": 17,
+          "k": 5
+        },
+        "rgb": [
+          189,
+          192,
+          192
+        ],
+        "pms": {
+          "coated": "Cool Gray 4C",
+          "uncoated": "Cool Gray 3U"
+        },
+        "k_percent": 28
+      },
+      {
+        "name": "Gray 20",
+        "family": "gray",
+        "hex": "#A9ADAD",
+        "cmyk": {
+          "c": 12,
+          "m": 7,
+          "y": 7,
+          "k": 30
+        },
+        "rgb": [
+          169,
+          173,
+          173
+        ],
+        "pms": {
+          "coated": "Cool Gray 6C",
+          "uncoated": "Cool Gray 6U"
+        },
+        "k_percent": 40
+      },
+      {
+        "name": "Gray 25",
+        "family": "gray",
+        "hex": "#9DA1A1",
+        "cmyk": {
+          "c": 33,
+          "m": 23,
+          "y": 25,
+          "k": 10
+        },
+        "rgb": [
+          161,
+          161,
+          161
+        ],
+        "pms": {
+          "coated": "Cool Gray 7C",
+          "uncoated": "Cool Gray 7U"
+        },
+        "k_percent": 45
+      },
+      {
+        "name": "Gray 30",
+        "family": "gray",
+        "hex": "#878A8C",
+        "cmyk": {
+          "c": 23,
+          "m": 16,
+          "y": 13,
+          "k": 46
+        },
+        "rgb": [
+          135,
+          138,
+          140
+        ],
+        "pms": {
+          "coated": "Cool Gray 8C",
+          "uncoated": "Cool Gray 9U"
+        },
+        "k_percent": 55
+      },
+      {
+        "name": "Gray 35",
+        "family": "gray",
+        "hex": "#676B6E",
+        "cmyk": {
+          "c": 3,
+          "m": 0,
+          "y": 5,
+          "k": 73
+        },
+        "rgb": [
+          103,
+          107,
+          110
+        ],
+        "pms": {
+          "coated": "Cool Gray 10C",
+          "uncoated": "425U"
+        },
+        "k_percent": 74
+      },
+      {
+        "name": "Gray 40",
+        "family": "gray",
+        "hex": "#53575B",
+        "cmyk": {
+          "c": 65,
+          "m": 52,
+          "y": 48,
+          "k": 34
+        },
+        "rgb": [
+          83,
+          87,
+          91
+        ],
+        "pms": {
+          "coated": "Cool Gray 11C",
+          "uncoated": "433U"
+        },
+        "k_percent": 80
+      },
+      {
+        "name": "Neutral 5",
+        "family": "neutral",
+        "hex": "#EFEFE7",
+        "cmyk": {
+          "c": 5,
+          "m": 3,
+          "y": 8,
+          "k": 0
+        },
+        "rgb": [
+          239,
+          239,
+          231
+        ],
+        "pms": {
+          "coated": "Warm Gray 1C",
+          "uncoated": "7527U"
+        }
+      },
+      {
+        "name": "Neutral 10",
+        "family": "neutral",
+        "hex": "#E9E6E0",
+        "cmyk": {
+          "c": 7,
+          "m": 6,
+          "y": 10,
+          "k": 0
+        },
+        "rgb": [
+          233,
+          230,
+          224
+        ],
+        "pms": {
+          "coated": "Warm Gray 2C",
+          "uncoated": "Warm Gray 2U"
+        }
+      },
+      {
+        "name": "Neutral 15",
+        "family": "neutral",
+        "hex": "#E9E3D9",
+        "cmyk": {
+          "c": 7,
+          "m": 8,
+          "y": 13,
+          "k": 0
+        },
+        "rgb": [
+          233,
+          227,
+          217
+        ],
+        "pms": {
+          "coated": "7534C",
+          "uncoated": "7534U"
+        }
+      },
+      {
+        "name": "Neutral 20",
+        "family": "neutral",
+        "hex": "#D5CFBE",
+        "cmyk": {
+          "c": 16,
+          "m": 15,
+          "y": 24,
+          "k": 0
+        },
+        "rgb": [
+          213,
+          207,
+          190
+        ],
+        "pms": {
+          "coated": "406C",
+          "uncoated": "7528U"
+        }
+      },
+      {
+        "name": "Neutral 25",
+        "family": "neutral",
+        "hex": "#C8C0AB",
+        "cmyk": {
+          "c": 22,
+          "m": 20,
+          "y": 33,
+          "k": 0
+        },
+        "rgb": [
+          200,
+          192,
+          171
+        ],
+        "pms": {
+          "coated": "7535C",
+          "uncoated": "406U"
+        }
+      },
+      {
+        "name": "Neutral 30",
+        "family": "neutral",
+        "hex": "#C6BFAD",
+        "cmyk": {
+          "c": 23,
+          "m": 20,
+          "y": 31,
+          "k": 0
+        },
+        "rgb": [
+          198,
+          191,
+          173
+        ],
+        "pms": {
+          "coated": "401C",
+          "uncoated": "7529U"
+        }
+      },
+      {
+        "name": "Neutral 35",
+        "family": "neutral",
+        "hex": "#BEB097",
+        "cmyk": {
+          "c": 27,
+          "m": 27,
+          "y": 42,
+          "k": 0
+        },
+        "rgb": [
+          190,
+          176,
+          151
+        ],
+        "pms": {
+          "coated": "7529C",
+          "uncoated": "7536U"
+        }
+      },
+      {
+        "name": "Neutral 40",
+        "family": "neutral",
+        "hex": "#B3A18D",
+        "cmyk": {
+          "c": 31,
+          "m": 33,
+          "y": 44,
+          "k": 1
+        },
+        "rgb": [
+          179,
+          161,
+          141
+        ],
+        "pms": {
+          "coated": "7530C",
+          "uncoated": "7530U"
+        }
+      },
+      {
+        "name": "Black",
+        "family": "black",
+        "hex": "#000000",
+        "cmyk": {
+          "c": 0,
+          "m": 0,
+          "y": 0,
+          "k": 100
+        },
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "pms": {
+          "coated": "Black C",
+          "uncoated": "Black U"
+        },
+        "k_percent": 100,
+        "notes": "Use for text."
+      },
+      {
+        "name": "Rich Black",
+        "family": "black",
+        "hex": "#000000",
+        "cmyk": {
+          "c": 75,
+          "m": 68,
+          "y": 67,
+          "k": 90
+        },
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "pms": {
+          "coated": null,
+          "uncoated": null
+        },
+        "k_percent": 100,
+        "notes": "Use for large, solid areas of color."
+      }
+    ],
+    "christmas": [
+      {
+        "name": "Christmas Red",
+        "family": "red",
+        "hex": "#D50032",
+        "cmyk": {
+          "c": 10,
+          "m": 100,
+          "y": 86,
+          "k": 2
+        },
+        "rgb": [
+          213,
+          0,
+          50
+        ],
+        "pms": {
+          "coated": "199C",
+          "uncoated": "199C"
+        }
+      },
+      {
+        "name": "Green 30",
+        "family": "green",
+        "hex": "#318D43",
+        "cmyk": {
+          "c": 76,
+          "m": 4,
+          "y": 100,
+          "k": 21
+        },
+        "rgb": [
+          49,
+          141,
+          67
+        ],
+        "pms": {
+          "coated": "7741C",
+          "uncoated": "348U"
+        }
+      },
+      {
+        "name": "Gold 10 — 20% Tint",
+        "family": "gold",
+        "hex": "#F8F0E4",
+        "cmyk": {
+          "c": 2,
+          "m": 4,
+          "y": 9,
+          "k": 0
+        },
+        "rgb": [
+          248,
+          240,
+          228
+        ],
+        "pms": {
+          "coated": "7751C",
+          "uncoated": "458U"
+        }
+      },
+      {
+        "name": "Gold 10",
+        "family": "gold",
+        "hex": "#DBBF6B",
+        "cmyk": {
+          "c": 15,
+          "m": 22,
+          "y": 70,
+          "k": 0
+        },
+        "rgb": [
+          219,
+          191,
+          107
+        ],
+        "pms": {
+          "coated": "7751C",
+          "uncoated": "458U"
+        }
+      },
+      {
+        "name": "Gold 20",
+        "family": "gold",
+        "hex": "#C1A01E",
+        "cmyk": {
+          "c": 0,
+          "m": 17,
+          "y": 94,
+          "k": 27
+        },
+        "rgb": [
+          193,
+          160,
+          30
+        ],
+        "pms": {
+          "coated": "7753C",
+          "uncoated": "103U"
+        },
+        "notes": "Use when gold stands alone on white for better contrast."
+      },
+      {
+        "name": "Christmas Gold Metallic",
+        "family": "gold",
+        "hex": null,
+        "cmyk": null,
+        "rgb": null,
+        "pms": {
+          "coated": "871C Metallic",
+          "uncoated": null
+        },
+        "notes": "Use for metallic spot color."
+      },
+      {
+        "name": "Christmas Deep Red",
+        "family": "red",
+        "hex": "#992A31",
+        "cmyk": {
+          "c": 26,
+          "m": 98,
+          "y": 80,
+          "k": 23
+        },
+        "rgb": [
+          153,
+          33,
+          49
+        ],
+        "pms": {
+          "coated": "201C",
+          "uncoated": "187U"
+        }
+      },
+      {
+        "name": "Gray 50",
+        "family": "gray",
+        "hex": "#35383A",
+        "cmyk": {
+          "c": 72,
+          "m": 63,
+          "y": 59,
+          "k": 53
+        },
+        "rgb": [
+          52,
+          56,
+          58
+        ],
+        "pms": {
+          "coated": "433C",
+          "uncoated": "433U"
+        }
+      }
+    ],
+    "easter": [
+      {
+        "name": "Purple 40",
+        "family": "purple",
+        "hex": "#432554",
+        "cmyk": {
+          "c": 80,
+          "m": 94,
+          "y": 36,
+          "k": 32
+        },
+        "rgb": [
+          67,
+          37,
+          84
+        ],
+        "pms": {
+          "coated": "2627C",
+          "uncoated": "2627U"
+        }
+      },
+      {
+        "name": "Purple 30",
+        "family": "purple",
+        "hex": "#592569",
+        "cmyk": {
+          "c": 76,
+          "m": 100,
+          "y": 26,
+          "k": 15
+        },
+        "rgb": [
+          89,
+          37,
+          105
+        ],
+        "pms": {
+          "coated": "7663C",
+          "uncoated": "526U"
+        }
+      },
+      {
+        "name": "Purple 10",
+        "family": "purple",
+        "hex": "#A16FAF",
+        "cmyk": {
+          "c": 39,
+          "m": 65,
+          "y": 0,
+          "k": 0
+        },
+        "rgb": [
+          161,
+          111,
+          175
+        ],
+        "pms": {
+          "coated": "2577C",
+          "uncoated": "2567U"
+        }
+      },
+      {
+        "name": "Green 40",
+        "family": "green",
+        "hex": "#235C35",
+        "cmyk": {
+          "c": 56,
+          "m": 0,
+          "y": 58,
+          "k": 78
+        },
+        "rgb": [
+          35,
+          92,
+          53
+        ],
+        "pms": {
+          "coated": "7736C",
+          "uncoated": "357U"
+        }
+      },
+      {
+        "name": "Green 30 — 60% Tint",
+        "family": "green",
+        "hex": "#8EA980",
+        "cmyk": {
+          "c": 51,
+          "m": 19,
+          "y": 62,
+          "k": 1
+        },
+        "rgb": [
+          142,
+          169,
+          128
+        ],
+        "pms": {
+          "coated": "7741C",
+          "uncoated": "348U"
+        }
+      },
+      {
+        "name": "Green 30 — 40% Tint",
+        "family": "green",
+        "hex": "#B0C0A2",
+        "cmyk": {
+          "c": 34,
+          "m": 13,
+          "y": 41,
+          "k": 0
+        },
+        "rgb": [
+          176,
+          192,
+          162
+        ],
+        "pms": {
+          "coated": "7741C",
+          "uncoated": "348U"
+        }
+      },
+      {
+        "name": "Gold 10 — 20% Tint",
+        "family": "gold",
+        "hex": "#F8F0E4",
+        "cmyk": {
+          "c": 2,
+          "m": 4,
+          "y": 9,
+          "k": 0
+        },
+        "rgb": [
+          248,
+          240,
+          228
+        ],
+        "pms": {
+          "coated": "7751C",
+          "uncoated": "458U"
+        }
+      },
+      {
+        "name": "Gold 10",
+        "family": "gold",
+        "hex": "#DBBF6B",
+        "cmyk": {
+          "c": 15,
+          "m": 22,
+          "y": 70,
+          "k": 0
+        },
+        "rgb": [
+          219,
+          191,
+          107
+        ],
+        "pms": {
+          "coated": "7751C",
+          "uncoated": "458U"
+        }
+      },
+      {
+        "name": "Gold 20",
+        "family": "gold",
+        "hex": "#C1A01E",
+        "cmyk": {
+          "c": 0,
+          "m": 17,
+          "y": 94,
+          "k": 27
+        },
+        "rgb": [
+          193,
+          160,
+          30
+        ],
+        "pms": {
+          "coated": "7753C",
+          "uncoated": "103U"
+        },
+        "notes": "Use when gold stands alone on white for better contrast."
+      }
+    ]
+  },
+  "source_validation_notes": [
+    {
+      "palette": "color",
+      "name": "Yellow 15",
+      "issue": "Printed RGB does not match printed HEX; both are preserved verbatim.",
+      "printed_hex": "#FAA61A",
+      "printed_rgb": [
+        255,
+        166,
+        26
+      ],
+      "rgb_implied_by_hex": [
+        250,
+        166,
+        26
+      ]
+    },
+    {
+      "palette": "neutral",
+      "name": "Gray 25",
+      "issue": "Printed RGB does not match printed HEX; both are preserved verbatim.",
+      "printed_hex": "#9DA1A1",
+      "printed_rgb": [
+        161,
+        161,
+        161
+      ],
+      "rgb_implied_by_hex": [
+        157,
+        161,
+        161
+      ]
+    },
+    {
+      "palette": "christmas",
+      "name": "Christmas Deep Red",
+      "issue": "Printed RGB does not match printed HEX; both are preserved verbatim.",
+      "printed_hex": "#992A31",
+      "printed_rgb": [
+        153,
+        33,
+        49
+      ],
+      "rgb_implied_by_hex": [
+        153,
+        42,
+        49
+      ]
+    },
+    {
+      "palette": "christmas",
+      "name": "Gray 50",
+      "issue": "Printed RGB does not match printed HEX; both are preserved verbatim.",
+      "printed_hex": "#35383A",
+      "printed_rgb": [
+        52,
+        56,
+        58
+      ],
+      "rgb_implied_by_hex": [
+        53,
+        56,
+        58
+      ]
+    },
+    {
+      "palette": "christmas",
+      "name": "Christmas Red",
+      "issue": "The source image prints PMS 199C on both PMS lines; preserved verbatim."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ export interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   /** Sends a magic-link email to this address; resolves on success or throws with a message. */
-  signInWithMagicLink: (email: string) => Promise<void>;
+  signInWithMagicLink: (email: string, next?: string) => Promise<void>;
   /** Re-fetch the current user's profile (e.g. after completing their name). */
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;

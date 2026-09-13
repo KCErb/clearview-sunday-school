@@ -8,6 +8,8 @@ import { FullPageSpinner } from '@/components/Spinner';
  * automatically (detectSessionInUrl); we just wait for it, then send the user in.
  */
 export function AuthCallback() {
+  const requested = new URLSearchParams(window.location.search).get('next');
+  const next = requested === '/archive/this-week' ? requested : '/manage';
   const { loading, session } = useAuth();
   const [timedOut, setTimedOut] = useState(false);
 
@@ -21,7 +23,7 @@ export function AuthCallback() {
     return () => clearTimeout(t);
   }, []);
 
-  if (session) return <Navigate to="/app" replace />;
+  if (session) return <Navigate to={next} replace />;
 
   if (urlError || timedOut) {
     return (
@@ -42,5 +44,5 @@ export function AuthCallback() {
   }
 
   if (loading || !session) return <FullPageSpinner />;
-  return <Navigate to="/app" replace />;
+  return <Navigate to={next} replace />;
 }

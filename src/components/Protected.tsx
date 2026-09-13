@@ -8,7 +8,7 @@ import { CompleteProfile } from './CompleteProfile';
 export function Protected({ children }: { children: ReactNode }) {
   const { loading, profileLoaded, session, profile } = useAuth();
   if (loading || (session && !profileLoaded)) return <FullPageSpinner />;
-  if (!session) return <Navigate to="/login" replace />;
+  if (!session) return <Navigate to="/archive/login" replace />;
   if (!profile?.first_name?.trim()) return <CompleteProfile />;
   return <>{children}</>;
 }

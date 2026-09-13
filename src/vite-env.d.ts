@@ -2,6 +2,7 @@
 /// <reference types="vite-plugin-pwa/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_POLL_PREVIEW?: string;
   readonly VITE_SUPABASE_URL: string;
   readonly VITE_SUPABASE_ANON_KEY: string;
   // Local-only one-click dev sign-in (present only in .env.local).

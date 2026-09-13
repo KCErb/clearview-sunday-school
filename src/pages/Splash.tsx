@@ -36,7 +36,7 @@ export function Splash() {
 
         <div className="mt-8">
           <Link
-            to={session ? "/this-week" : "/login"}
+            to={session ? "/archive/this-week" : "/archive/login"}
             className="inline-flex items-center justify-center rounded-xl bg-brand px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand/25 transition hover:bg-brand-bright"
           >
             {session ? "Go to this week →" : "Sign in to get started"}

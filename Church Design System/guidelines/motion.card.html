@@ -1,0 +1,11 @@
+<!-- @dsCard group="Motion" viewport="700x150" name="Duration and easing" subtitle="Quiet fades; no bounce, no spring, no parallax" -->
+<!doctype html><html><head><meta charset="utf-8"><title>Motion</title><link rel="stylesheet" href="../styles.css"><style>body{margin:0;padding:18px;background:var(--surface-card);font-family:var(--font-sans);color:var(--text-body)}
+.sw{display:flex;gap:0;border-radius:4px;overflow:hidden;border:1px solid var(--border-subtle)}
+.sw>div{flex:1;height:56px;display:flex;align-items:flex-end;padding:6px;font-size:10px;letter-spacing:.04em}
+.grid{display:grid;gap:10px}
+.k{font-size:11px;color:var(--text-quiet);letter-spacing:.1em;text-transform:uppercase}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text-muted)}
+.r{display:flex;align-items:baseline;gap:14px}</style></head><body><style>@keyframes slide{0%{transform:translateX(0)}50%{transform:translateX(190px)}100%{transform:translateX(0)}}</style>
+<div class="grid" style="gap:14px">
+<div class="r"><span style="width:110px" class="mono">--dur-fast 140ms</span><span style="flex:1;position:relative;height:14px"><span style="position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue-25);animation:slide 2.6s var(--ease-standard) 0s infinite"></span></span></div><div class="r"><span style="width:110px" class="mono">--dur-base 220ms</span><span style="flex:1;position:relative;height:14px"><span style="position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue-25);animation:slide 2.6s var(--ease-standard) 0.12s infinite"></span></span></div><div class="r"><span style="width:110px" class="mono">--dur-reveal 600ms</span><span style="flex:1;position:relative;height:14px"><span style="position:absolute;width:14px;height:14px;border-radius:50%;background:var(--blue-25);animation:slide 2.6s var(--ease-out) 0.24s infinite"></span></span></div>
+</div><div class="mono" style="margin-top:12px">--ease-standard cubic-bezier(.4,0,.2,1) · reduced-motion collapses every duration to 0</div></body></html>

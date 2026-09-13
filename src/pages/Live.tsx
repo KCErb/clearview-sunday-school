@@ -202,7 +202,7 @@ function IdleCard() {
       <p className="mt-1 text-sm text-ink-soft">
         This page wakes up when KC starts a live session in class.
       </p>
-      <Link to="/this-week" className="mt-4 inline-block text-sm font-semibold text-brand hover:text-brand-bright">
+      <Link to="/archive/this-week" className="mt-4 inline-block text-sm font-semibold text-brand hover:text-brand-bright">
         ← This week
       </Link>
     </div>

@@ -95,7 +95,7 @@ export function ThisWeek() {
         <Wordmark />
         <div className="flex items-center gap-1">
           {isAdmin && (
-            <Link to="/manage" className="rounded-lg px-3 py-1.5 text-sm font-medium text-brand transition hover:bg-white">
+            <Link to="/archive/manage" className="rounded-lg px-3 py-1.5 text-sm font-medium text-brand transition hover:bg-white">
               Manage
             </Link>
           )}
@@ -108,7 +108,7 @@ export function ThisWeek() {
       <main className="mx-auto max-w-2xl px-6">
         {isLive && (
           <Link
-            to="/live"
+            to="/archive/live"
             className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-100"
           >
             <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -202,7 +202,7 @@ function SectionBlock({
           {questions.map((q) => (
             <li key={q.id}>
               <Link
-                to={`/q/${q.id}`}
+                to={`/archive/q/${q.id}`}
                 className="block rounded-2xl border border-sky-100 bg-white/80 p-4 shadow-sm transition hover:border-brand/40 hover:shadow"
               >
                 <p className="font-medium text-ink">{q.prompt}</p>

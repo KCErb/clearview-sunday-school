@@ -107,7 +107,7 @@ export function SessionLive() {
     return (
       <ManageLayout>
         <p className="text-ink-soft">Session not found.</p>
-        <Link to="/manage" className="mt-3 inline-block font-semibold text-brand">← All sessions</Link>
+        <Link to="/archive/manage" className="mt-3 inline-block font-semibold text-brand">← All sessions</Link>
       </ManageLayout>
     );
   }
@@ -116,7 +116,7 @@ export function SessionLive() {
 
   return (
     <ManageLayout>
-      <Link to={`/manage/s/${session.id}`} className="text-sm font-medium text-brand hover:text-brand-bright">
+      <Link to={`/archive/manage/s/${session.id}`} className="text-sm font-medium text-brand hover:text-brand-bright">
         ← {session.title || 'Session'}
       </Link>
 
