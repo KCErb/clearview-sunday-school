@@ -1,4 +1,4 @@
-import { PollError, type Answer, type Library, type PollApi, type Poll } from './types';
+import { PollError, type Answer, type Library, type PollApi, type Poll } from './types.ts';
 const key = 'cwass.poll-preview.v1';
 interface DemoState extends Library {
   answers: Record<string, Answer>;
@@ -112,14 +112,18 @@ export const demoApi: PollApi = {
   async library() {
     const s = read();
     s.results = { 3: { respondents: 18, counts: { 31: 8, 32: 12, 33: 7 } } };
-    for (const p of s.polls.filter((p) => p.id !== 3)) {
+    for (const p of s.polls) {
       const answers = Object.entries(s.answers)
         .filter(([k, a]) => k.startsWith(`${p.id}:`) && a.selection.length)
         .map(([, a]) => a);
       s.results[p.id] = {
-        respondents: answers.length,
+        respondents: answers.length + (p.id === 3 ? 18 : 0),
         counts: Object.fromEntries(
-          p.options.map((o) => [o.id, answers.filter((a) => a.selection.includes(o.id)).length]),
+          p.options.map((o) => [
+            o.id,
+            answers.filter((a) => a.selection.includes(o.id)).length +
+              (p.id === 3 ? s.results[3].counts[o.id] || 0 : 0),
+          ]),
         ),
       };
     }
