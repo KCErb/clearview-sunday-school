@@ -380,6 +380,15 @@ function ResultBars({ poll, results }: { poll: Poll; results: Results }) {
           People can choose more than one. Percentages are of respondents.
         </p>
       )}
+      {!!results.write_ins?.length && (
+        <section className="teacher-write-ins">
+          <h3>Write-ins <span>{results.write_ins.length}</span></h3>
+          <p className="results-note">Private suggestions from the class.</p>
+          <ul className="write-in-list">{results.write_ins.map(item => (
+            <li key={item.id}><p>{item.body}</p></li>
+          ))}</ul>
+        </section>
+      )}
     </div>
   );
 }

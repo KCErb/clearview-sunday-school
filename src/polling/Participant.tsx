@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Check, LockKeyhole, Radio } from 'lucide-react';
 import type { Poll, PollApi } from './types';
 import { AnswerSession, type AnswerState } from './answerSession';
 import { useRefresh } from './useRefresh';
+import { WriteIns } from './WriteIns';
+
+const welcomePhrases = [
+  'Glad you’re here',
+  'A moment to listen',
+  'A place to listen',
+  'Room to reflect',
+  'Learning together',
+  'A moment together',
+];
 
 export function Participant({
   api,
@@ -17,6 +26,7 @@ export function Participant({
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [welcome] = useState(() => welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]);
   useRefresh(async () => {
     try {
       setPoll(await api.current());
@@ -29,11 +39,10 @@ export function Participant({
   });
   return (
     <div className={`poll-app participant ${embedded ? 'embedded' : ''}`}>
-      <header className="poll-header">
-        <Link to={preview ? '/preview/polls' : '/'} className="class-name">
-          Clearview Ward <span>Sunday School</span>
-        </Link>
-        <span className="header-note">A place to listen.</span>
+      <header className="poll-header participant-header">
+        <div className="participant-brand">
+          Clearview Ward <span aria-hidden="true">·</span> Sunday School
+        </div>
       </header>
       <main className="participant-main">
         {poll ? (
@@ -43,37 +52,19 @@ export function Participant({
             <div className="waiting-icon">
               <Radio size={28} strokeWidth={1.4} />
             </div>
-            <p className="eyebrow">We're glad you're here</p>
-            <h1>
-              {loading
-                ? 'Getting ready…'
-                : error
-                  ? 'Connecting to the class…'
-                  : 'A moment to listen.'}
-            </h1>
+            <h1 className="eyebrow waiting-phrase">{welcome}</h1>
             <div className="gold-rule" />
-            <p>
-              The next question will appear here.
-              <br />
-              You can leave this page open.
+            <p role="status">
+              {loading || error ? 'Connecting to the class…' : 'The next question will appear here.'}
             </p>
           </div>
         )}
-        {error && (
+        {error && poll && (
           <p role="status" className="connection-note">
             Reconnecting to the class…
           </p>
         )}
       </main>
-      {!embedded && (
-        <footer className="poll-footer">
-          <span>For our class, from our class.</span>
-          <nav>
-            <Link to="/archive">Study archive</Link>
-            <Link to={preview ? '/preview/polls/manage' : '/manage'}>Teacher</Link>
-          </nav>
-        </footer>
-      )}
     </div>
   );
 }
@@ -156,6 +147,15 @@ function Question({ poll, api, preview }: { poll: Poll; api: PollApi; preview: b
           </button>
         )}
       </div>
+      {answer.ready && answer.token && (
+        <WriteIns
+          key={poll.id}
+          api={api}
+          poll={poll}
+          token={answer.token}
+          preview={preview}
+        />
+      )}
     </section>
   );
 }

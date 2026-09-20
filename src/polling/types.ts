@@ -26,6 +26,14 @@ export interface Answer {
 export interface Results {
   respondents: number;
   counts: Record<number, number>;
+  write_ins?: WriteIn[];
+}
+export interface WriteIn {
+  id: string;
+  body: string;
+  revision: number;
+  created_at: string;
+  deleted?: boolean;
 }
 export interface Library {
   polls: Poll[];
@@ -43,6 +51,8 @@ export interface PollApi {
     epoch: string,
   ): Promise<Answer>;
   library(): Promise<Library>;
+  writeIns(id: number, token: string): Promise<WriteIn[]>;
+  saveWriteIn(id: number, token: string, writeInId: string, body: string | null, revision: number, epoch: string): Promise<WriteIn>;
   savePoll(id: number | null, draft: PollDraft): Promise<number>;
   action(id: number, action: 'open' | 'close' | 'delete'): Promise<void>;
 }

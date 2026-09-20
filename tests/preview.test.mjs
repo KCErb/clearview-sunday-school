@@ -23,3 +23,29 @@ test('reopened sample history includes new feedback and preserves the previous r
   assert.equal(data.results[3].respondents, 18);
   assert.equal(data.results[3].counts[31], 8);
 });
+
+test('private write-ins stay separate from choices and count each respondent once', async () => {
+  const store = new Map();
+  globalThis.localStorage = { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value) };
+  resetDemo();
+  const poll = await demoApi.current();
+  const first = crypto.randomUUID();
+  const second = crypto.randomUUID();
+  await demoApi.saveWriteIn(poll.id, 'one', first, 'My topic', 0, poll.opened_at);
+  await demoApi.saveWriteIn(poll.id, 'one', second, 'Another topic', 0, poll.opened_at);
+  await demoApi.saveWriteIn(poll.id, 'one', first, 'My topic', 0, poll.opened_at);
+  assert.equal((await demoApi.writeIns(poll.id, 'one')).length, 2);
+  assert.deepEqual(await demoApi.writeIns(poll.id, 'two'), []);
+  await assert.rejects(demoApi.saveWriteIn(poll.id, 'two', first, 'Not mine', 1, poll.opened_at));
+  await demoApi.saveAnswer(poll.id, 'one', [poll.options[0].id], 0, poll.opened_at);
+  let library = await demoApi.library();
+  assert.equal(library.results[poll.id].respondents, 1);
+  assert.equal(library.results[poll.id].write_ins.length, 2);
+  assert.equal(library.results[poll.id].counts[poll.options[0].id], 1);
+  await demoApi.saveWriteIn(poll.id, 'one', first, 'Changed topic', 1, poll.opened_at);
+  await demoApi.saveWriteIn(poll.id, 'one', first, null, 2, poll.opened_at);
+  library = await demoApi.library();
+  assert.equal(library.results[poll.id].write_ins.length, 1);
+  await demoApi.action(poll.id, 'close');
+  await assert.rejects(demoApi.saveWriteIn(poll.id, 'one', second, 'Closed edit', 1, poll.opened_at));
+});

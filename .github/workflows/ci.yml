@@ -53,4 +53,6 @@ jobs:
           psql -h localhost -U postgres -d postgres -X -v ON_ERROR_STOP=1
           -f tests/postgres-bootstrap.sql
           -f supabase/migrations/0016_polling_rewrite.sql
+          -f supabase/migrations/0017_private_write_ins.sql
           -f supabase/tests/polling.sql
+          -f supabase/tests/write_ins.sql

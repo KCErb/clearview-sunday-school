@@ -1,6 +1,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap');
 @import '../../Church Design System/tokens/colors.css';
 @import '../../Church Design System/tokens/semantic.css';
+
+.participant .participant-header {
+  width: 100%;
+  justify-content: center;
+}
+.participant-brand {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue-40);
+  text-align: center;
+  white-space: nowrap;
+}
+.participant-brand span { margin: 0 7px; color: var(--gray-35); }
+.waiting-state .waiting-phrase {
+  font-family: var(--poll-sans);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: .14em;
+  color: var(--blue-30);
+}
+.write-ins { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--neutral-20); }
+.write-ins h2 { font-size: 20px; margin-bottom: 12px; }
+.write-in-list { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px; }
+.write-in-list li { padding: 14px 16px; border: 1px solid var(--neutral-20); border-radius: 4px; }
+.write-in-list p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.write-in-actions { display: flex; align-items: center; gap: 22px; margin-top: 6px; }
+.write-in-editor { margin-top: 6px; }
+.write-in-editor label { font-size: 15px; }
+.write-in-editor textarea {
+  display: block; width: 100%; margin-top: 8px; padding: 12px;
+  border: 1px solid var(--neutral-25); border-radius: 4px;
+  font: inherit; font-size: 16px; resize: vertical;
+}
+.write-in-help { font-size: 12px; color: var(--gray-35); margin-top: 8px !important; }
+.write-in-error { font-size: 14px; color: var(--status-critical); margin-top: 10px !important; }
+.teacher-write-ins { border-top: 1px solid var(--neutral-20); margin-top: 28px; padding-top: 22px; }
+.teacher-write-ins h3 { font-size: 24px; margin-bottom: 8px; }
+.teacher-write-ins h3 span { font: 14px var(--poll-sans); margin-left: 6px; color: var(--gray-35); }
 .poll-app {
   --poll-serif: 'Source Serif 4', Georgia, serif;
   --poll-sans: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;

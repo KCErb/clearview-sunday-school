@@ -10,6 +10,7 @@ export interface AnswerState {
   selection: number[];
   status: string;
   ready: boolean;
+  token?: string;
 }
 function isDevice(value: unknown): value is SavedDevice {
   if (!value || typeof value !== 'object') return false;
@@ -84,6 +85,7 @@ export class AnswerSession {
   }
   private publish(status: string) {
     this.state = {
+      token: this.device.token,
       selection: this.device.pending ?? this.device.selection,
       status,
       ready: this.loaded,

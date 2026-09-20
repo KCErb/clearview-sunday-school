@@ -1,8 +1,9 @@
-import { PollError, type Answer, type Library, type PollApi, type Poll } from './types.ts';
+import { PollError, type Answer, type Library, type PollApi, type Poll, type WriteIn } from './types.ts';
 const key = 'cwass.poll-preview.v1';
 interface DemoState extends Library {
   answers: Record<string, Answer>;
   nextId: number;
+  writeIns?: Record<string, WriteIn & { pollId: number; token: string }>;
 }
 const initial = (): DemoState => ({
   nextId: 4,
@@ -88,6 +89,25 @@ export function resetDemo() {
   write(initial());
 }
 export const demoApi: PollApi = {
+  async writeIns(id, token) {
+    return Object.values(read().writeIns || {}).filter(w => w.pollId === id && w.token === token && !w.deleted)
+      .map(({ id, body, revision, created_at }) => ({ id, body, revision, created_at }));
+  },
+  async saveWriteIn(id, token, writeInId, body, revision, epoch) {
+    const s = read(); const p = poll(s, id); s.writeIns ||= {};
+    if (p.status !== 'open' || s.currentId !== id || p.opened_at !== epoch) throw new PollError('Question closed', 'closed');
+    const existing = s.writeIns[writeInId];
+    if (existing && (existing.token !== token || existing.pollId !== id)) throw new Error('Suggestion unavailable');
+    const normalized = body?.trim() ?? null;
+    if (body !== null && (!normalized || normalized.length > 2000)) throw new Error('Enter a suggestion of up to 2,000 characters');
+    if (existing && existing.revision === revision + 1 &&
+        ((normalized === null && existing.deleted) || (!existing.deleted && existing.body === normalized))) return existing;
+    if ((existing?.revision || 0) !== revision) throw new PollError('Stale revision', 'conflict');
+    if ((!existing && normalized === null) || existing?.deleted) throw new Error('Suggestion unavailable');
+    const row = { id: writeInId, pollId: id, token, body: normalized ?? existing.body,
+      revision: revision + 1, created_at: existing?.created_at || new Date().toISOString(), deleted: normalized === null };
+    s.writeIns[writeInId] = row; p.locked = true; write(s); return row;
+  },
   async current() {
     const s = read();
     return s.polls.find((p) => p.id === s.currentId) || null;
@@ -113,11 +133,13 @@ export const demoApi: PollApi = {
     const s = read();
     s.results = { 3: { respondents: 18, counts: { 31: 8, 32: 12, 33: 7 } } };
     for (const p of s.polls) {
-      const answers = Object.entries(s.answers)
-        .filter(([k, a]) => k.startsWith(`${p.id}:`) && a.selection.length)
-        .map(([, a]) => a);
+      const entries = Object.entries(s.answers).filter(([k, a]) => k.startsWith(`${p.id}:`) && a.selection.length);
+      const answers = entries.map(([, a]) => a);
+      const writeIns = Object.values(s.writeIns || {}).filter(w => w.pollId === p.id && !w.deleted);
+      const responders = new Set([...entries.map(([k]) => k.slice(`${p.id}:`.length)), ...writeIns.map(w => w.token)]);
       s.results[p.id] = {
-        respondents: answers.length + (p.id === 3 ? 18 : 0),
+        respondents: responders.size + (p.id === 3 ? 18 : 0),
+        write_ins: writeIns.map(({ id, body, revision, created_at }) => ({ id, body, revision, created_at })),
         counts: Object.fromEntries(
           p.options.map((o) => [
             o.id,

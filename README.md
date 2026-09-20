@@ -2,7 +2,8 @@
 
 A simple class input screen at [clearviewsunday.school](https://clearviewsunday.school).
 Open the address, tap a choice, and change it any time while the question is open.
-No participant accounts, submit buttons, codes, CAPTCHA, or public results.
+No participant accounts, codes, CAPTCHA, or public results. Selections save automatically.
+Students can also save, edit, and remove multiple private write-in suggestions.
 
 - `/` — current question or waiting screen; `/live` and `/app` redirect here.
 - `/manage` — teacher question library, live private results, and history. Existing admin magic-link login.
@@ -18,7 +19,12 @@ New tables in migration `0016_polling_rewrite.sql` are separate from all legacy 
 Raw tokens stay in browser storage. No participant names or accounts are recorded.
 Clearing storage or changing browsers creates a separate response identity.
 
-Anonymous RPCs: `poll_current`, `poll_my_answer`, `poll_answer`.
+Migration `0017_private_write_ins.sql` adds `poll_write_ins`, owned by the same hashed browser
+secret. Students see only their own suggestions; the teacher sees all alongside preset vote
+counts. Write-ins use an explicit Save, retry-safe IDs and revisions, and locally retained drafts.
+Write-ins and preset selections count each browser once in respondent totals.
+
+Anonymous RPCs: `poll_current`, `poll_my_answer`, `poll_answer`, `poll_my_write_ins`, `poll_write_in_save`.
 Admin RPCs: `poll_library`, `poll_save`, `poll_action` (open / close / delete).
 All direct table access is revoked. Admin functions check the existing `is_admin()` identity.
 Selections, open epochs, and revisions are verified in a transaction. A question locks after its
@@ -49,9 +55,11 @@ pnpm test
 pnpm build
 # Temporary PostgreSQL only (bootstrap is not for production):
 psql "$TEST_DATABASE_URL" -X -v ON_ERROR_STOP=1 -f tests/postgres-bootstrap.sql \
-  -f supabase/migrations/0016_polling_rewrite.sql -f supabase/tests/polling.sql
+  -f supabase/migrations/0016_polling_rewrite.sql \
+  -f supabase/migrations/0017_private_write_ins.sql \
+  -f supabase/tests/polling.sql -f supabase/tests/write_ins.sql
 # Apply migration through Management API; reads the existing PAT without printing it:
-python3 scripts/supabase-query.py supabase/migrations/0016_polling_rewrite.sql
+python3 scripts/supabase-query.py supabase/migrations/0017_private_write_ins.sql
 ```
 
 The SQL suite rolls back its fixtures and works through psql or the Management API. The bootstrap file models the existing JWT-based admin check for local/CI use.
