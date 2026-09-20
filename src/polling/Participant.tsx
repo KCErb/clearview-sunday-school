@@ -45,7 +45,7 @@ export function Participant({
         </div>
       </header>
       <main className="participant-main">
-        {poll ? (
+        {poll?.status === 'open' ? (
           <Question key={poll.id} poll={poll} api={api} preview={preview} />
         ) : (
           <div className="waiting-state">
