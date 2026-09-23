@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "import-deck": "node --experimental-strip-types --env-file-if-exists=.env.local scripts/import-deck.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

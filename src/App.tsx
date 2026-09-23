@@ -32,6 +32,7 @@ import { Protected } from '@/components/Protected';
 import { AdminRoute } from '@/components/AdminRoute';
 import { Participant } from '@/polling/Participant';
 const Teacher = lazy(() => import('@/polling/Teacher').then((m) => ({ default: m.Teacher })));
+const Stage = lazy(() => import('@/decks/Stage').then((m) => ({ default: m.Stage })));
 import { liveApi } from '@/polling/api';
 import '@/polling/polling.css';
 const PollPreview =
@@ -65,6 +66,7 @@ export default function App() {
             </AdminRoute>
           }
         />
+        <Route path="/stage" element={<Stage api={liveApi} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/archive" element={<Splash />} />

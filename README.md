@@ -5,11 +5,46 @@ Open the address, tap a choice, and change it any time while the question is ope
 No participant accounts, codes, CAPTCHA, or public results. Selections save automatically.
 Students can also save, edit, and remove multiple private write-in suggestions.
 
-- `/` — current question or waiting screen; `/live` and `/app` redirect here.
+- `/` — the live slide and its question, or a waiting screen with past lessons; `/live` and `/app` redirect here.
+- `/stage` — the screen in the room: the current slide, full-bleed, no controls. Open it on the TV.
 - `/manage` — teacher question library, live private results, and history. Existing admin magic-link login.
 - `/archive` — previous study website and its management, with original access controls.
 - `/preview/polls/manage` — teacher + phone simulation, available in dev or an explicit preview build.
 - `/preview/polls` — participant simulation. Preview data lives only in this browser, never in Supabase.
+- `/preview/polls/stage` — screen simulation with the same sample data.
+
+## Lesson decks
+
+Slides live in the database, so the TV, the teacher's phone, and the class all read one
+"current slide" instead of mirroring a phone. Migration `0018_decks.sql` adds `decks` and
+`slides` (ordered `idx`, exported HTML, teacher-only `notes`, optional attached `poll_id`) and
+puts the live position on the existing `poll_room` singleton (`deck_id`, `slide_idx`) so moving
+a slide and opening its question happen under one lock.
+
+Anonymous RPCs: `stage_current` (live slide, never notes), `deck_list` and `deck_slides`
+(published lessons only). Admin RPCs: `deck_library`, `deck_save`, `deck_publish`, `deck_delete`,
+`slide_set_poll`, `slide_set_notes`, `deck_go_live`, `deck_show`, `deck_end_live`. Arriving at a
+slide opens its attached question; leaving closes it again; ending the lesson clears the screen.
+
+Slide HTML is stored and rendered as authored — only `is_admin()` can write it, and a sanitizer
+would strip the inline styles the design system depends on.
+
+### Making a lesson each week
+
+Build the deck in claude.ai/design, export it, then import the folder:
+
+```bash
+pnpm import-deck "~/Downloads/Good Shepherd"   # add --publish, or --replace <id> to re-import
+```
+
+`IMPORT_EMAIL` / `IMPORT_PASSWORD` in `.env.local` are the admin account (set a password once in
+the Supabase dashboard — the site itself signs in with magic links). The script uploads any
+images stored beside the deck to the `deck-media` bucket and rewrites their URLs. A single
+`.dc.html` with no local images can also be dropped straight into `/manage` → Lesson → Import
+lesson. Re-importing keeps the notes and attached questions at each slide position.
+
+In class: `/stage` on the TV, `/manage` on your phone (Lesson mode: slide strip, next slide,
+notes, private results), `/` on the class's phones.
 
 ## Polling architecture
 

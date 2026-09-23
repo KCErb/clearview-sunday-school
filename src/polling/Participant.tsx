@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, LockKeyhole, Radio } from 'lucide-react';
-import type { Poll, PollApi } from './types';
+import type { DeckSummary, Poll, PollApi, Stage } from './types';
 import { AnswerSession, type AnswerState } from './answerSession';
 import { useRefresh } from './useRefresh';
 import { WriteIns } from './WriteIns';
+import { SlideFrame } from '@/decks/SlideFrame';
+import { DeckViewer } from '@/decks/DeckViewer';
 
 const welcomePhrases = [
   'Glad you’re here',
@@ -24,12 +26,23 @@ export function Participant({
   embedded?: boolean;
 }) {
   const [poll, setPoll] = useState<Poll | null>(null);
+  const [stage, setStage] = useState<Stage | null>(null);
+  const [decks, setDecks] = useState<DeckSummary[]>([]);
+  const [viewing, setViewing] = useState<number | null>(null);
+  const decksAt = useRef(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [welcome] = useState(() => welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]);
   useRefresh(async () => {
     try {
-      setPoll(await api.current());
+      const [current, live] = await Promise.all([api.current(), api.stage()]);
+      setPoll(current);
+      setStage(live);
+      // Past lessons only matter while nothing is live, and they rarely change.
+      if (!live && Date.now() - decksAt.current > 60000) {
+        decksAt.current = Date.now();
+        setDecks(await api.deckList());
+      }
       setLoading(false);
       setError(false);
     } catch {
@@ -45,9 +58,19 @@ export function Participant({
         </div>
       </header>
       <main className="participant-main">
-        {poll?.status === 'open' ? (
+        {stage ? (
+          <>
+            <SlideFrame key={`${stage.deck.id}:${stage.slide.idx}`} html={stage.slide.html} />
+            {poll?.status === 'open' && (
+              <Question key={poll.id} poll={poll} api={api} preview={preview} />
+            )}
+          </>
+        ) : poll?.status === 'open' ? (
           <Question key={poll.id} poll={poll} api={api} preview={preview} />
+        ) : viewing !== null ? (
+          <DeckViewer api={api} deckId={viewing} onBack={() => setViewing(null)} />
         ) : (
+          <>
           <div className="waiting-state">
             <div className="waiting-icon">
               <Radio size={28} strokeWidth={1.4} />
@@ -58,6 +81,22 @@ export function Participant({
               {loading || error ? 'Connecting to the class…' : 'The next question will appear here.'}
             </p>
           </div>
+          {decks.length > 0 && (
+            <section className="deck-list">
+              <h2 className="eyebrow">Past lessons</h2>
+              <ul>
+                {decks.map((d) => (
+                  <li key={d.id}>
+                    <button onClick={() => setViewing(d.id)}>
+                      <strong>{d.title}</strong>
+                      {d.subtitle && <span>{d.subtitle}</span>}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          </>
         )}
         {error && poll && (
           <p role="status" className="connection-note">

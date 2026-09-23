@@ -27,6 +27,8 @@ src/
   components/thisweek/  AnswerForm, AskQuestion, MyResponses (member edit/delete own)
   components/manage/    QuestionEditor, ResponsesPanel, InquiriesPanel (admin moderation)
   components/live/      AttributionBanner, PromptInput, TallyBars (in-class live prompts)
+  decks/                lesson slides: parse.ts (exported .dc.html), SlideFrame, Stage (/stage),
+                        LessonPanel (presenter controls), DeckViewer (past lessons)
   data/cwass.ts         all DB reads/writes (sessions/questions/answers/inquiries/live)
   lib/                  supabase.ts, types.ts, cfm.ts (CFM URLs/dates), useLiveRefresh.ts
   pages/                Splash, Login, AuthCallback, ThisWeek (/this-week), QuestionPage (/q/:id), Live (/live), Manage (/manage)
@@ -49,6 +51,18 @@ only. Names never reach the class; `reveal` exposes counts via `live_tallies`. T
 interval polling (`useLiveRefresh`), deliberately not Realtime. Presence via the `live_heartbeat()`
 RPC; responder counts via `count(distinct submission_id)`. See `docs/live-prompts.md` and
 `supabase/tests/live_prompts_rls.sql` (re-runnable, 20/20).
+
+**Lesson decks** (`0018_decks.sql`): `decks` + `slides` (ordered `idx`, exported HTML, teacher-only
+`notes`, optional `poll_id`); live position rides on the `poll_room` singleton (`deck_id`,
+`slide_idx`) so `deck_arrive` changes the slide and opens its attached question under one lock —
+same room→poll order as `poll_action`. `/stage` is the TV (anonymous, `stage_current()`, no
+chrome), `/manage` Lesson mode is the presenter view, `/` shows the live slide (+ its question)
+or past lessons. Slide HTML is stored and rendered verbatim: only `is_admin()` can write it via
+`deck_save`, and sanitizing would strip the design system's inline styles. Import with
+`pnpm import-deck <folder>` (admin password login, uploads images to the `deck-media` bucket) or
+by dropping a single `.dc.html` into `/manage`; both share `src/decks/parse.ts`. Re-importing
+keeps notes and attached questions by slide position. Deferred: revealing results on the TV,
+markdown→deck authoring, in-app slide editing.
 
 ## Key facts
 

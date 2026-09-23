@@ -49,3 +49,28 @@ test('private write-ins stay separate from choices and count each respondent onc
   await demoApi.action(poll.id, 'close');
   await assert.rejects(demoApi.saveWriteIn(poll.id, 'one', second, 'Closed edit', 1, poll.opened_at));
 });
+test('presenting a sample lesson drives the stage and the slide question', async () => {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (key) => store.get(key) ?? null,
+    setItem: (key, value) => store.set(key, value),
+  };
+  resetDemo();
+  assert.equal(await demoApi.stage(), null);
+  assert.equal((await demoApi.deckList()).length, 1, 'only published lessons reach the class');
+  await demoApi.goLive(1);
+  const opening = await demoApi.stage();
+  assert.equal(opening.slide.idx, 0);
+  assert.equal(opening.count, 3);
+  assert.ok(!('notes' in opening.slide), 'teacher notes never reach the class');
+  await demoApi.show(1);
+  assert.equal((await demoApi.current()).id, 2, 'the slide question opens on arrival');
+  assert.equal((await demoApi.current()).status, 'open');
+  await demoApi.show(2);
+  assert.equal((await demoApi.current()).status, 'closed', 'moving on closes the slide question');
+  await demoApi.endLive();
+  assert.equal(await demoApi.stage(), null);
+  const past = await demoApi.deckSlides(1);
+  assert.equal(past.slides.length, 3);
+  assert.equal(await demoApi.deckSlides(2), null, 'unpublished lessons stay hidden');
+});

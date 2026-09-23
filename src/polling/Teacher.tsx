@@ -7,6 +7,7 @@ import {
   Copy,
   Edit3,
   Plus,
+  Presentation,
   Radio,
   Search,
   Send,
@@ -15,12 +16,15 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '@/auth/useAuth';
-import type { Library, Poll, PollApi, PollDraft, Results } from './types';
+import type { DeckLibrary, Library, Poll, PollApi, PollDraft, Results } from './types';
 import { useRefresh } from './useRefresh';
+import { LessonPanel } from '@/decks/LessonPanel';
 
 export function Teacher({ api, preview = false }: { api: PollApi; preview?: boolean }) {
   const { signOut } = useAuth();
   const [library, setLibrary] = useState<Library>({ polls: [], currentId: null, results: {} });
+  const [decks, setDecks] = useState<DeckLibrary>({ decks: [], live: { deck_id: null, slide_idx: 0 } });
+  const [mode, setMode] = useState<'questions' | 'lesson'>('questions');
   const firstLoad = useRef(true);
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
@@ -32,10 +36,12 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
   const [connection, setConnection] = useState('');
   const load = async () => {
     try {
-      const next = await api.library();
+      const [next, deckLibrary] = await Promise.all([api.library(), api.deckLibrary()]);
       setLibrary(next);
+      setDecks(deckLibrary);
       if (firstLoad.current) {
         firstLoad.current = false;
+        if (deckLibrary.live.deck_id !== null) setMode('lesson');
         if (next.polls.some((p) => p.id === next.currentId && p.status === 'open')) {
           setSelected(next.currentId);
           setTab('history');
@@ -49,6 +55,7 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
   };
   useRefresh(load);
   const active = library.polls.find((p) => p.status === 'open');
+  const liveDeck = decks.decks.find((d) => d.id === decks.live.deck_id) ?? null;
   const chosen = library.polls.find((p) => p.id === selected) ?? null;
   const filtered = library.polls.filter(
     (p) =>
@@ -91,6 +98,9 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
           <Link to={preview ? '/preview/polls' : '/'} target="_blank">
             Class view <ArrowUpRight size={15} />
           </Link>
+          <Link to={preview ? '/preview/polls/stage' : '/stage'} target="_blank">
+            Screen <ArrowUpRight size={15} />
+          </Link>
           {!preview && (
             <button className="text-button" onClick={() => void signOut()}>
               Sign out
@@ -105,10 +115,25 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
             <h1>Listen to the room.</h1>
             <p>A question. A little reflection. A better conversation.</p>
           </div>
-          <button className="poll-button" onClick={() => setEditor({ id: null })}>
-            <Plus size={18} />
-            New question
-          </button>
+          <div className="teacher-title-actions">
+            <div className="mode-switch" role="group" aria-label="Teacher's desk">
+              <button
+                className={mode === 'questions' ? 'current' : ''}
+                onClick={() => setMode('questions')}
+              >
+                Questions
+              </button>
+              <button className={mode === 'lesson' ? 'current' : ''} onClick={() => setMode('lesson')}>
+                <Presentation size={15} /> Lesson
+              </button>
+            </div>
+            {mode === 'questions' && (
+              <button className="poll-button" onClick={() => setEditor({ id: null })}>
+                <Plus size={18} />
+                New question
+              </button>
+            )}
+          </div>
         </div>
         {connection && (
           <p role="status" className="poll-notice">
@@ -129,9 +154,17 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
           </div>
           <div>
             <span className="eyebrow">
-              {active ? 'On the class’s phones' : 'The class is waiting'}
+              {liveDeck
+                ? `On the screen · slide ${decks.live.slide_idx + 1} of ${liveDeck.slides.length}`
+                : active
+                  ? 'On the class’s phones'
+                  : 'The class is waiting'}
             </span>
-            <p>{active?.question || 'Send a question whenever you’re ready.'}</p>
+            <p>
+              {liveDeck
+                ? `${liveDeck.title}${active ? ` · ${active.question}` : ''}`
+                : active?.question || 'Send a question whenever you’re ready.'}
+            </p>
           </div>
           {active && (
             <>
@@ -155,6 +188,39 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
             </>
           )}
         </div>
+        {mode === 'lesson' ? (
+          <LessonPanel
+            api={api}
+            library={library}
+            decks={decks}
+            reload={load}
+            busy={busy}
+            setBusy={setBusy}
+            setError={setError}
+            results={(deck, idx) => {
+              const pollId = deck.slides[idx]?.poll_id;
+              const attached = library.polls.find((p) => p.id === pollId);
+              if (!attached || attached.status === 'draft') return null;
+              return (
+                <div className="lesson-results">
+                  <ResultBars
+                    poll={attached}
+                    results={library.results[attached.id] || { respondents: 0, counts: {} }}
+                  />
+                  {attached.status === 'open' && (
+                    <button
+                      className="poll-button secondary compact"
+                      disabled={busy}
+                      onClick={() => void action(attached, 'close')}
+                    >
+                      <Square size={14} /> Close question
+                    </button>
+                  )}
+                </div>
+              );
+            }}
+          />
+        ) : (
         <div className={`teacher-workspace ${chosen ? 'has-selection' : ''}`}>
           <aside className="poll-library">
             <div className="library-heading">
@@ -325,6 +391,7 @@ export function Teacher({ api, preview = false }: { api: PollApi; preview?: bool
             )}
           </section>
         </div>
+        )}
       </main>
       {editor && (
         <PollEditor
