@@ -5,7 +5,8 @@ import { AnswerSession, type AnswerState } from './answerSession';
 import { useRefresh } from './useRefresh';
 import { WriteIns } from './WriteIns';
 import { SlideFrame } from '@/decks/SlideFrame';
-import { DeckViewer } from '@/decks/DeckViewer';
+import { DeckViewer, LessonCard } from '@/decks/DeckViewer';
+import { useSearchParams } from 'react-router-dom';
 
 const welcomePhrases = [
   'Glad you’re here',
@@ -28,18 +29,25 @@ export function Participant({
   const [poll, setPoll] = useState<Poll | null>(null);
   const [stage, setStage] = useState<Stage | null>(null);
   const [decks, setDecks] = useState<DeckSummary[]>([]);
-  const [viewing, setViewing] = useState<number | null>(null);
   const decksAt = useRef(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [welcome] = useState(() => welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]);
+  // Where the student is lives in the address, so the back button and shared links work.
+  const [params, setParams] = useSearchParams();
+  const lesson = Number(params.get('lesson')) || null;
+  const view = lesson || params.get('view') === 'lessons' ? 'lessons' : 'class';
+  const slideIdx = Math.max(0, (Number(params.get('slide')) || 1) - 1);
+  const showClass = () => setParams({});
+  const showLessons = () => setParams({ view: 'lessons' });
+  const openLesson = (id: number) => setParams({ lesson: String(id) });
   useRefresh(async () => {
     try {
       const [current, live] = await Promise.all([api.current(), api.stage()]);
       setPoll(current);
       setStage(live);
-      // Past lessons only matter while nothing is live, and they rarely change.
-      if (!live && Date.now() - decksAt.current > 60000) {
+      // Lessons change a few times a week at most.
+      if (Date.now() - decksAt.current > 60000) {
         decksAt.current = Date.now();
         setDecks(await api.deckList());
       }
@@ -50,52 +58,96 @@ export function Participant({
       setLoading(false);
     }
   });
+  const open = poll?.status === 'open';
+  const live = !!stage || open;
   return (
     <div className={`poll-app participant ${embedded ? 'embedded' : ''}`}>
       <header className="poll-header participant-header">
         <div className="participant-brand">
           Clearview Ward <span aria-hidden="true">·</span> Sunday School
         </div>
+        <nav className="participant-tabs" aria-label="Sections">
+          <button className={view === 'class' ? 'current' : ''} aria-current={view === 'class'} onClick={showClass}>
+            {live && <span className="live-dot" aria-label="Live now" />}
+            Class
+          </button>
+          <button
+            className={view === 'lessons' ? 'current' : ''}
+            aria-current={view === 'lessons'}
+            onClick={showLessons}
+          >
+            Lessons
+          </button>
+        </nav>
       </header>
-      <main className="participant-main">
-        {stage ? (
+      <main className={`participant-main ${lesson ? 'wide' : ''}`}>
+        {view === 'lessons' ? (
           <>
-            <SlideFrame key={`${stage.deck.id}:${stage.slide.idx}`} html={stage.slide.html} />
-            {poll?.status === 'open' && (
-              <Question key={poll.id} poll={poll} api={api} preview={preview} />
+            {live && (
+              <button className="live-banner" onClick={showClass}>
+                <span className="live-dot" /> Class is live now <span aria-hidden="true">→</span>
+              </button>
+            )}
+            {lesson ? (
+              <DeckViewer
+                key={lesson}
+                api={api}
+                deckId={lesson}
+                idx={slideIdx}
+                onIdx={(i) =>
+                  setParams({ lesson: String(lesson), ...(i ? { slide: String(i + 1) } : {}) }, { replace: true })
+                }
+                onBack={showLessons}
+              />
+            ) : (
+              <section className="lesson-list">
+                <h1>Lessons</h1>
+                {decks.length ? (
+                  <ul>
+                    {decks.map((d) => (
+                      <li key={d.id}>
+                        <LessonCard deck={d} onOpen={() => openLesson(d.id)} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="lesson-empty">{loading ? 'Loading lessons…' : 'Slides from class will appear here.'}</p>
+                )}
+              </section>
             )}
           </>
-        ) : poll?.status === 'open' ? (
+        ) : stage ? (
+          <>
+            <div className="slide-bleed">
+              <SlideFrame key={`${stage.deck.id}:${stage.slide.idx}`} html={stage.slide.html} />
+            </div>
+            {open && <Question key={poll.id} poll={poll} api={api} preview={preview} />}
+          </>
+        ) : open ? (
           <Question key={poll.id} poll={poll} api={api} preview={preview} />
-        ) : viewing !== null ? (
-          <DeckViewer api={api} deckId={viewing} onBack={() => setViewing(null)} />
         ) : (
           <>
-          <div className="waiting-state">
-            <div className="waiting-icon">
-              <Radio size={28} strokeWidth={1.4} />
+            <div className="waiting-compact">
+              <div className="waiting-icon">
+                <Radio size={22} strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="eyebrow waiting-phrase">{welcome}</p>
+                <p role="status">
+                  {loading || error ? 'Connecting to the class…' : 'The next question will appear here.'}
+                </p>
+              </div>
             </div>
-            <h1 className="eyebrow waiting-phrase">{welcome}</h1>
-            <div className="gold-rule" />
-            <p role="status">
-              {loading || error ? 'Connecting to the class…' : 'The next question will appear here.'}
-            </p>
-          </div>
-          {decks.length > 0 && (
-            <section className="deck-list">
-              <h2 className="eyebrow">Past lessons</h2>
-              <ul>
-                {decks.map((d) => (
-                  <li key={d.id}>
-                    <button onClick={() => setViewing(d.id)}>
-                      <strong>{d.title}</strong>
-                      {d.subtitle && <span>{d.subtitle}</span>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+            {decks[0] && (
+              <section className="latest-lesson">
+                <LessonCard deck={decks[0]} label="Latest lesson" onOpen={() => openLesson(decks[0].id)} />
+                {decks.length > 1 && (
+                  <button className="text-button" onClick={showLessons}>
+                    All lessons <span aria-hidden="true">→</span>
+                  </button>
+                )}
+              </section>
+            )}
           </>
         )}
         {error && poll && (

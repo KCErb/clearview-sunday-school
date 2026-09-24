@@ -55,6 +55,7 @@ jobs:
           -f supabase/migrations/0016_polling_rewrite.sql
           -f supabase/migrations/0017_private_write_ins.sql
           -f supabase/migrations/0018_decks.sql
+          -f supabase/migrations/0019_deck_covers.sql
           -f supabase/tests/polling.sql
           -f supabase/tests/write_ins.sql
           -f supabase/tests/decks.sql

@@ -1,56 +1,159 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import type { DeckSummary, PollApi, Slide } from '@/polling/types';
 import { SlideFrame } from './SlideFrame';
 
-/** Reading a past lesson on a phone: one slide at a time, nothing else. */
-export function DeckViewer({ api, deckId, onBack }: { api: PollApi; deckId: number; onBack: () => void }) {
+/**
+ * Reading a past lesson: the slide as large as the screen allows, with tap, swipe and arrow
+ * keys to move, a strip to jump, and true full screen where the browser supports it.
+ */
+export function DeckViewer({
+  api,
+  deckId,
+  idx,
+  onIdx,
+  onBack,
+}: {
+  api: PollApi;
+  deckId: number;
+  idx: number;
+  onIdx: (idx: number) => void;
+  onBack: () => void;
+}) {
   const [deck, setDeck] = useState<{ deck: DeckSummary; slides: Slide[] } | null>(null);
-  const [idx, setIdx] = useState(0);
   const [error, setError] = useState('');
+  const [full, setFull] = useState(false);
+  const stage = useRef<HTMLDivElement | null>(null);
+  const strip = useRef<HTMLDivElement | null>(null);
+  const touch = useRef<number | null>(null);
   useEffect(() => {
     let cancelled = false;
     api
       .deckSlides(deckId)
-      .then((d) => !cancelled && setDeck(d))
+      .then((d) => {
+        if (cancelled) return;
+        if (d) setDeck(d);
+        else setError('That lesson is not available.');
+      })
       .catch(() => !cancelled && setError('That lesson could not be opened just now.'));
     return () => {
       cancelled = true;
     };
   }, [api, deckId]);
-  const slide = deck?.slides[idx];
+  const count = deck?.slides.length ?? 0;
+  const at = Math.min(Math.max(idx, 0), Math.max(count - 1, 0));
+  const go = (to: number) => {
+    if (to >= 0 && to < count && to !== at) onIdx(to);
+  };
+  useEffect(() => {
+    const keys = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(at + 1);
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(at - 1);
+    };
+    window.addEventListener('keydown', keys);
+    return () => window.removeEventListener('keydown', keys);
+  });
+  useEffect(() => {
+    const change = () => setFull(document.fullscreenElement === stage.current);
+    document.addEventListener('fullscreenchange', change);
+    return () => document.removeEventListener('fullscreenchange', change);
+  }, []);
+  useEffect(() => {
+    strip.current?.querySelector('.slide-thumb.current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [at, count]);
+  const canFull = typeof document !== 'undefined' && !!document.fullscreenEnabled;
+  const slide = deck?.slides[at];
   return (
     <section className="deck-viewer">
-      <button className="text-button" onClick={onBack}>
-        <ArrowLeft size={15} /> All lessons
-      </button>
+      <div className="deck-viewer-top">
+        <button className="text-button" onClick={onBack}>
+          <ArrowLeft size={15} /> All lessons
+        </button>
+        {deck && (
+          <span className="deck-viewer-count">
+            {at + 1} / {count}
+          </span>
+        )}
+      </div>
       {error && <p role="status">{error}</p>}
       {deck && (
         <>
-          <h1>{deck.deck.title}</h1>
-          {deck.deck.subtitle && <p className="deck-subtitle">{deck.deck.subtitle}</p>}
-          {slide && <SlideFrame html={slide.html} />}
-          <div className="deck-viewer-nav">
+          <header className="deck-viewer-heading">
+            <h1>{deck.deck.title}</h1>
+            {deck.deck.subtitle && <p className="deck-subtitle">{deck.deck.subtitle}</p>}
+          </header>
+          <div
+            ref={stage}
+            className={`deck-viewer-stage slide-bleed ${full ? 'is-full' : ''}`}
+            onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
+            onTouchEnd={(e) => {
+              if (touch.current === null) return;
+              const dx = e.changedTouches[0].clientX - touch.current;
+              touch.current = null;
+              if (Math.abs(dx) > 40) go(dx < 0 ? at + 1 : at - 1);
+            }}
+          >
+            {slide && <SlideFrame key={`${full}`} html={slide.html} fit={full ? 'contain' : 'width'} />}
+            <button className="tap-zone prev" aria-label="Previous slide" disabled={at === 0} onClick={() => go(at - 1)} />
             <button
-              className="poll-button secondary compact"
-              disabled={idx === 0}
-              onClick={() => setIdx((n) => Math.max(0, n - 1))}
-            >
+              className="tap-zone next"
+              aria-label="Next slide"
+              disabled={at >= count - 1}
+              onClick={() => go(at + 1)}
+            />
+            {canFull && (
+              <button
+                className="full-toggle"
+                aria-label={full ? 'Exit full screen' : 'Full screen'}
+                onClick={() =>
+                  void (full ? document.exitFullscreen() : stage.current?.requestFullscreen().catch(() => {}))
+                }
+              >
+                {full ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              </button>
+            )}
+          </div>
+          <div className="deck-viewer-nav">
+            <button className="poll-button secondary compact" disabled={at === 0} onClick={() => go(at - 1)}>
               <ChevronLeft size={15} /> Back
             </button>
-            <span>
-              {idx + 1} / {deck.slides.length}
-            </span>
-            <button
-              className="poll-button secondary compact"
-              disabled={idx >= deck.slides.length - 1}
-              onClick={() => setIdx((n) => Math.min(deck.slides.length - 1, n + 1))}
-            >
+            <span>{slide?.label.replace(/^\d+\s+/, '')}</span>
+            <button className="poll-button compact" disabled={at >= count - 1} onClick={() => go(at + 1)}>
               Next <ChevronRight size={15} />
             </button>
+          </div>
+          <div className="slide-strip" ref={strip}>
+            {deck.slides.map((s) => (
+              <button
+                key={s.id}
+                className={`slide-thumb ${s.idx === at ? 'current' : ''}`}
+                onClick={() => go(s.idx)}
+                aria-label={`Slide ${s.idx + 1}`}
+              >
+                <SlideFrame html={s.html} />
+                <span>{s.idx + 1}</span>
+              </button>
+            ))}
           </div>
         </>
       )}
     </section>
+  );
+}
+
+/** One lesson in the class's list, fronted by its first slide. */
+export function LessonCard({ deck, onOpen, label }: { deck: DeckSummary; onOpen: () => void; label?: string }) {
+  return (
+    <button className="lesson-card" onClick={onOpen}>
+      {deck.cover && <SlideFrame html={deck.cover} />}
+      <div className="lesson-card-text">
+        {label && <span className="eyebrow">{label}</span>}
+        <strong>{deck.title}</strong>
+        <span>
+          {deck.subtitle ? `${deck.subtitle} · ` : ''}
+          {deck.count} slide{deck.count === 1 ? '' : 's'}
+        </span>
+      </div>
+    </button>
   );
 }

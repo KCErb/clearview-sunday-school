@@ -67,6 +67,8 @@ select public.deck_publish(current_setting('test.deck')::bigint, true);
 set local role anon;
 select set_config('request.jwt.claims','{}',true);
 select pg_temp.assert(jsonb_array_length(public.deck_list()) = 1, 'published lessons appear for the class');
+select pg_temp.assert(public.deck_list()->0->>'cover' like '%Slide 1%', 'each lesson shows its first slide as a cover');
+select pg_temp.assert(public.deck_list()::text not like '%secretly%', 'lesson covers never carry teacher notes');
 select pg_temp.assert(jsonb_array_length(public.deck_slides(current_setting('test.deck')::bigint)->'slides') = 3, 'the class can read a published lesson');
 select pg_temp.assert(public.deck_slides(current_setting('test.deck')::bigint)::text not like '%secretly%', 'past lessons never carry teacher notes');
 select pg_temp.denied(format('select public.deck_publish(%s,false)', current_setting('test.deck')), 'visitors cannot unpublish a lesson');

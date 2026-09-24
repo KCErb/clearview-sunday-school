@@ -304,7 +304,14 @@ export const demoApi: PollApi = {
   async deckList() {
     return read()
       .decks.filter((d) => d.published)
-      .map(({ id, title, subtitle, created_at, count }) => ({ id, title, subtitle, created_at, count }));
+      .map(({ id, title, subtitle, created_at, count, slides }) => ({
+        id,
+        title,
+        subtitle,
+        created_at,
+        count,
+        cover: slides[0]?.html,
+      }));
   },
   async deckSlides(id) {
     const s = read();

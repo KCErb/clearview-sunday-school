@@ -46,6 +46,8 @@ export interface DeckSummary {
   subtitle: string;
   created_at: string;
   count: number;
+  /** First slide's HTML, for lesson cards. Present on the class list only. */
+  cover?: string;
 }
 export interface Slide {
   id: number;
