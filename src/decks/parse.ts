@@ -14,6 +14,78 @@ export interface ParsedDeck {
   slides: ParsedSlide[];
   /** Relative image references, in the order first seen. Absolute and data: URLs are left alone. */
   assets: string[];
+  /** Design-system components the parser could not turn into static markup. */
+  warnings: string[];
+}
+/** Design tokens by name without the leading dashes, e.g. `{ 'gold-20': '#C1A01E' }`. */
+export type Tokens = Record<string, string>;
+
+/** Collects every `--name: value` declaration from the design system's token stylesheets. */
+export function readTokens(...css: string[]): Tokens {
+  const tokens: Tokens = {};
+  for (const sheet of css)
+    for (const m of sheet.matchAll(/--([\w-]+)\s*:\s*([^;}]+)/g)) tokens[m[1]] ??= m[2].trim();
+  return tokens;
+}
+
+/** Replaces known `var(--x)` references with their values so slides carry no stylesheet dependency. */
+export function resolveVars(text: string, tokens: Tokens) {
+  let out = text;
+  for (let depth = 0; depth < 6 && out.includes('var(--'); depth++) {
+    const next = out.replace(/var\(--([\w-]+)(?:\s*,\s*([^()]*))?\)/g, (whole, name: string, fallback?: string) =>
+      tokens[name] ?? fallback?.trim() ?? whole,
+    );
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
+const ICON_CDN = 'https://cdn.jsdelivr.net/npm/lucide-static@0.462.0/icons/';
+const attrs = (tag: string) => {
+  const found: Record<string, string> = {};
+  for (const m of tag.matchAll(/([\w-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)) found[m[1]] = m[3] ?? m[4] ?? '';
+  return found;
+};
+
+/**
+ * Claude Design renders design-system components (`<x-import component-from-global-scope=…>`)
+ * with React at runtime. Slides here are static, so the two the lessons use are expanded to the
+ * same markup the components produce (see Church Design System/components).
+ */
+function expandComponents(html: string, warnings: string[]) {
+  return html.replace(/<x-import(\s[^>]*)>([\s\S]*?)<\/x-import>/gi, (whole, rawAttrs: string, children: string) => {
+    const a = attrs(rawAttrs);
+    const component = (a['component-from-global-scope'] || '').split('.').pop();
+    const style = a.style ? `;${a.style}` : '';
+    if (component === 'Icon') {
+      const size = a.size || '20px';
+      const mask = `url(${ICON_CDN}${encodeURIComponent(a.name || 'circle')}.svg)`;
+      return (
+        `<span role="presentation" aria-hidden="true" style="display:inline-block;width:${size};height:${size};` +
+        `flex:0 0 auto;background-color:currentColor;-webkit-mask-image:${mask};mask-image:${mask};` +
+        `-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;` +
+        `-webkit-mask-position:center;mask-position:center${style}"></span>`
+      );
+    }
+    if (component === 'ScriptureBlock') {
+      const fs = { sm: 'var(--fs-body-lg)', md: 'var(--fs-h3)', lg: 'var(--fs-h1)' }[a.size || 'md'] || 'var(--fs-h3)';
+      const invert = a.tone === 'invert';
+      const caption = a.reference
+        ? `<figcaption style="margin-top:var(--space-4);font-family:var(--font-sans);font-size:var(--fs-body-sm);` +
+          `font-weight:var(--fw-semibold);letter-spacing:.02em;color:${invert ? 'var(--text-invert-muted)' : 'var(--text-muted)'}">` +
+          `${a.reference}</figcaption>`
+        : '';
+      return (
+        `<div style="${a.style || ''}"><figure style="margin:0;border-left:var(--border-medium) solid var(--gold-20);` +
+        `padding-left:var(--space-6);max-width:var(--measure-body)"><blockquote style="margin:0;` +
+        `font-family:var(--font-serif-text);font-size:${fs};line-height:1.45;font-style:italic;` +
+        `color:${invert ? 'var(--text-invert)' : 'var(--text-heading)'}">${children.trim()}</blockquote>${caption}</figure></div>`
+      );
+    }
+    if (!warnings.includes(component || whole.slice(0, 60))) warnings.push(component || whole.slice(0, 60));
+    return whole;
+  });
 }
 
 const attribute = (tag: string, name: string) =>
@@ -94,12 +166,17 @@ export function rewriteAssets(html: string, map: Record<string, string>) {
   );
 }
 
-export function parseDeck(source: string, fallbackTitle = 'Untitled lesson'): ParsedDeck {
+export function parseDeck(source: string, fallbackTitle = 'Untitled lesson', tokens: Tokens = {}): ParsedDeck {
   const inner = body(source);
+  const warnings: string[] = [];
   const slides = sections(inner).map((html, idx) => {
     const open = /^<section[^>]*>/i.exec(html);
     const label = open ? attribute(open[0], 'data-screen-label') : null;
-    return { idx, label: ((label?.[2] ?? label?.[3] ?? '') || '').slice(0, 200), html: dropShadow(html) };
+    return {
+      idx,
+      label: ((label?.[2] ?? label?.[3] ?? '') || '').slice(0, 200),
+      html: resolveVars(expandComponents(dropShadow(html), warnings), tokens),
+    };
   });
   if (!slides.length) throw new Error('No slides found — export the lesson from Claude Design as a .dc.html file.');
   const template = /@template\s+name\s*=\s*"([^"]+)"/i.exec(source);
@@ -113,5 +190,5 @@ export function parseDeck(source: string, fallbackTitle = 'Untitled lesson'): Pa
   ).slice(0, 200);
   const assets: string[] = [];
   for (const slide of slides) for (const ref of collectAssets(slide.html)) if (!assets.includes(ref)) assets.push(ref);
-  return { title, subtitle: subtitleOf(slides[0].html), slides, assets };
+  return { title, subtitle: subtitleOf(slides[0].html), slides, assets, warnings };
 }

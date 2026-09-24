@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { parseDeck, collectAssets, rewriteAssets } from '../src/decks/parse.ts';
+import { readdirSync, readFileSync } from 'node:fs';
+import { parseDeck, collectAssets, readTokens, rewriteAssets } from '../src/decks/parse.ts';
 
 const exported = readFileSync(
   new URL('../Church Design System/templates/sunday-school-lesson/SundaySchoolLesson.dc.html', import.meta.url),
@@ -55,4 +55,43 @@ test('falls back to the template name and then the given title', () => {
 
 test('a file with no slides is rejected', () => {
   assert.throws(() => parseDeck('<html><body><p>not a deck</p></body></html>'), /No slides found/);
+});
+
+const tokenDir = new URL('../Church Design System/tokens/', import.meta.url);
+const tokens = readTokens(...readdirSync(tokenDir).map((n) => readFileSync(new URL(n, tokenDir), 'utf8')));
+const lesson = (dir) => readFileSync(new URL(`../lessons/${dir}/SundaySchoolLesson.dc.html`, import.meta.url), 'utf8');
+
+test('design-system components become static markup', () => {
+  const deck = parseDeck(lesson('2026-09-14-god-is-my-salvation'), 'x', tokens);
+  assert.equal(deck.slides.length, 14);
+  assert.deepEqual(deck.warnings, []);
+  for (const slide of deck.slides) {
+    assert.ok(!slide.html.includes('<x-import'), `${slide.label} still has a runtime component`);
+    assert.ok(!slide.html.includes('var(--'), `${slide.label} still depends on a stylesheet token`);
+  }
+  const scripture = deck.slides[1].html;
+  assert.match(scripture, /<blockquote[^>]*font-style:italic[^>]*>all things that \[Isaiah\] spake/);
+  assert.match(scripture, /border-left:2px solid #C1A01E/);
+  assert.match(scripture, /<figcaption[^>]*>3 Nephi 23:3<\/figcaption>/);
+  assert.match(deck.slides[4].html, /mask-image:url\(https:\/\/cdn\.jsdelivr\.net\/npm\/lucide-static@[\d.]+\/icons\/plus\.svg\)/);
+});
+
+test('hub slides keep their links to other slides', () => {
+  const deck = parseDeck(lesson('2026-09-14-god-is-my-salvation'), 'x', tokens);
+  const hub = deck.slides.find((s) => s.label === '09 Discussion');
+  assert.deepEqual([...hub.html.matchAll(/data-goto="(\d+)"/g)].map((m) => Number(m[1])), [8, 10, 11, 12]);
+  assert.equal(deck.slides[8].label, '10 Discussion 1a', 'links are zero-based slide positions');
+});
+
+test('token references in inline styles resolve', () => {
+  const deck = parseDeck(lesson('2026-09-07-he-shall-direct-thy-paths'), 'x', tokens);
+  assert.equal(deck.slides.length, 11);
+  assert.equal(deck.title, '“He Shall Direct Thy Paths”');
+  assert.match(deck.slides[5].html, /background-color: #235C35/);
+  assert.deepEqual(deck.assets, ['uploads/pasted-1789321172757-0.png', 'uploads/pasted-1789321243035-0.png']);
+});
+
+test('an unknown component is reported rather than silently dropped', () => {
+  const deck = parseDeck('<section><x-import component-from-global-scope="DS.Carousel"></x-import></section>');
+  assert.deepEqual(deck.warnings, ['Carousel']);
 });

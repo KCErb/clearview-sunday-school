@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Play, Square, Upload } from 'lucide-react';
 import type { Deck, DeckLibrary, Library, PollApi } from '@/polling/types';
-import { parseDeck } from './parse';
+import { parseDeck, readTokens } from './parse';
+import { designTokens } from './tokens';
 import { SlideFrame } from './SlideFrame';
+import { centerThumb } from './strip';
 
 /** The teacher's phone during class: what the screen shows, what comes next, and the private notes. */
 export function LessonPanel({
@@ -34,7 +36,7 @@ export function LessonPanel({
   const slide = deck?.slides[idx] ?? null;
   const next = deck?.slides[idx + 1] ?? null;
   useEffect(() => {
-    strip.current?.querySelector('.slide-thumb.current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    centerThumb(strip.current);
   }, [idx, deck?.id]);
 
   async function run(work: () => Promise<unknown>) {
@@ -67,7 +69,7 @@ export function LessonPanel({
 
   async function upload(file: File) {
     const source = await file.text();
-    const parsed = parseDeck(source, file.name.replace(/\.[^.]+$/, ''));
+    const parsed = parseDeck(source, file.name.replace(/\.[^.]+$/, ''), readTokens(...designTokens));
     if (parsed.assets.length)
       throw new Error(
         `This lesson uses images stored beside it (${parsed.assets[0]}). Import it with "pnpm import-deck" so the pictures come along.`,
@@ -177,7 +179,7 @@ export function LessonPanel({
           </div>
           <div className="lesson-layout">
             <div className="lesson-current">
-              {slide && <SlideFrame html={slide.html} />}
+              {slide && <SlideFrame html={slide.html} onGoto={go} />}
               <div className="deck-viewer-nav">
                 <button className="poll-button secondary compact" disabled={busy || idx === 0} onClick={() => go(idx - 1)}>
                   <ChevronLeft size={15} /> Back

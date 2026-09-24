@@ -1220,6 +1220,7 @@
   cursor: pointer;
 }
 .slide-strip {
+  position: relative;
   display: flex;
   gap: 10px;
   overflow-x: auto;
@@ -1459,23 +1460,11 @@
   width: 100vw;
   height: 100vh;
 }
-.tap-zone {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 32%;
-  border: 0;
-  background: transparent;
+.deck-viewer-stage {
   cursor: pointer;
 }
-.tap-zone:disabled {
-  cursor: default;
-}
-.tap-zone.prev {
-  left: 0;
-}
-.tap-zone.next {
-  right: 0;
+.slide-frame.can-goto a[data-goto] {
+  cursor: pointer;
 }
 .full-toggle {
   position: absolute;

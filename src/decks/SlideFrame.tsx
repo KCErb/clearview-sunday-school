@@ -10,10 +10,13 @@ export function SlideFrame({
   html,
   fit = 'width',
   className = '',
+  onGoto,
 }: {
   html: string;
   fit?: 'width' | 'contain';
   className?: string;
+  /** Hub slides link to other slides with `<a data-goto="n">` (zero-based, as in Claude Design). */
+  onGoto?: (idx: number) => void;
 }) {
   const box = useRef<HTMLDivElement | null>(null);
   const [layout, setLayout] = useState({ scale: 0, left: 0, top: 0 });
@@ -36,7 +39,21 @@ export function SlideFrame({
     return () => observer.disconnect();
   }, [fit]);
   return (
-    <div ref={box} className={`slide-frame ${fit === 'contain' ? 'contain' : ''} ${className}`}>
+    <div
+      ref={box}
+      className={`slide-frame ${fit === 'contain' ? 'contain' : ''} ${onGoto ? 'can-goto' : ''} ${className}`}
+      onClick={(e) => {
+        const link = (e.target as Element).closest('a');
+        if (!link) return;
+        // Slide links are for moving within the lesson; never let "#" scroll or leave the page.
+        e.preventDefault();
+        const to = link.getAttribute('data-goto');
+        if (to !== null && onGoto) {
+          e.stopPropagation();
+          onGoto(Number(to));
+        }
+      }}
+    >
       <div
         className="slide-canvas"
         style={{

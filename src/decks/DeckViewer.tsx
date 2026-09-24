@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import type { DeckSummary, PollApi, Slide } from '@/polling/types';
 import { SlideFrame } from './SlideFrame';
+import { centerThumb } from './strip';
 
 /**
  * Reading a past lesson: the slide as large as the screen allows, with tap, swipe and arrow
@@ -59,7 +60,7 @@ export function DeckViewer({
     return () => document.removeEventListener('fullscreenchange', change);
   }, []);
   useEffect(() => {
-    strip.current?.querySelector('.slide-thumb.current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    centerThumb(strip.current);
   }, [at, count]);
   const canFull = typeof document !== 'undefined' && !!document.fullscreenEnabled;
   const slide = deck?.slides[at];
@@ -85,6 +86,14 @@ export function DeckViewer({
           <div
             ref={stage}
             className={`deck-viewer-stage slide-bleed ${full ? 'is-full' : ''}`}
+            onClick={(e) => {
+              // Tap the left or right third of the slide to move; links on the slide handle themselves.
+              if ((e.target as Element).closest('button, a')) return;
+              const { left, width } = e.currentTarget.getBoundingClientRect();
+              const x = (e.clientX - left) / width;
+              if (x < 1 / 3) go(at - 1);
+              else if (x > 2 / 3) go(at + 1);
+            }}
             onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
             onTouchEnd={(e) => {
               if (touch.current === null) return;
@@ -93,14 +102,9 @@ export function DeckViewer({
               if (Math.abs(dx) > 40) go(dx < 0 ? at + 1 : at - 1);
             }}
           >
-            {slide && <SlideFrame key={`${full}`} html={slide.html} fit={full ? 'contain' : 'width'} />}
-            <button className="tap-zone prev" aria-label="Previous slide" disabled={at === 0} onClick={() => go(at - 1)} />
-            <button
-              className="tap-zone next"
-              aria-label="Next slide"
-              disabled={at >= count - 1}
-              onClick={() => go(at + 1)}
-            />
+            {slide && (
+              <SlideFrame key={`${full}`} html={slide.html} fit={full ? 'contain' : 'width'} onGoto={go} />
+            )}
             {canFull && (
               <button
                 className="full-toggle"

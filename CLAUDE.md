@@ -58,9 +58,13 @@ RPC; responder counts via `count(distinct submission_id)`. See `docs/live-prompt
 same room→poll order as `poll_action`. `/stage` is the TV (anonymous, `stage_current()`, no
 chrome), `/manage` Lesson mode is the presenter view, `/` shows the live slide (+ its question)
 or past lessons. Slide HTML is stored and rendered verbatim: only `is_admin()` can write it via
-`deck_save`, and sanitizing would strip the design system's inline styles. Import with
-`pnpm import-deck <folder>` (admin password login, uploads images to the `deck-media` bucket) or
-by dropping a single `.dc.html` into `/manage`; both share `src/decks/parse.ts`. Re-importing
+`deck_save`, and sanitizing would strip the design system's inline styles. Lesson sources live in
+`lessons/<date>-<slug>/`; import with `pnpm import-deck <folder> --local-assets --sql <file>` then
+`python3 scripts/supabase-query.py <file>` (images served from `public/decks/`), or drop a single
+`.dc.html` into `/manage`; both share `src/decks/parse.ts`, which expands Claude Design's runtime
+components (ScriptureBlock, Icon) to static markup and resolves tokens. `data-goto` links on hub
+slides jump slides. Read Claude Design projects with the DesignSync tool (`get_file`; images over
+256 KB can't come through it, so they need exporting by hand). Re-importing
 keeps notes and attached questions by slide position. Deferred: revealing results on the TV,
 markdown→deck authoring, in-app slide editing.
 

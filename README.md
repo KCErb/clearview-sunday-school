@@ -31,17 +31,27 @@ would strip the inline styles the design system depends on.
 
 ### Making a lesson each week
 
-Build the deck in claude.ai/design, export it, then import the folder:
+Each lesson's source lives in `lessons/<date>-<slug>/` (the `.dc.html` from claude.ai/design plus
+its images). Import it with:
 
 ```bash
-pnpm import-deck "~/Downloads/Good Shepherd"   # add --publish, or --replace <id> to re-import
+pnpm import-deck lessons/2026-09-14-god-is-my-salvation --subtitle "Isaiah 1–12 · September 14–20" \
+  --publish --local-assets --sql /tmp/lesson.sql
+python3 scripts/supabase-query.py /tmp/lesson.sql
 ```
 
-`IMPORT_EMAIL` / `IMPORT_PASSWORD` in `.env.local` are the admin account (set a password once in
-the Supabase dashboard — the site itself signs in with magic links). The script uploads any
-images stored beside the deck to the `deck-media` bucket and rewrites their URLs. A single
-`.dc.html` with no local images can also be dropped straight into `/manage` → Lesson → Import
-lesson. Re-importing keeps the notes and attached questions at each slide position.
+- `--local-assets` copies images into `public/decks/<slug>/` so the site serves them; the slide
+  addresses are stable, so an image added later needs only a deploy, not a re-import.
+- `--sql` writes a transaction that calls `deck_save` as the admin, run through the Management
+  API helper (no admin password needed). Without it the script signs in with `IMPORT_EMAIL` /
+  `IMPORT_PASSWORD` from `.env.local` and uploads images to the `deck-media` bucket instead.
+- `--replace <id>` re-imports over an existing lesson and keeps its notes and attached questions.
+
+The importer turns Claude Design's runtime components (`ScriptureBlock`, `Icon`) into static
+markup and resolves design tokens, so slides need no stylesheet; it warns about any component it
+cannot expand. Hub slides that link with `data-goto` jump to that slide in the viewer and the
+presenter view. A single `.dc.html` with no local images can also be dropped into `/manage` →
+Lesson → Import lesson.
 
 In class: `/stage` on the TV, `/manage` on your phone (Lesson mode: slide strip, next slide,
 notes, private results), `/` on the class's phones.
