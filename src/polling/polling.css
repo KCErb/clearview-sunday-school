@@ -1120,6 +1120,49 @@
 .slide-frame .slide-canvas :where(*) {
   all: revert;
 }
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  pointer-events: none;
+}
+.poll-badge-slide {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 32px 18px 18px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(28, 26, 24, 0.22);
+  font-family: 'Source Sans 3', Helvetica, sans-serif;
+  color: #003057;
+}
+.poll-badge-slide img {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+.poll-badge-slide div {
+  display: grid;
+  gap: 4px;
+}
+.poll-badge-slide span {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #53575b;
+}
+.poll-badge-slide strong {
+  font-size: 34px;
+  font-weight: 600;
+}
 .slide-frame > .slide-canvas > section {
   box-shadow: none !important;
 }

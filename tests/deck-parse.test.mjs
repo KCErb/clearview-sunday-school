@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { parseDeck, collectAssets, readTokens, rewriteAssets } from '../src/decks/parse.ts';
+import { JOIN_LABEL, withJoinSlide } from '../src/decks/join.ts';
 
 const exported = readFileSync(
   new URL('../Church Design System/templates/sunday-school-lesson/SundaySchoolLesson.dc.html', import.meta.url),
@@ -94,4 +95,19 @@ test('token references in inline styles resolve', () => {
 test('an unknown component is reported rather than silently dropped', () => {
   const deck = parseDeck('<section><x-import component-from-global-scope="DS.Carousel"></x-import></section>');
   assert.deepEqual(deck.warnings, ['Carousel']);
+});
+
+test('the join slide goes after the title and hub links still land on the same slides', () => {
+  const deck = parseDeck(lesson('2026-09-14-god-is-my-salvation'), 'x', tokens);
+  const slides = withJoinSlide(deck.slides, (s) => ({ ...s, idx: -1 }));
+  assert.equal(slides.length, 15);
+  assert.equal(slides[1].label, JOIN_LABEL);
+  assert.match(slides[1].html, /<img src="\/join-qr\.svg"/);
+  const hub = slides.find((s) => s.label === '09 Discussion');
+  const targets = [...hub.html.matchAll(/data-goto="(\d+)"/g)].map((m) => slides[Number(m[1])].label);
+  assert.deepEqual(targets, ['10 Discussion 1a', '12 Discussion 2', '13 Discussion 3', '14 Discussion 4']);
+  const back = [...slides[9].html.matchAll(/data-goto="(\d+)"/g)].map((m) => slides[Number(m[1])].label);
+  assert.deepEqual(back, ['09 Discussion'], '"Back to discussion" still returns to the hub');
+  assert.equal(withJoinSlide(slides, (s) => s).length, 15, 'adding it twice is a no-op');
+  assert.deepEqual(collectAssets(slides[1].html), [], 'site paths are not treated as images to upload');
 });

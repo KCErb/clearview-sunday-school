@@ -153,7 +153,8 @@ export function collectAssets(html: string) {
   let match: RegExpExecArray | null;
   while ((match = refs.exec(html))) {
     const ref = (match[1] ?? match[2] ?? '').trim();
-    if (!ref || /^(https?:|data:|blob:|#|\/\/)/i.test(ref)) continue;
+    // Absolute URLs, inline data and site paths (/decks/…, /join-qr.svg) are already servable.
+    if (!ref || /^(https?:|data:|blob:|#|\/)/i.test(ref)) continue;
     if (!found.includes(ref)) found.push(ref);
   }
   return found;

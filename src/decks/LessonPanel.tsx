@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, Square, Upload } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, QrCode, Square, Upload } from 'lucide-react';
 import type { Deck, DeckLibrary, Library, PollApi } from '@/polling/types';
 import { parseDeck, readTokens } from './parse';
 import { designTokens } from './tokens';
+import { JOIN_LABEL, withJoinSlide } from './join';
 import { SlideFrame } from './SlideFrame';
+import { PollBadge } from './PollBadge';
 import { centerThumb } from './strip';
 
 /** The teacher's phone during class: what the screen shows, what comes next, and the private notes. */
@@ -35,6 +37,8 @@ export function LessonPanel({
   const idx = live !== null ? decks.live.slide_idx : Math.min(cursor, (deck?.slides.length ?? 1) - 1);
   const slide = deck?.slides[idx] ?? null;
   const next = deck?.slides[idx + 1] ?? null;
+  // Latecomers: one tap puts the join slide back on the screen, wherever the lesson is.
+  const joinIdx = deck?.slides.findIndex((s) => s.label === JOIN_LABEL) ?? -1;
   useEffect(() => {
     centerThumb(strip.current);
   }, [idx, deck?.id]);
@@ -77,7 +81,7 @@ export function LessonPanel({
     await api.saveDeck({
       title: parsed.title,
       subtitle: parsed.subtitle,
-      slides: parsed.slides.map(({ label, html }) => ({ label, html })),
+      slides: withJoinSlide(parsed.slides, (j) => ({ ...j, idx: -1 })).map(({ label, html }) => ({ label, html })),
     });
   }
 
@@ -179,11 +183,18 @@ export function LessonPanel({
           </div>
           <div className="lesson-layout">
             <div className="lesson-current">
-              {slide && <SlideFrame html={slide.html} onGoto={go} />}
+              {slide && (
+                <SlideFrame html={slide.html} onGoto={go} overlay={slide.poll_id ? <PollBadge /> : null} />
+              )}
               <div className="deck-viewer-nav">
                 <button className="poll-button secondary compact" disabled={busy || idx === 0} onClick={() => go(idx - 1)}>
                   <ChevronLeft size={15} /> Back
                 </button>
+                {joinIdx >= 0 && joinIdx !== idx && (
+                  <button className="text-button" disabled={busy} onClick={() => go(joinIdx)}>
+                    <QrCode size={15} /> Join slide
+                  </button>
+                )}
                 <span>
                   {idx + 1} / {deck.slides.length}
                   {live !== null ? ' · on the screen' : ' · preview'}

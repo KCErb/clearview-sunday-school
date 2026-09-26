@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PollApi, Stage as StageState } from '@/polling/types';
 import { useRefresh } from '@/polling/useRefresh';
 import { SlideFrame } from './SlideFrame';
+import { PollBadge } from './PollBadge';
 
 /** The screen in the room. No chrome, no controls — it only follows the teacher's phone. */
 export function Stage({ api }: { api: PollApi }) {
@@ -21,7 +22,12 @@ export function Stage({ api }: { api: PollApi }) {
   return (
     <div className="stage">
       {stage ? (
-        <SlideFrame key={`${stage.deck.id}:${stage.slide.idx}`} html={stage.slide.html} fit="contain" />
+        <SlideFrame
+          key={`${stage.deck.id}:${stage.slide.idx}`}
+          html={stage.slide.html}
+          fit="contain"
+          overlay={stage.slide.poll_id ? <PollBadge /> : null}
+        />
       ) : (
         <div className="stage-idle">
           <span>Clearview Ward</span>

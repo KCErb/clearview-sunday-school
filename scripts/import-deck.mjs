@@ -5,6 +5,7 @@
 //   --title "…" / --subtitle "…"   override what the parser reads off the title slide
 //   --replace <id>                 re-import over an existing lesson (keeps notes and attached questions)
 //   --publish                      show it to the class straight away
+//   --no-join                      leave out the standard "Join the class" slide (added after the title)
 //   --local-assets                 copy images into public/decks/<slug>/ so the site serves them
 //                                  (otherwise they are uploaded to the deck-media storage bucket);
 //                                  photos are resized to fit a 1920x1080 slide and saved as WebP
@@ -17,6 +18,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSyn
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDeck, readTokens, rewriteAssets } from '../src/decks/parse.ts';
+import { withJoinSlide } from '../src/decks/join.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -103,7 +105,10 @@ const payload = {
   id: replace,
   title,
   subtitle,
-  slides: deck.slides.map((s) => ({ label: s.label, html: rewriteAssets(s.html, map) })),
+  slides: (flag('no-join') ? deck.slides : withJoinSlide(deck.slides, (s) => ({ ...s, idx: -1 }))).map((s) => ({
+    label: s.label,
+    html: rewriteAssets(s.html, map),
+  })),
 };
 
 if (option('sql')) {

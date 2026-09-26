@@ -63,7 +63,9 @@ or past lessons. Slide HTML is stored and rendered verbatim: only `is_admin()` c
 `python3 scripts/supabase-query.py <file>` (images served from `public/decks/`), or drop a single
 `.dc.html` into `/manage`; both share `src/decks/parse.ts`, which expands Claude Design's runtime
 components (ScriptureBlock, Icon) to static markup and resolves tokens. `data-goto` links on hub
-slides jump slides. Read Claude Design projects with the DesignSync tool (`get_file`; images over
+slides jump slides. Imports add the standard join slide (`src/decks/join.ts`, QR in
+`public/join-qr.svg`) after the title slide and renumber `data-goto`; slides with an attached
+question get a QR `PollBadge` overlay on `/stage` and in the presenter view. Read Claude Design projects with the DesignSync tool (`get_file`; images over
 256 KB can't come through it, so they need exporting by hand). Re-importing
 keeps notes and attached questions by slide position. Deferred: revealing results on the TV,
 markdown→deck authoring, in-app slide editing.

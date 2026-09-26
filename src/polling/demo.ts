@@ -7,6 +7,7 @@ import {
   type Poll,
   type WriteIn,
 } from './types.ts';
+import { withJoinSlide } from '../decks/join.ts';
 const key = 'cwass.poll-preview.v1';
 interface DemoState extends Library {
   answers: Record<string, Answer>;
@@ -65,9 +66,12 @@ const initial = (): DemoState => ({
       subtitle: 'Clearview Ward · Week 34',
       published: true,
       created_at: new Date().toISOString(),
-      count: 3,
-      // The middle slide carries the prepared question, so advancing to it opens the poll.
-      slides: sampleSlides().map((s) => (s.idx === 1 ? { ...s, poll_id: 2 } : s)),
+      count: 4,
+      // Title, join slide, then a slide carrying the prepared question: advancing to it opens the poll.
+      slides: withJoinSlide(
+        sampleSlides().map((s) => (s.idx === 1 ? { ...s, poll_id: 2 } : s)),
+        (j) => ({ ...j, id: 0, idx: 0, poll_id: null }),
+      ).map((s, idx) => ({ ...s, id: 10 + idx, idx })),
     },
     {
       id: 2,
