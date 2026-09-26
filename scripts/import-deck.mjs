@@ -6,7 +6,8 @@
 //   --replace <id>                 re-import over an existing lesson (keeps notes and attached questions)
 //   --publish                      show it to the class straight away
 //   --local-assets                 copy images into public/decks/<slug>/ so the site serves them
-//                                  (otherwise they are uploaded to the deck-media storage bucket)
+//                                  (otherwise they are uploaded to the deck-media storage bucket);
+//                                  photos are resized to fit a 1920x1080 slide and saved as WebP
 //   --sql <file>                   write the SQL instead of calling the API; run it with
 //                                  `python3 scripts/supabase-query.py <file>` (no password needed)
 //
@@ -64,13 +65,22 @@ for (const ref of deck.assets) {
   const source = resolve(dirname(file), ref);
   const name = basename(ref);
   if (flag('local-assets')) {
+    // Phones on the chapel wi-fi load these; nothing on a slide is drawn larger than 1920x1080.
+    const raster = /\.(png|jpe?g)$/i.test(name);
+    const served = raster ? name.replace(/\.[^.]+$/, '.webp') : name;
     // Stable addresses: dropping a missing image in later needs a deploy, not a re-import.
-    map[ref] = `/decks/${slug}/${name}`;
-    if (existsSync(source)) {
-      mkdirSync(join(root, 'public/decks', slug), { recursive: true });
-      copyFileSync(source, join(root, 'public/decks', slug, name));
-      console.log(`  copied ${ref} → public/decks/${slug}/${name}`);
-    } else missing.push(ref);
+    map[ref] = `/decks/${slug}/${served}`;
+    if (!existsSync(source)) {
+      missing.push(ref);
+      continue;
+    }
+    const out = join(root, 'public/decks', slug, served);
+    mkdirSync(dirname(out), { recursive: true });
+    if (raster) {
+      const sharp = (await import('sharp')).default;
+      await sharp(source).resize(1920, 1080, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 82 }).toFile(out);
+    } else copyFileSync(source, out);
+    console.log(`  ${ref} → public/decks/${slug}/${served} (${Math.round(statSync(source).size / 1024)} KB → ${Math.round(statSync(out).size / 1024)} KB)`);
     continue;
   }
   if (!existsSync(source)) {

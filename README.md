@@ -40,8 +40,9 @@ pnpm import-deck lessons/2026-09-14-god-is-my-salvation --subtitle "Isaiah 1–1
 python3 scripts/supabase-query.py /tmp/lesson.sql
 ```
 
-- `--local-assets` copies images into `public/decks/<slug>/` so the site serves them; the slide
-  addresses are stable, so an image added later needs only a deploy, not a re-import.
+- `--local-assets` resizes photos to fit a 1920×1080 slide, saves them as WebP in
+  `public/decks/<slug>/` (committed; the originals in `lessons/` are git-ignored), and points the
+  slides there. The addresses are stable, so an image added later needs only a deploy.
 - `--sql` writes a transaction that calls `deck_save` as the admin, run through the Management
   API helper (no admin password needed). Without it the script signs in with `IMPORT_EMAIL` /
   `IMPORT_PASSWORD` from `.env.local` and uploads images to the `deck-media` bucket instead.

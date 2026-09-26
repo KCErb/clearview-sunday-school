@@ -1094,6 +1094,13 @@
   overflow: hidden;
   background: var(--neutral-5);
   border-radius: 4px;
+  /* Paper-coloured slides sit on a paper-coloured page; a hairline keeps the edge visible. */
+  box-shadow: 0 0 0 1px rgba(28, 26, 24, 0.14), 0 2px 10px rgba(28, 26, 24, 0.07);
+}
+.slide-thumb .slide-frame,
+.lesson-card .slide-frame,
+.slide-frame.contain {
+  box-shadow: none;
 }
 .slide-frame.contain {
   position: absolute;
@@ -1500,6 +1507,7 @@
   }
   .participant-main .slide-bleed .slide-frame {
     border-radius: 0;
+    box-shadow: 0 1px 0 rgba(28, 26, 24, 0.14), 0 -1px 0 rgba(28, 26, 24, 0.14);
   }
 }
 .participant-main .slide-bleed + .question-card {

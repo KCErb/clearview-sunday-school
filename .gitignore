@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Original lesson images stay local (originals live in ~/Church/CWASS); the site serves the
+# optimized copies the importer writes to public/decks/.
+lessons/**/*.png
+lessons/**/*.jpg
+lessons/**/*.jpeg
