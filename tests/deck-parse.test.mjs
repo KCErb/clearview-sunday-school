@@ -111,3 +111,27 @@ test('the join slide goes after the title and hub links still land on the same s
   assert.equal(withJoinSlide(slides, (s) => s).length, 15, 'adding it twice is a no-op');
   assert.deepEqual(collectAssets(slides[1].html), [], 'site paths are not treated as images to upload');
 });
+
+test('anchor links to another slide become slide jumps that survive the join slide', () => {
+  const deck = parseDeck(
+    '<section id="intro"><h1>Title</h1></section>' +
+      '<section><a href="#topic-2">Two</a><a href="#nowhere">Stay</a></section>' +
+      '<section id="topic-2">Topic</section>',
+  );
+  assert.match(deck.slides[1].html, /<a href="#" data-goto="2">Two<\/a>/);
+  assert.match(deck.slides[1].html, /<a href="#nowhere">Stay<\/a>/, 'unknown anchors are left alone');
+  const slides = withJoinSlide(deck.slides, (s) => s);
+  const target = Number(/data-goto="(\d+)"/.exec(slides[2].html)[1]);
+  assert.equal(slides[target].html, deck.slides[2].html);
+});
+
+test('this week’s menu links reach every topic after the join and small-group slides', () => {
+  const dir = new URL('../lessons/2026-09-21-a-marvellous-work-and-a-wonder/', import.meta.url);
+  const file = readdirSync(dir).find((n) => n.endsWith('.dc.html'));
+  const slides = withJoinSlide(parseDeck(readFileSync(new URL(file, dir), 'utf8'), 'x', tokens).slides, (s) => s);
+  const menu = slides.find((s) => s.label === '04 Discussion menu');
+  const targets = [...menu.html.matchAll(/data-goto="(\d+)"/g)].map((m) => slides[Number(m[1])].label);
+  assert.deepEqual(targets, ['05 Discussion 1', '06 Discussion 2', '07 Discussion 3a', '09 Discussion 4', '10 Discussion 5', '11 Discussion 6']);
+  const intro = slides.find((s) => s.label === 'Small groups');
+  assert.equal(slides.indexOf(menu) + 1, Number(/slide=(\d+)/.exec(intro.html)[1]), 'the intro links to the menu');
+});

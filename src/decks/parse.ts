@@ -170,7 +170,20 @@ export function rewriteAssets(html: string, map: Record<string, string>) {
 export function parseDeck(source: string, fallbackTitle = 'Untitled lesson', tokens: Tokens = {}): ParsedDeck {
   const inner = body(source);
   const warnings: string[] = [];
-  const slides = sections(inner).map((html, idx) => {
+  const raw = sections(inner);
+  // Claude Design links slides two ways: data-goto="n", or an anchor to a section's id.
+  const byId = new Map<string, number>();
+  raw.forEach((html, idx) => {
+    const open = /^<section[^>]*>/i.exec(html);
+    const id = open ? attribute(open[0], 'id') : null;
+    if (id) byId.set(id[2] ?? id[3] ?? '', idx);
+  });
+  const anchored = raw.map((html) =>
+    html.replace(/href\s*=\s*"#([^"]+)"/g, (whole, id: string) =>
+      byId.has(id) ? `href="#" data-goto="${byId.get(id)}"` : whole,
+    ),
+  );
+  const slides = anchored.map((html, idx) => {
     const open = /^<section[^>]*>/i.exec(html);
     const label = open ? attribute(open[0], 'data-screen-label') : null;
     return {

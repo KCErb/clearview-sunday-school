@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Renders one exported slide at its authored 1920x1080 and scales it to fit.
@@ -22,6 +23,7 @@ export function SlideFrame({
   overlay?: React.ReactNode;
 }) {
   const box = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
   const [layout, setLayout] = useState({ scale: 0, left: 0, top: 0 });
   useEffect(() => {
     const el = box.current;
@@ -48,12 +50,22 @@ export function SlideFrame({
       onClick={(e) => {
         const link = (e.target as Element).closest('a');
         if (!link) return;
-        // Slide links are for moving within the lesson; never let "#" scroll or leave the page.
         e.preventDefault();
         const to = link.getAttribute('data-goto');
-        if (to !== null && onGoto) {
+        const href = link.getAttribute('href') || '';
+        if (to !== null) {
+          // Moving within the lesson; the TV and the live phone view have no onGoto and ignore it.
+          if (onGoto) {
+            e.stopPropagation();
+            onGoto(Number(to));
+          }
+        } else if (href.startsWith('/') && !href.startsWith('//')) {
+          // A slide can point into the site, e.g. "open this week's questions" from the live view.
           e.stopPropagation();
-          onGoto(Number(to));
+          navigate(href);
+        } else if (/^https?:/i.test(href)) {
+          e.stopPropagation();
+          window.open(href, '_blank', 'noopener');
         }
       }}
     >
