@@ -5,7 +5,10 @@ Open the address, tap a choice, and change it any time while the question is ope
 No participant accounts, codes, CAPTCHA, or public results. Selections save automatically.
 Students can also save, edit, and remove multiple private write-in suggestions.
 
-- `/` — the live slide and its question, or a waiting screen with past lessons; `/live` and `/app` redirect here.
+- `/` — this week's lesson (the one on the screen, else the newest) with a Full screen button,
+  any open question under it, and previous lessons below. `?lesson=<id>&slide=<n>` opens a
+  lesson at a slide (the QR codes use this). While a lesson is live, a student who hasn't turned
+  a page keeps up with the screen. `/live` and `/app` redirect here.
 - `/stage` — the screen in the room: the current slide, full-bleed, no controls. Open it on the TV.
 - `/manage` — teacher question library, live private results, and history. Existing admin magic-link login.
 - `/archive` — previous study website and its management, with original access controls.

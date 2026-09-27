@@ -24,7 +24,7 @@ export const joinSlideHtml =
   `<div style="display:flex;flex-direction:column;gap:36px;max-width:920px">` +
   step(1, 'Scan the code', `or go to ${JOIN_URL}. You’ll see the slide that’s on the screen.`) +
   step(2, 'Answer when a question opens.', 'It appears under the slide. Answers are anonymous, and you can change them.') +
-  step(3, 'Tap Lessons', 'to look back through today’s slides any time.') +
+  step(3, 'Tap Full screen', 'for a bigger slide. Tap its left or right side to turn the page.') +
   `</div></div>` +
   `<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:28px;background:#FFFFFF;border-radius:10px;padding:48px 48px 40px">` +
   `<img src="/join-qr.svg" alt="QR code for ${JOIN_URL}" style="width:520px;height:520px;display:block">` +

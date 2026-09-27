@@ -33,14 +33,9 @@ export function Participant({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [welcome] = useState(() => welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]);
-  // Where the student is lives in the address, so the back button and shared links work.
+  const question = useRef<HTMLDivElement | null>(null);
+  // Which lesson and slide are open lives in the address, so back and shared links (the QR codes) work.
   const [params, setParams] = useSearchParams();
-  const lesson = Number(params.get('lesson')) || null;
-  const view = lesson || params.get('view') === 'lessons' ? 'lessons' : 'class';
-  const slideIdx = Math.max(0, (Number(params.get('slide')) || 1) - 1);
-  const showClass = () => setParams({});
-  const showLessons = () => setParams({ view: 'lessons' });
-  const openLesson = (id: number) => setParams({ lesson: String(id) });
   useRefresh(async () => {
     try {
       const [current, live] = await Promise.all([api.current(), api.stage()]);
@@ -58,75 +53,55 @@ export function Participant({
       setLoading(false);
     }
   });
+  // "This week" is the lesson on the screen, or else the newest one.
+  const thisWeek = decks.find((d) => d.id === stage?.deck.id) ?? decks[0] ?? null;
+  const shown = Number(params.get('lesson')) || thisWeek?.id || null;
+  const slideParam = Number(params.get('slide')) || 0;
+  // Until someone turns the page themselves, the lesson on the screen keeps up with the teacher.
+  const following = !slideParam && stage?.deck.id === shown;
+  const idx = slideParam ? slideParam - 1 : following && stage ? stage.slide.idx : 0;
   const open = poll?.status === 'open';
-  const live = !!stage || open;
+  const openLesson = (id: number) => {
+    setParams({ lesson: String(id) });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const toQuestion = () =>
+    setTimeout(() => question.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  const others = decks.filter((d) => d.id !== shown && d.id !== thisWeek?.id);
+  // A lesson presented without being published can't be browsed; show what's on the screen instead.
+  const unlisted = stage && !decks.some((d) => d.id === stage.deck.id) ? stage : null;
   return (
     <div className={`poll-app participant ${embedded ? 'embedded' : ''}`}>
       <header className="poll-header participant-header">
         <div className="participant-brand">
           Clearview Ward <span aria-hidden="true">·</span> Sunday School
         </div>
-        <nav className="participant-tabs" aria-label="Sections">
-          <button className={view === 'class' ? 'current' : ''} aria-current={view === 'class'} onClick={showClass}>
-            {live && <span className="live-dot" aria-label="Live now" />}
-            Class
-          </button>
-          <button
-            className={view === 'lessons' ? 'current' : ''}
-            aria-current={view === 'lessons'}
-            onClick={showLessons}
-          >
-            Lessons
-          </button>
-        </nav>
       </header>
-      <main className={`participant-main ${lesson ? 'wide' : ''}`}>
-        {view === 'lessons' ? (
-          <>
-            {live && (
-              <button className="live-banner" onClick={showClass}>
-                <span className="live-dot" /> Class is live now <span aria-hidden="true">→</span>
-              </button>
-            )}
-            {lesson ? (
-              <DeckViewer
-                key={lesson}
-                api={api}
-                deckId={lesson}
-                idx={slideIdx}
-                onIdx={(i) =>
-                  setParams({ lesson: String(lesson), ...(i ? { slide: String(i + 1) } : {}) }, { replace: true })
-                }
-                onBack={showLessons}
-              />
-            ) : (
-              <section className="lesson-list">
-                <h1>Lessons</h1>
-                {decks.length ? (
-                  <ul>
-                    {decks.map((d) => (
-                      <li key={d.id}>
-                        <LessonCard deck={d} onOpen={() => openLesson(d.id)} />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="lesson-empty">{loading ? 'Loading lessons…' : 'Slides from class will appear here.'}</p>
-                )}
-              </section>
-            )}
-          </>
-        ) : stage ? (
-          <>
-            <div className="slide-bleed">
-              <SlideFrame key={`${stage.deck.id}:${stage.slide.idx}`} html={stage.slide.html} />
-            </div>
-            {open && <Question key={poll.id} poll={poll} api={api} preview={preview} />}
-          </>
-        ) : open ? (
-          <Question key={poll.id} poll={poll} api={api} preview={preview} />
+      <main className={`participant-main ${shown ? 'wide' : ''}`}>
+        {unlisted && (
+          <div className="slide-bleed">
+            <SlideFrame key={`${unlisted.deck.id}:${unlisted.slide.idx}`} html={unlisted.slide.html} />
+          </div>
+        )}
+        {shown ? (
+          <DeckViewer
+            key={shown}
+            api={api}
+            deckId={shown}
+            idx={idx}
+            onIdx={(i) => setParams({ lesson: String(shown), slide: String(i + 1) }, { replace: true })}
+            eyebrow={shown === thisWeek?.id ? 'This week' : 'Previous lesson'}
+            action={
+              shown !== thisWeek?.id && thisWeek ? (
+                <button className="text-button" onClick={() => openLesson(thisWeek.id)}>
+                  Back to this week
+                </button>
+              ) : null
+            }
+            alert={open ? { text: 'Answer the open question', onClick: toQuestion } : null}
+          />
         ) : (
-          <>
+          !open && (
             <div className="waiting-compact">
               <div className="waiting-icon">
                 <Radio size={22} strokeWidth={1.5} />
@@ -134,21 +109,30 @@ export function Participant({
               <div>
                 <p className="eyebrow waiting-phrase">{welcome}</p>
                 <p role="status">
-                  {loading || error ? 'Connecting to the class…' : 'The next question will appear here.'}
+                  {loading || error ? 'Connecting to the class…' : 'This week’s lesson will appear here.'}
                 </p>
               </div>
             </div>
-            {decks[0] && (
-              <section className="latest-lesson">
-                <LessonCard deck={decks[0]} label="Latest lesson" onOpen={() => openLesson(decks[0].id)} />
-                {decks.length > 1 && (
-                  <button className="text-button" onClick={showLessons}>
-                    All lessons <span aria-hidden="true">→</span>
-                  </button>
-                )}
-              </section>
-            )}
-          </>
+          )
+        )}
+        {open && (
+          <div ref={question} className="open-question">
+            <Question key={poll.id} poll={poll} api={api} preview={preview} />
+          </div>
+        )}
+        {others.length > 0 && (
+          <section className="previous-lessons">
+            <h2 className="lessons-divider">
+              <span>Previous lessons</span>
+            </h2>
+            <ul>
+              {others.map((d) => (
+                <li key={d.id}>
+                  <LessonCard deck={d} onOpen={() => openLesson(d.id)} />
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
         {error && poll && (
           <p role="status" className="connection-note">

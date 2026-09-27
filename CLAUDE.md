@@ -56,8 +56,10 @@ RPC; responder counts via `count(distinct submission_id)`. See `docs/live-prompt
 `notes`, optional `poll_id`); live position rides on the `poll_room` singleton (`deck_id`,
 `slide_idx`) so `deck_arrive` changes the slide and opens its attached question under one lock —
 same room→poll order as `poll_action`. `/stage` is the TV (anonymous, `stage_current()`, no
-chrome), `/manage` Lesson mode is the presenter view, `/` shows the live slide (+ its question)
-or past lessons. Slide HTML is stored and rendered verbatim: only `is_admin()` can write it via
+chrome), `/manage` Lesson mode is the presenter view, `/` is one page: this week's lesson in
+`DeckViewer` (Full screen = fixed overlay, upgraded to browser full screen + landscape on Android;
+tap sides to turn pages), an open question under it, previous lessons below; no tabs. Students
+follow the live slide until they turn a page themselves (`?slide=` pins them). Slide HTML is stored and rendered verbatim: only `is_admin()` can write it via
 `deck_save`, and sanitizing would strip the design system's inline styles. Lesson sources live in
 `lessons/<date>-<slug>/`; import with `pnpm import-deck <folder> --local-assets --sql <file>` then
 `python3 scripts/supabase-query.py <file>` (images served from `public/decks/`), or drop a single
