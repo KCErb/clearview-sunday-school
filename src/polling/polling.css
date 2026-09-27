@@ -1497,7 +1497,8 @@
 .previous-lessons {
   margin-top: 48px;
 }
-.lessons-divider {
+/* Two classes so it outranks .poll-app h2. */
+.previous-lessons .lessons-divider {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -1509,8 +1510,8 @@
   text-transform: uppercase;
   color: var(--gray-35);
 }
-.lessons-divider::before,
-.lessons-divider::after {
+.previous-lessons .lessons-divider::before,
+.previous-lessons .lessons-divider::after {
   content: '';
   flex: 1;
   height: 1px;
