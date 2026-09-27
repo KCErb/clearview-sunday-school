@@ -39,7 +39,7 @@ export default function PollPreview() {
       </div>
       <div key={version} className={teacher ? 'preview-layout' : ''}>
         {stage ? (
-          <Stage api={demoApi} />
+          <Stage api={demoApi} control />
         ) : teacher ? (
           <>
             <Teacher api={demoApi} preview />
