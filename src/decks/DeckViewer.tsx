@@ -103,7 +103,8 @@ export function DeckViewer({
   const slide = deck?.slides[at];
   // Tap the left or right third to turn the page; links on the slide handle themselves.
   const tapToTurn = (e: React.MouseEvent<HTMLDivElement>) => {
-    if ((e.target as Element).closest('button, a')) return;
+    // Links, buttons and video players handle their own taps.
+    if ((e.target as Element).closest('button, a, video, iframe')) return;
     const { left, width } = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - left) / width;
     if (x < 1 / 3) go(at - 1);

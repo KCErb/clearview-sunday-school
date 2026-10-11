@@ -1172,6 +1172,26 @@
   background: #000;
   overflow: hidden;
 }
+.stage-tap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33.333%;
+  z-index: 2;
+}
+.stage-tap.prev {
+  left: 0;
+}
+.stage-tap.next {
+  right: 0;
+}
+/* Small copies of a slide show a video's poster rather than loading another player. */
+.slide-thumb .slide-canvas iframe,
+.slide-thumb .slide-canvas video,
+.lesson-next .slide-canvas iframe,
+.lesson-card .slide-canvas iframe {
+  display: none !important;
+}
 .stage-idle {
   position: absolute;
   inset: 0;

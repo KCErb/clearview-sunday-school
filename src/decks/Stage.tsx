@@ -80,18 +80,25 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
     window.addEventListener('keydown', keys);
     return () => window.removeEventListener('keydown', keys);
   });
-  const tap = (e: React.MouseEvent<HTMLDivElement>) => {
-    // The first tap only asks for full screen, so reaching for the phone never skips a slide.
-    // Only once: if the browser refuses, every later tap still turns the page.
-    if (!askedFull.current && document.fullscreenEnabled && !document.fullscreenElement) {
-      askedFull.current = true;
-      void goFull();
-      return;
-    }
-    if (!canControl) return;
-    const x = e.clientX / window.innerWidth;
-    if (x < 1 / 3) void move(-1);
-    else if (x > 2 / 3) void move(1);
+  // The first tap only asks for full screen, so reaching for the phone never skips a slide.
+  // Only once: if the browser refuses, every later tap still turns the page.
+  const firstTap = () => {
+    if (askedFull.current || !document.fullscreenEnabled || document.fullscreenElement) return false;
+    askedFull.current = true;
+    void goFull();
+    return true;
+  };
+  // Side zones sit above the slide, so an embedded video player can't swallow a page turn; the
+  // middle third reaches the slide, where a player's own play button sits.
+  const side = (e: React.MouseEvent, by: number) => {
+    e.stopPropagation();
+    if (!firstTap()) void move(by);
+  };
+  const tap = () => {
+    if (firstTap()) return;
+    // A video file on the slide plays and pauses from the middle of the screen.
+    const video = document.querySelector<HTMLVideoElement>('.stage .slide-canvas video');
+    if (video) void (video.paused ? video.play().catch(() => {}) : video.pause());
   };
   const goFull = async () => {
     if (document.fullscreenElement || !document.fullscreenEnabled) return;
@@ -121,6 +128,12 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
           {canFull && <small>Tap anywhere for full screen</small>}
           {canControl && <small>Tap the left or right side to change slides</small>}
         </div>
+      )}
+      {canControl && stage && (
+        <>
+          <div className="stage-tap prev" onClick={(e) => side(e, -1)} aria-hidden="true" />
+          <div className="stage-tap next" onClick={(e) => side(e, 1)} aria-hidden="true" />
+        </>
       )}
     </div>
   );
