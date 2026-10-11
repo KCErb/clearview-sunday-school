@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -24,6 +24,10 @@ export function SlideFrame({
 }) {
   const box = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  // React 19 rewrites innerHTML whenever this object's identity changes, even with the same string.
+  // A fresh object on every 2-second poll rebuilt the slide each time, which restarted any video
+  // player on it; one object per slide keeps the DOM, and a playing video, untouched.
+  const markup = useMemo(() => ({ __html: html }), [html]);
   const [layout, setLayout] = useState({ scale: 0, left: 0, top: 0 });
   useEffect(() => {
     const el = box.current;
@@ -75,7 +79,7 @@ export function SlideFrame({
           transform: `translate(${layout.left}px, ${layout.top}px) scale(${layout.scale})`,
           visibility: layout.scale ? 'visible' : 'hidden',
         }}
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={markup}
       />
       {overlay && (
         <div
