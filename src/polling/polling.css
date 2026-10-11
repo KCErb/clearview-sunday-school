@@ -1179,6 +1179,14 @@
   inset: 0;
   z-index: 2;
 }
+/* On a video slide: the black bars beside a 16:9 player, clear of its play button. */
+.stage-touch.edge {
+  inset: 0 auto 0 0;
+  width: 14%;
+}
+.stage-touch.edge.next {
+  inset: 0 0 0 auto;
+}
 /* Small copies of a slide show a video's poster rather than loading another player. */
 .slide-thumb .slide-canvas iframe,
 .slide-thumb .slide-canvas video,

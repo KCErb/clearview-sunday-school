@@ -88,52 +88,11 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
     void goFull();
     return true;
   };
-  // YouTube reports its state by postMessage once asked to; that tells a tap to play or pause.
-  const playerState = useRef<number | null>(null);
-  // Only once this slide's player has answered is it safe to cover it with the swipe layer.
-  const slideKey = stage ? `${stage.deck.id}:${stage.slide.idx}` : '';
-  const shownKey = useRef('');
-  const [readyFor, setReadyFor] = useState('');
-  const playerReady = readyFor !== '' && readyFor === slideKey;
-  useEffect(() => {
-    const hear = (e: MessageEvent) => {
-      try {
-        if (!/(^|\.)youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
-        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-        const state = data?.info?.playerState;
-        if (['initialDelivery', 'infoDelivery', 'onReady'].includes(data?.event)) setReadyFor(shownKey.current);
-        if (typeof state === 'number') playerState.current = state;
-      } catch {
-        // Not a player message.
-      }
-    };
-    window.addEventListener('message', hear);
-    return () => window.removeEventListener('message', hear);
-  }, []);
-  useEffect(() => {
-    playerState.current = null;
-    shownKey.current = slideKey;
-    const frame = document.querySelector<HTMLIFrameElement>('.stage .slide-canvas iframe');
-    if (!frame) return;
-    const listen = () => frame.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
-    frame.addEventListener('load', listen);
-    listen();
-    return () => frame.removeEventListener('load', listen);
-  }, [slideKey]);
+  // Phones only let an embedded player (YouTube) start from a tap inside the player itself, so its
+  // slide keeps the player uncovered; a plain video file can be played from a tap anywhere.
   const playPause = () => {
     const video = document.querySelector<HTMLVideoElement>('.stage .slide-canvas video');
-    if (video) {
-      void (video.paused ? video.play().catch(() => {}) : video.pause());
-      return;
-    }
-    const frame = document.querySelector<HTMLIFrameElement>('.stage .slide-canvas iframe');
-    if (!frame?.contentWindow) return;
-    const playing = playerState.current === 1 || playerState.current === 3;
-    frame.contentWindow.postMessage(
-      JSON.stringify({ event: 'command', func: playing ? 'pauseVideo' : 'playVideo', args: [] }),
-      '*',
-    );
-    playerState.current = playing ? 2 : 1;
+    if (video) void (video.paused ? video.play().catch(() => {}) : video.pause());
   };
   // A swipe changes the slide; a tap goes full screen the first time, then plays or pauses a video.
   const press = useRef<{ x: number; y: number } | null>(null);
@@ -181,11 +140,18 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
           {canControl && <small>Swipe left or right to change slides</small>}
         </div>
       )}
-      {/* For the teacher, a clear layer over the slide catches every touch so a video player
-          can't swallow a swipe; taps reach the player through playPause instead. */}
-      {canControl && stage && (playerReady || !stage.slide.html.includes('<iframe')) && (
-        <div className="stage-touch" aria-hidden="true" />
-      )}
+      {/* For the teacher, a clear layer catches swipes so nothing on the slide swallows them. On a
+          slide with an embedded player only the outer edges are covered, leaving the player's own
+          controls to be tapped directly. */}
+      {canControl && stage &&
+        (stage.slide.html.includes('<iframe') ? (
+          <>
+            <div className="stage-touch edge prev" aria-hidden="true" />
+            <div className="stage-touch edge next" aria-hidden="true" />
+          </>
+        ) : (
+          <div className="stage-touch" aria-hidden="true" />
+        ))}
     </div>
   );
 }
