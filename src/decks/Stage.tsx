@@ -88,17 +88,69 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
     void goFull();
     return true;
   };
-  // Side zones sit above the slide, so an embedded video player can't swallow a page turn; the
-  // middle third reaches the slide, where a player's own play button sits.
-  const side = (e: React.MouseEvent, by: number) => {
-    e.stopPropagation();
-    if (!firstTap()) void move(by);
-  };
-  const tap = () => {
-    if (firstTap()) return;
-    // A video file on the slide plays and pauses from the middle of the screen.
+  // YouTube reports its state by postMessage once asked to; that tells a tap to play or pause.
+  const playerState = useRef<number | null>(null);
+  // Only once this slide's player has answered is it safe to cover it with the swipe layer.
+  const slideKey = stage ? `${stage.deck.id}:${stage.slide.idx}` : '';
+  const shownKey = useRef('');
+  const [readyFor, setReadyFor] = useState('');
+  const playerReady = readyFor !== '' && readyFor === slideKey;
+  useEffect(() => {
+    const hear = (e: MessageEvent) => {
+      try {
+        if (!/(^|\.)youtube(-nocookie)?\.com$/.test(new URL(e.origin).hostname)) return;
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        const state = data?.info?.playerState;
+        if (['initialDelivery', 'infoDelivery', 'onReady'].includes(data?.event)) setReadyFor(shownKey.current);
+        if (typeof state === 'number') playerState.current = state;
+      } catch {
+        // Not a player message.
+      }
+    };
+    window.addEventListener('message', hear);
+    return () => window.removeEventListener('message', hear);
+  }, []);
+  useEffect(() => {
+    playerState.current = null;
+    shownKey.current = slideKey;
+    const frame = document.querySelector<HTMLIFrameElement>('.stage .slide-canvas iframe');
+    if (!frame) return;
+    const listen = () => frame.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
+    frame.addEventListener('load', listen);
+    listen();
+    return () => frame.removeEventListener('load', listen);
+  }, [slideKey]);
+  const playPause = () => {
     const video = document.querySelector<HTMLVideoElement>('.stage .slide-canvas video');
-    if (video) void (video.paused ? video.play().catch(() => {}) : video.pause());
+    if (video) {
+      void (video.paused ? video.play().catch(() => {}) : video.pause());
+      return;
+    }
+    const frame = document.querySelector<HTMLIFrameElement>('.stage .slide-canvas iframe');
+    if (!frame?.contentWindow) return;
+    const playing = playerState.current === 1 || playerState.current === 3;
+    frame.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: playing ? 'pauseVideo' : 'playVideo', args: [] }),
+      '*',
+    );
+    playerState.current = playing ? 2 : 1;
+  };
+  // A swipe changes the slide; a tap goes full screen the first time, then plays or pauses a video.
+  const press = useRef<{ x: number; y: number } | null>(null);
+  const down = (e: React.PointerEvent) => {
+    press.current = { x: e.clientX, y: e.clientY };
+  };
+  const up = (e: React.PointerEvent) => {
+    const start = press.current;
+    press.current = null;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (canControl) void move(dx < 0 ? 1 : -1);
+      return;
+    }
+    if (Math.abs(dx) < 12 && Math.abs(dy) < 12 && !firstTap()) playPause();
   };
   const goFull = async () => {
     if (document.fullscreenElement || !document.fullscreenEnabled) return;
@@ -113,7 +165,7 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
   };
   const canFull = typeof document !== 'undefined' && document.fullscreenEnabled && !full;
   return (
-    <div className="stage" onClick={tap}>
+    <div className="stage" onPointerDown={down} onPointerUp={up}>
       {stage ? (
         <SlideFrame
           key={`${stage.deck.id}:${stage.slide.idx}`}
@@ -126,14 +178,13 @@ export function Stage({ api, control }: { api: PollApi; control?: boolean }) {
           <span>Clearview Ward</span>
           <p>{started ? 'Ready when you are.' : 'Connecting…'}</p>
           {canFull && <small>Tap anywhere for full screen</small>}
-          {canControl && <small>Tap the left or right side to change slides</small>}
+          {canControl && <small>Swipe left or right to change slides</small>}
         </div>
       )}
-      {canControl && stage && (
-        <>
-          <div className="stage-tap prev" onClick={(e) => side(e, -1)} aria-hidden="true" />
-          <div className="stage-tap next" onClick={(e) => side(e, 1)} aria-hidden="true" />
-        </>
+      {/* For the teacher, a clear layer over the slide catches every touch so a video player
+          can't swallow a swipe; taps reach the player through playPause instead. */}
+      {canControl && stage && (playerReady || !stage.slide.html.includes('<iframe')) && (
+        <div className="stage-touch" aria-hidden="true" />
       )}
     </div>
   );

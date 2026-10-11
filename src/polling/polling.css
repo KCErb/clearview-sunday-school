@@ -1169,21 +1169,15 @@
 .stage {
   position: fixed;
   inset: 0;
+  /* Swipes belong to the slides, not to scrolling or zooming the page. */
+  touch-action: none;
   background: #000;
   overflow: hidden;
 }
-.stage-tap {
+.stage-touch {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 33.333%;
+  inset: 0;
   z-index: 2;
-}
-.stage-tap.prev {
-  left: 0;
-}
-.stage-tap.next {
-  right: 0;
 }
 /* Small copies of a slide show a video's poster rather than loading another player. */
 .slide-thumb .slide-canvas iframe,
