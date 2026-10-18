@@ -6,7 +6,9 @@
 //   --replace <id>                 re-import over an existing lesson (keeps notes and attached questions)
 //   --publish                      show it to the class straight away
 //   --no-join                      leave out the standard "Join the class" slide (added after the title);
-//                                  a lesson can also opt out for good with <!-- cwass:no-join --> in its source
+//                                  a lesson can also opt out for good with <!-- cwass:no-join --> in its source,
+//                                  or ask for the "follow along" version (no answering step) with
+//                                  <!-- cwass:join=follow -->
 //   --local-assets                 copy images into public/decks/<slug>/ so the site serves them
 //                                  (otherwise they are uploaded to the deck-media storage bucket);
 //                                  photos are resized to fit a 1920x1080 slide and saved as WebP
@@ -43,6 +45,7 @@ const tokens = readTokens(...readdirSync(tokenDir).map((n) => readFileSync(join(
 const source = readFileSync(file, 'utf8');
 const deck = parseDeck(source, basename(file).replace(/\.(dc\.)?html$/, ''), tokens);
 const noJoin = flag('no-join') || source.includes('<!-- cwass:no-join -->');
+const joinKind = source.includes('<!-- cwass:join=follow -->') ? 'follow' : 'questions';
 const title = option('title') ?? deck.title;
 const subtitle = option('subtitle') ?? deck.subtitle;
 const replace = option('replace') ? Number(option('replace')) : null;
@@ -108,7 +111,7 @@ const payload = {
   id: replace,
   title,
   subtitle,
-  slides: (noJoin ? deck.slides : withJoinSlide(deck.slides, (s) => ({ ...s, idx: -1 }))).map((s) => ({
+  slides: (noJoin ? deck.slides : withJoinSlide(deck.slides, (s) => ({ ...s, idx: -1 }), joinKind)).map((s) => ({
     label: s.label,
     html: rewriteAssets(s.html, map),
   })),

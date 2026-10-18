@@ -1459,7 +1459,8 @@
   inset: 0;
   z-index: 1000;
   background: #000;
-  touch-action: pan-y;
+  /* Native pinch-zoom and panning, so small print like a timeline can be read; no double-tap zoom. */
+  touch-action: manipulation;
 }
 .viewer-full-close {
   position: absolute;

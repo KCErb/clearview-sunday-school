@@ -135,3 +135,11 @@ test('this week’s menu links reach every topic after the join and small-group 
   const intro = slides.find((s) => s.label === 'Small groups');
   assert.equal(slides.indexOf(menu) + 1, Number(/slide=(\d+)/.exec(intro.html)[1]), 'the intro links to the menu');
 });
+
+test('the follow-along join slide skips the answering step', () => {
+  const slides = withJoinSlide([{ label: 'Title', html: '<section>Title</section>' }], (s) => s, 'follow');
+  assert.equal(slides[1].label, JOIN_LABEL);
+  assert.match(slides[1].html, /pinch to zoom/);
+  assert.doesNotMatch(slides[1].html, /Answer when a question opens/);
+  assert.match(withJoinSlide([{ label: 'T', html: '<section></section>' }], (s) => s)[1].html, /Answer when a question opens/);
+});

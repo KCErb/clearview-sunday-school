@@ -102,7 +102,10 @@ export function DeckViewer({
   }, [at, count]);
   const slide = deck?.slides[at];
   // Tap the left or right third to turn the page; links on the slide handle themselves.
+  // While someone is pinch-zoomed into a slide, taps and drags are for looking around, not turning pages.
+  const zoomed = () => (window.visualViewport?.scale ?? 1) > 1.05;
   const tapToTurn = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (zoomed()) return;
     // Links, buttons and video players handle their own taps.
     if ((e.target as Element).closest('button, a, video, iframe')) return;
     const { left, width } = e.currentTarget.getBoundingClientRect();
@@ -111,9 +114,16 @@ export function DeckViewer({
     else if (x > 2 / 3) go(at + 1);
   };
   const swipe = {
-    onTouchStart: (e: React.TouchEvent) => (touch.current = e.touches[0].clientX),
+    // A second finger means a pinch; that gesture never turns the page.
+    onTouchStart: (e: React.TouchEvent) => (touch.current = e.touches.length > 1 ? null : e.touches[0].clientX),
+    onTouchMove: (e: React.TouchEvent) => {
+      if (e.touches.length > 1) touch.current = null;
+    },
     onTouchEnd: (e: React.TouchEvent) => {
-      if (touch.current === null) return;
+      if (touch.current === null || zoomed()) {
+        touch.current = null;
+        return;
+      }
       const dx = e.changedTouches[0].clientX - touch.current;
       touch.current = null;
       if (Math.abs(dx) > 40) go(dx < 0 ? at + 1 : at - 1);
@@ -183,6 +193,7 @@ export function DeckViewer({
                 <span>
                   {at + 1} / {count}
                 </span>
+                <span>Pinch to zoom</span>
                 <span className="viewer-full-rotate">Turn your phone sideways for a bigger slide</span>
               </div>
             </div>
