@@ -1459,8 +1459,34 @@
   inset: 0;
   z-index: 1000;
   background: #000;
-  /* Native pinch-zoom and panning, so small print like a timeline can be read; no double-tap zoom. */
-  touch-action: manipulation;
+  /* Pinch and pan are handled by ZoomPan, not the browser (Android disables page zoom in full screen). */
+  touch-action: none;
+}
+.zoom-pan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+.zoom-pan-content {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+.zoom-out {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 3;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--blue-40);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
 }
 .viewer-full-close {
   position: absolute;

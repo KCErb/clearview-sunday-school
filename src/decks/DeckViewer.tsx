@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import type { DeckSummary, PollApi, Slide } from '@/polling/types';
 import { SlideFrame } from './SlideFrame';
 import { centerThumb } from './strip';
+import { ZoomPan } from './ZoomPan';
 
 /**
  * A lesson on a phone: the slide as large as the page allows, and one obvious button to fill the
@@ -173,8 +174,14 @@ export function DeckViewer({
             ))}
           </div>
           {full && slide && (
-            <div className="viewer-full" role="dialog" aria-label={deck.deck.title} onClick={tapToTurn} {...swipe}>
-              <SlideFrame key={slide.id} html={slide.html} fit="contain" onGoto={go} />
+            <div className="viewer-full" role="dialog" aria-label={deck.deck.title}>
+              <ZoomPan
+                key={slide.id}
+                onTap={(x) => (x < 1 / 3 ? go(at - 1) : x > 2 / 3 ? go(at + 1) : undefined)}
+                onSwipe={(by) => go(at + by)}
+              >
+                <SlideFrame html={slide.html} fit="contain" onGoto={go} />
+              </ZoomPan>
               <button className="viewer-full-close" aria-label="Exit full screen" onClick={exitFull}>
                 <X size={22} />
               </button>
