@@ -84,8 +84,8 @@ export function LessonPanel({
       // Same lesson markers as scripts/import-deck.mjs: opt out, or the follow-along version.
       slides: (source.includes('<!-- cwass:no-join -->')
         ? parsed.slides
-        : withJoinSlide(parsed.slides, (j) => ({ ...j, idx: -1 }), source.includes('<!-- cwass:join=follow -->') ? 'follow' : 'questions')
-      ).map(({ label, html }) => ({ label, html })),
+        : withJoinSlide(parsed.slides, (j) => ({ ...j, idx: -1, notes: '' }), source.includes('<!-- cwass:join=follow -->') ? 'follow' : 'questions')
+      ).map(({ label, html, notes }) => ({ label, html, ...(notes ? { notes } : {}) })),
     });
   }
 

@@ -7,6 +7,8 @@ export interface ParsedSlide {
   idx: number;
   label: string;
   html: string;
+  /** Presenter notes Claude Design keeps in data-speaker-notes; shown only in /manage. */
+  notes: string;
 }
 export interface ParsedDeck {
   title: string;
@@ -131,6 +133,15 @@ function sections(html: string) {
   return found;
 }
 
+function decodeEntities(value: string) {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
 function text(html: string) {
   return html
     .replace(/<[^>]*>/g, ' ')
@@ -186,9 +197,11 @@ export function parseDeck(source: string, fallbackTitle = 'Untitled lesson', tok
   const slides = anchored.map((html, idx) => {
     const open = /^<section[^>]*>/i.exec(html);
     const label = open ? attribute(open[0], 'data-screen-label') : null;
+    const notes = open ? attribute(open[0], 'data-speaker-notes') : null;
     return {
       idx,
       label: ((label?.[2] ?? label?.[3] ?? '') || '').slice(0, 200),
+      notes: decodeEntities((notes?.[2] ?? notes?.[3] ?? '').trim()).slice(0, 20000),
       html: resolveVars(expandComponents(dropShadow(html), warnings), tokens),
     };
   });

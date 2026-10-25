@@ -143,3 +143,9 @@ test('the follow-along join slide skips the answering step', () => {
   assert.doesNotMatch(slides[1].html, /Answer when a question opens/);
   assert.match(withJoinSlide([{ label: 'T', html: '<section></section>' }], (s) => s)[1].html, /Answer when a question opens/);
 });
+
+test('presenter notes come across from Claude Design', () => {
+  const deck = parseDeck('<section data-screen-label="01 A" data-speaker-notes="Invite a few &quot;short&quot; responses.">A</section><section>B</section>');
+  assert.equal(deck.slides[0].notes, 'Invite a few "short" responses.');
+  assert.equal(deck.slides[1].notes, '');
+});
