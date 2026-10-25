@@ -147,5 +147,6 @@ test('the follow-along join slide skips the answering step', () => {
 test('presenter notes come across from Claude Design', () => {
   const deck = parseDeck('<section data-screen-label="01 A" data-speaker-notes="Invite a few &quot;short&quot; responses.">A</section><section>B</section>');
   assert.equal(deck.slides[0].notes, 'Invite a few "short" responses.');
+  assert.doesNotMatch(deck.slides[0].html, /speaker-notes|Invite a few/, 'the class copy of the slide never carries the notes');
   assert.equal(deck.slides[1].notes, '');
 });

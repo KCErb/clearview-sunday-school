@@ -133,6 +133,10 @@ function sections(html: string) {
   return found;
 }
 
+function stripNotes(html: string) {
+  return html.replace(/^(<section\b[^>]*?)\s+data-speaker-notes\s*=\s*("[^"]*"|'[^']*')/i, '$1');
+}
+
 function decodeEntities(value: string) {
   return value
     .replace(/&quot;/g, '"')
@@ -202,7 +206,8 @@ export function parseDeck(source: string, fallbackTitle = 'Untitled lesson', tok
       idx,
       label: ((label?.[2] ?? label?.[3] ?? '') || '').slice(0, 200),
       notes: decodeEntities((notes?.[2] ?? notes?.[3] ?? '').trim()).slice(0, 20000),
-      html: resolveVars(expandComponents(dropShadow(html), warnings), tokens),
+      // Notes are the teacher's: lifted out above, then removed so the class's copy never carries them.
+      html: resolveVars(expandComponents(dropShadow(stripNotes(html)), warnings), tokens),
     };
   });
   if (!slides.length) throw new Error('No slides found — export the lesson from Claude Design as a .dc.html file.');
