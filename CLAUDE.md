@@ -65,7 +65,7 @@ follow the live slide until they turn a page themselves (`?slide=` pins them). S
 `python3 scripts/supabase-query.py <file>` (images served from `public/decks/`), or drop a single
 `.dc.html` into `/manage`; both share `src/decks/parse.ts`, which expands Claude Design's runtime
 components (ScriptureBlock, Icon) to static markup and resolves tokens. `data-goto` links on hub
-slides jump slides. Imports add the standard join slide (`src/decks/join.ts`, QR in
+slides jump slides. Imports can add the standard join slide on request (`--join`; `src/decks/join.ts`, QR in
 `public/join-qr.svg`) after the title slide and renumber `data-goto`; slides with an attached
 question get a QR `PollBadge` overlay on `/stage` and in the presenter view. Read Claude Design projects with the DesignSync tool (`get_file`; images over
 256 KB can't come through it, so they need exporting by hand). Re-importing

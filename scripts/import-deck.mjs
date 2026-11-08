@@ -5,10 +5,10 @@
 //   --title "…" / --subtitle "…"   override what the parser reads off the title slide
 //   --replace <id>                 re-import over an existing lesson (keeps notes and attached questions)
 //   --publish                      show it to the class straight away
-//   --no-join                      leave out the standard "Join the class" slide (added after the title);
-//                                  a lesson can also opt out for good with <!-- cwass:no-join --> in its source,
-//                                  or ask for the "follow along" version (no answering step) with
-//                                  <!-- cwass:join=follow -->
+//   --join                         add the standard "Join the class" slide after the title slide (off by
+//                                  default now the class knows the site); a lesson can also ask for it with
+//                                  <!-- cwass:join --> in its source, or for the "follow along" version
+//                                  (no answering step) with <!-- cwass:join=follow -->
 //   --local-assets                 copy images into public/decks/<slug>/ so the site serves them
 //                                  (otherwise they are uploaded to the deck-media storage bucket);
 //                                  photos are saved as WebP, at most twice slide size (3840x2160)
@@ -44,7 +44,7 @@ const tokenDir = join(root, 'Church Design System/tokens');
 const tokens = readTokens(...readdirSync(tokenDir).map((n) => readFileSync(join(tokenDir, n), 'utf8')));
 const source = readFileSync(file, 'utf8');
 const deck = parseDeck(source, basename(file).replace(/\.(dc\.)?html$/, ''), tokens);
-const noJoin = flag('no-join') || source.includes('<!-- cwass:no-join -->');
+const noJoin = !(flag('join') || /<!-- cwass:join(=\w+)? -->/.test(source));
 const joinKind = source.includes('<!-- cwass:join=follow -->') ? 'follow' : 'questions';
 const title = option('title') ?? deck.title;
 const subtitle = option('subtitle') ?? deck.subtitle;

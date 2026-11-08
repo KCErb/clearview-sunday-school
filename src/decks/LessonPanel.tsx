@@ -81,8 +81,8 @@ export function LessonPanel({
     await api.saveDeck({
       title: parsed.title,
       subtitle: parsed.subtitle,
-      // Same lesson markers as scripts/import-deck.mjs: opt out, or the follow-along version.
-      slides: (source.includes('<!-- cwass:no-join -->')
+      // Same lesson markers as scripts/import-deck.mjs: the join slide is opt-in, optionally the follow-along version.
+      slides: (!/<!-- cwass:join(=\w+)? -->/.test(source)
         ? parsed.slides
         : withJoinSlide(parsed.slides, (j) => ({ ...j, idx: -1, notes: '' }), source.includes('<!-- cwass:join=follow -->') ? 'follow' : 'questions')
       ).map(({ label, html, notes }) => ({ label, html, ...(notes ? { notes } : {}) })),
